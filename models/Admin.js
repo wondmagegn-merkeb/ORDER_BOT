@@ -39,6 +39,14 @@ const Admin = sequelize.define('Admin', {
     type: DataTypes.STRING,
     defaultValue: 'admin'
   },
+  resetToken: {
+  type: DataTypes.STRING,
+  allowNull: true
+},
+resetTokenExpires: {
+  type: DataTypes.DATE,
+  allowNull: true
+},
   // Audit fields
   createdBy: {
     type: DataTypes.STRING,
