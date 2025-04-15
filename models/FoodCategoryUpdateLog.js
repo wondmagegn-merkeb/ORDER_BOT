@@ -23,7 +23,7 @@ const FoodCategoryUpdateLog = sequelize.define('FoodCategoryUpdateLog', {
     type: DataTypes.STRING,
     allowNull: false
   },
-  updatedBy: {
+  performedBy: {
     type: DataTypes.STRING,
     allowNull: false
   }
