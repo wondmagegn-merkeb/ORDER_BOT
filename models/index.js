@@ -35,9 +35,10 @@ OrderUpdateLog.belongsTo(Order, { foreignKey: 'orderId' });
 User.hasMany(UserUpdateLog, { foreignKey: 'userId' });
 UserUpdateLog.belongsTo(User, { foreignKey: 'userId' });
 
-// Admin ↔ Order (Updated By)
-Admin.hasMany(Order, { foreignKey: 'updatedBy' });
-Order.belongsTo(Admin, { foreignKey: 'updatedBy' });
+// Food ↔ Order
+Food.hasMany(Order, { foreignKey: 'foodId' });
+Order.belongsTo(Food, { foreignKey: 'foodId' });
+
 
 /**
  * Link all 'performedBy' in log models to Admin
@@ -60,33 +61,30 @@ OrderUpdateLog.belongsTo(Admin, { foreignKey: 'performedBy' });
 
 // Food
 Admin.hasMany(Food, { foreignKey: 'createdBy' });
-Food.belongsTo(Admin, { as: 'creator', foreignKey: 'createdBy' });
+Food.belongsTo(Admin, {  foreignKey: 'createdBy' });
 
 Admin.hasMany(Food, { foreignKey: 'updatedBy' });
-Food.belongsTo(Admin, { as: 'updater', foreignKey: 'updatedBy' });
+Food.belongsTo(Admin, { foreignKey: 'updatedBy' });
 
 // FoodCategory
 Admin.hasMany(FoodCategory, { foreignKey: 'createdBy' });
-FoodCategory.belongsTo(Admin, { as: 'creator', foreignKey: 'createdBy' });
+FoodCategory.belongsTo(Admin, { foreignKey: 'createdBy' });
 
 Admin.hasMany(FoodCategory, { foreignKey: 'updatedBy' });
-FoodCategory.belongsTo(Admin, { as: 'updater', foreignKey: 'updatedBy' });
+FoodCategory.belongsTo(Admin, { foreignKey: 'updatedBy' });
 
 // User
-Admin.hasMany(User, { foreignKey: 'createdBy' });
-User.belongsTo(Admin, { as: 'creator', foreignKey: 'createdBy' });
-
 Admin.hasMany(User, { foreignKey: 'updatedBy' });
-User.belongsTo(Admin, { as: 'updater', foreignKey: 'updatedBy' });
+User.belongsTo(Admin, { foreignKey: 'updatedBy' });
 
 // Order
-Admin.hasMany(Order, { foreignKey: 'createdBy' });
-Order.belongsTo(Admin, { as: 'creator', foreignKey: 'createdBy' });
+User.hasMany(Order, { foreignKey: 'createdBy' });
+Order.belongsTo(User, { foreignKey: 'createdBy' });
 
 // Order's updatedBy already defined above
 // Keeping it for completeness
 Admin.hasMany(Order, { foreignKey: 'updatedBy' });
-Order.belongsTo(Admin, { as: 'updater', foreignKey: 'updatedBy' });
+Order.belongsTo(Admin, { foreignKey: 'updatedBy' });
 
 /**
  * ===============================
