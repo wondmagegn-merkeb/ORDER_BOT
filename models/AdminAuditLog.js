@@ -1,16 +1,12 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../../config/db');
 
-// ✅ Audit log for Admin actions
+// ✅ Audit log for Admin actions with old and new data
 const AdminAuditLog = sequelize.define('AdminAuditLog', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
-  },
-  adminId: {
-    type: DataTypes.STRING,
-    allowNull: false
   },
   action: {
     type: DataTypes.ENUM('CREATE', 'UPDATE', 'DELETE'),
@@ -18,11 +14,15 @@ const AdminAuditLog = sequelize.define('AdminAuditLog', {
   },
   performedBy: {
     type: DataTypes.STRING,
-    allowNull: true // admin username or system
+    allowNull: true // admin id
   },
-  snapshot: {
+  oldData: {
     type: DataTypes.JSON,
-    allowNull: true // full data snapshot at the time of change
+    allowNull: true // old data before update
+  },
+  newData: {
+    type: DataTypes.JSON,
+    allowNull: true // new data after update
   }
 }, {
   timestamps: true,
