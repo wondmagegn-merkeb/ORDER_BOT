@@ -68,7 +68,7 @@ User.afterUpdate(async (user, options) => {
       field: 'status',
       oldValue: previous.status,
       newValue: user.status,
-      updatedBy: user.updatedBy || 'system'
+      performedBy: user.updatedBy || 'system'
     });
   }
 
@@ -79,7 +79,7 @@ User.afterUpdate(async (user, options) => {
       field: 'userType',
       oldValue: previous.userType,
       newValue: user.userType,
-      updatedBy: user.updatedBy || 'system'
+      performedBy: user.updatedBy || 'system'
     });
   }
 });
