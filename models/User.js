@@ -57,8 +57,8 @@ User.beforeCreate(async (user, options) => {
   user.userId = 'USR' + String(newIdNumber).padStart(3, '0');
 });
 
-// 🔁 Hook: Before Update – log changes to `status` or `userType`
-User.beforeUpdate(async (user, options) => {
+// 🔁 Hook: after Update – log changes to `status` or `userType`
+User.afterUpdate(async (user, options) => {
   const previous = await User.findOne({ where: { userId: user.userId } });
 
   // Check if 'status' changed
