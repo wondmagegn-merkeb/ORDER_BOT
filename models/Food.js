@@ -73,7 +73,7 @@ Food.beforeUpdate(async (food) => {
         field: field,
         oldValue: previous[field]?.toString(),
         newValue: food[field]?.toString(),
-        updatedBy: food.updatedBy || 'system'
+        performedBy: food.updatedBy || 'system'
       });
     }
   }
