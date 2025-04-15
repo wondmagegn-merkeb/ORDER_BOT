@@ -78,30 +78,34 @@ Admin.beforeUpdate(async (admin, options) => {
 // 🔁 Hook: After Create — log to audit
 Admin.afterCreate(async (admin, options) => {
   await AdminAuditLog.create({
-    adminId: admin.adminId,
     action: 'CREATE',
-    performedBy: admin.createdBy || 'system',
-    snapshot: admin.toJSON()
+    performedBy: admin.createdBy || 'system',  // Log admin who performed the action
+    newData: admin.toJSON() // Save the new data after creation
   });
 });
 
 // 🔁 Hook: After Update — log to audit
 Admin.afterUpdate(async (admin, options) => {
+  const oldData = admin._previousDataValues; // Get the old data before update
+  const newData = admin.toJSON(); // Get the new data after update
+
   await AdminAuditLog.create({
-    adminId: admin.adminId,
     action: 'UPDATE',
-    performedBy: admin.updatedBy || 'system',
-    snapshot: admin.toJSON()
+    performedBy: admin.updatedBy || 'system',  // Log admin who performed the action
+    oldData: oldData,  // Log the old data
+    newData: newData   // Log the new data
   });
 });
 
 // 🔁 Hook: After Soft Delete — log to audit
 Admin.afterDestroy(async (admin, options) => {
+  const oldData = admin.toJSON(); // Before deletion, log the old data
+
   await AdminAuditLog.create({
-    adminId: admin.adminId,
     action: 'DELETE',
-    performedBy: admin.updatedBy || 'system',
-    snapshot: admin.toJSON()
+    performedBy: admin.updatedBy || 'system',  // Log admin who performed the action
+    oldData: oldData,  // Log the old data (before delete)
+    newData: null      // No new data as the record is deleted
   });
 });
 
