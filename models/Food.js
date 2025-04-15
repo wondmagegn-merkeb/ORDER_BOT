@@ -77,7 +77,7 @@ Food.afterCreate(async (food) => {
 });
 
 // 📝 Log updates
-Food.beforeUpdate(async (food) => {
+Food.afterUpdate(async (food) => {
   const previous = await Food.findOne({ where: { foodId: food.foodId } });
 
   const fieldsToTrack = ['price', 'isAvailable', 'name', 'description', 'imageUrl', 'categoryId'];
@@ -97,7 +97,7 @@ Food.beforeUpdate(async (food) => {
 });
 
 // 🗑️ Log soft-deletion
-Food.beforeDestroy(async (food) => {
+Food.afterDestroy(async (food) => {
   const foodData = await Food.findOne({ where: { foodId: food.foodId }, paranoid: false });
 
   await FoodUpdateLog.create({
