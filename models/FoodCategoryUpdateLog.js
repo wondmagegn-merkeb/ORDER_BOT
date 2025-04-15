@@ -11,10 +11,6 @@ const FoodCategoryUpdateLog = sequelize.define('FoodCategoryUpdateLog', {
     type: DataTypes.STRING,
     allowNull: false
   },
-  field: {
-    type: DataTypes.ENUM('categoryName'),
-    allowNull: false
-  },
   oldValue: {
     type: DataTypes.STRING,
     allowNull: true
@@ -25,6 +21,10 @@ const FoodCategoryUpdateLog = sequelize.define('FoodCategoryUpdateLog', {
   },
   performedBy: {
     type: DataTypes.STRING,
+    allowNull: false
+  },
+  action: {
+    type: DataTypes.ENUM('CREATE', 'UPDATE', 'DELETE'),
     allowNull: false
   }
 }, {
