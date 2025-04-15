@@ -30,7 +30,7 @@ const Food = sequelize.define('Food', {
     allowNull: true
   },
   categoryId: {
-    type: DataTypes.STRING, // matches FoodCategory.categoryId (CAT001)
+    type: DataTypes.STRING,
     allowNull: false
   },
   createdBy: {
@@ -47,7 +47,7 @@ const Food = sequelize.define('Food', {
   tableName: 'foods'
 });
 
-// 🔁 Custom ID: FOOD001
+// 🔁 Auto-generate foodId like FOOD001
 Food.beforeCreate(async (food) => {
   const last = await Food.findOne({ order: [['createdAt', 'DESC']] });
   let newIdNumber = 1;
@@ -60,7 +60,23 @@ Food.beforeCreate(async (food) => {
   food.foodId = 'FOOD' + String(newIdNumber).padStart(3, '0');
 });
 
-// 🔁 Dynamic Logging for multiple fields
+// 📝 Log creation
+Food.afterCreate(async (food) => {
+  const fieldsToLog = ['name', 'description', 'price', 'isAvailable', 'imageUrl', 'categoryId'];
+
+  for (const field of fieldsToLog) {
+    await FoodUpdateLog.create({
+      foodId: food.foodId,
+      field,
+      oldValue: null,
+      newValue: food[field]?.toString(),
+      performedBy: food.createdBy || 'system',
+      action: 'create'
+    });
+  }
+});
+
+// 📝 Log updates
 Food.beforeUpdate(async (food) => {
   const previous = await Food.findOne({ where: { foodId: food.foodId } });
 
@@ -70,13 +86,28 @@ Food.beforeUpdate(async (food) => {
     if (food.changed(field)) {
       await FoodUpdateLog.create({
         foodId: food.foodId,
-        field: field,
+        field,
         oldValue: previous[field]?.toString(),
         newValue: food[field]?.toString(),
-        performedBy: food.updatedBy || 'system'
+        performedBy: food.updatedBy || 'system',
+        action: 'update'
       });
     }
   }
+});
+
+// 🗑️ Log soft-deletion
+Food.beforeDestroy(async (food) => {
+  const foodData = await Food.findOne({ where: { foodId: food.foodId }, paranoid: false });
+
+  await FoodUpdateLog.create({
+    foodId: food.foodId,
+    field: 'ALL',
+    oldValue: JSON.stringify(foodData.toJSON()),
+    newValue: null,
+    performedBy: food.updatedBy || 'system',
+    action: 'delete'
+  });
 });
 
 module.exports = Food;
