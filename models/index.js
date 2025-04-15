@@ -10,9 +10,16 @@ const OrderUpdateLog = require('./OrderUpdateLog');
 
 // Associations between models
 
-// Admin has many Audit Logs
-Admin.hasMany(AdminAuditLog, { foreignKey: 'adminId' });
-AdminAuditLog.belongsTo(Admin, { foreignKey: 'adminId' });
+// Admin has many AdminAuditLogs
+Admin.hasMany(AdminAuditLog, {
+  foreignKey: 'performedBy',  // Foreign key in AdminAuditLog that references Admin
+});
+
+// AdminAuditLog belongs to Admin
+AdminAuditLog.belongsTo(Admin, {
+  foreignKey: 'performedBy',  // Foreign key in AdminAuditLog that references Admin
+});
+
 
 // FoodCategory has many Foods
 FoodCategory.hasMany(Food, { foreignKey: 'categoryId' });
