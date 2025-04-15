@@ -8,11 +8,11 @@ const FoodUpdateLog = sequelize.define('FoodUpdateLog', {
     autoIncrement: true
   },
   foodId: {
-    type: DataTypes.STRING, // e.g., FOOD001
+    type: DataTypes.STRING,
     allowNull: false
   },
   field: {
-    type: DataTypes.STRING, // can log any field change
+    type: DataTypes.STRING,
     allowNull: false
   },
   oldValue: {
@@ -25,6 +25,10 @@ const FoodUpdateLog = sequelize.define('FoodUpdateLog', {
   },
   performedBy: {
     type: DataTypes.STRING,
+    allowNull: false
+  },
+  action: {
+    type: DataTypes.STRING, // e.g., 'create', 'update', 'delete'
     allowNull: false
   }
 }, {
