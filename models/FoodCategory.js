@@ -44,8 +44,7 @@ FoodCategory.beforeCreate(async (category) => {
 // 🔁 Hook: After Create — Log the creation of the food category
 FoodCategory.afterCreate(async (category, options) => {
   await FoodCategoryUpdateLog.create({
-    categoryId: category.categoryId,
-    field: 'categoryName',  // Assuming only categoryName is being tracked for now
+    categoryId: category.categoryId,    
     oldValue: null,  // No old value for a new creation
     newValue: category.categoryName,
     performedBy: category.createdBy || 'system',
@@ -58,8 +57,7 @@ FoodCategory.afterUpdate(async (category, options) => {
   // Assuming categoryName is being updated
   if (category.changed('categoryName')) {
     await FoodCategoryUpdateLog.create({
-      categoryId: category.categoryId,
-      field: 'categoryName',
+      categoryId: category.categoryId,      
       oldValue: category._previousDataValues.categoryName,  // Fetch the old value before the update
       newValue: category.categoryName,
       performedBy: category.updatedBy || 'system',
@@ -72,7 +70,6 @@ FoodCategory.afterUpdate(async (category, options) => {
 FoodCategory.afterDestroy(async (category, options) => {
   await FoodCategoryUpdateLog.create({
     categoryId: category.categoryId,
-    field: 'categoryName',
     oldValue: category.categoryName,  // The value that is being deleted
     newValue: null,  // No new value after deletion
     performedBy: category.updatedBy || 'system',
