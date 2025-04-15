@@ -105,7 +105,7 @@ Order.afterUpdate(async (updatedOrder, options) => {
       field: 'status',
       oldValue: originalOrder.status,
       newValue: updatedOrder.status,
-      updatedBy: updatedOrder.updatedBy
+      performedBy: updatedOrder.updatedBy
     });
   }
 
@@ -115,7 +115,7 @@ Order.afterUpdate(async (updatedOrder, options) => {
       field: 'totalPrice',
       oldValue: originalOrder.totalPrice.toString(),
       newValue: updatedOrder.totalPrice.toString(),
-      updatedBy: updatedOrder.updatedBy
+      performedBy: updatedOrder.updatedBy
     });
   }
 
