@@ -24,7 +24,7 @@ const UserUpdateLog = sequelize.define('UserUpdateLog', {
     type: DataTypes.STRING,
     allowNull: false
   },
-  updatedBy: {
+  performedBy: {
     type: DataTypes.STRING, // adminId who made the change
     allowNull: false
   }
