@@ -1,26 +1,42 @@
 const jwt = require('jsonwebtoken');
 
-// Middleware to check for valid JWT token in session
-const authMiddleware = (req, res, next) => {
-    // Check if the token is stored in the session
-    const token = req.session.token;
+// 🔐 Middleware to authenticate requests using JWT
+exports.authenticate = (req, res, next) => {
+  // Get the Authorization header
+  const authHeader = req.headers.authorization;
 
-    if (!token) {
-        // If no token is found in session, redirect to login page
-        return res.redirect('/');
-    }
+  // Check if it exists and starts with 'Bearer '
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
 
-    // Verify the token using the secret key stored in environment variables
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-        if (err) {
-            // If the token is invalid or expired, redirect to login page
-            return res.redirect('/');
-        }
+  // Extract the token from header (removing 'Bearer ' prefix)
+  const token = authHeader.split(' ')[1];
 
-        // If token is valid, store the decoded data (user info) in the request object
-        req.admin = decoded;  // Store admin info in request for later use
-        next();  // Proceed to the next middleware or route handler
-    });
+  try {
+    // Verify the token using the secret key
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Store decoded token info (like adminId, email, role) on the request object
+    req.admin = decoded;
+
+    // Continue to the next middleware or route handler
+    next();
+  } catch (err) {
+    // Token is invalid or expired
+    res.status(401).json({ message: 'Invalid token' });
+  }
 };
 
-module.exports = authMiddleware;
+// 🔒 Middleware to authorize access based on roles
+exports.authorizeRoles = (...roles) => {
+  return (req, res, next) => {
+    // Check if the authenticated admin's role is included in the allowed roles
+    if (!roles.includes(req.admin.role)) {
+      return res.status(403).json({ message: 'Access denied: insufficient permissions' });
+    }
+
+    // Role is authorized, continue
+    next();
+  };
+};
