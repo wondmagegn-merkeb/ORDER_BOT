@@ -10,6 +10,8 @@ const session = require('express-session');
 require('dotenv').config();
 
 const { globalErrorHandler, notFoundHandler } = require('./controllers/errorController');
+const viewAdminRoutes = require('./routes/view/adminRoutes');
+const apiAdminRoutes = require('./routes/api/adminRoutes');
 
 const app = express();
 
@@ -60,10 +62,13 @@ app.use((req, res, next) => {
 });
 
 // ======= Routes =======
-
 app.get('/', (req, res) => {
   res.render('home', { title: 'Home Page', layout: false });
 });
+app.use('/admin', viewAdminRoutes);
+app.use('/api/admins', apiAdminRoutes);
+
+
 
 app.get('/login', (req, res) => {
   res.render('login', { message: null, layout: false });
