@@ -4,15 +4,31 @@
   <meta charset="UTF-8">
   <title>404 - Not Found</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Simple animation for the 404 number */
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+  </style>
 </head>
 <body class="bg-yellow-50 text-yellow-900 flex items-center justify-center min-h-screen">
   <div class="bg-white border border-yellow-200 rounded-xl shadow-md p-8 max-w-lg w-full text-center">
-    <h1 class="text-5xl font-bold mb-2">404</h1>
+    <h1 class="text-5xl font-bold mb-2 animate-pulse">404</h1>
     <p class="text-xl mb-4">Page Not Found</p>
     <p class="mb-6"><%= message || "The page you are looking for doesn't exist." %></p>
-    <a href="/" class="inline-block bg-yellow-400 text-yellow-900 font-semibold px-4 py-2 rounded hover:bg-yellow-300 transition">
+    
+    <!-- Back to Home Button -->
+    <a href="/" class="inline-block bg-yellow-400 text-yellow-900 font-semibold px-4 py-2 rounded hover:bg-yellow-300 transition transform hover:scale-105 mb-4">
       ← Back to Home
     </a>
+
+    <!-- Contact Section -->
+    <div class="mt-8 text-sm text-yellow-800">
+      <p>If you're having trouble finding what you're looking for, feel free to reach out to us:</p>
+      <a href="mailto:support@example.com" class="text-yellow-500 hover:underline">support@example.com</a>
+    </div>
   </div>
 </body>
 </html>
