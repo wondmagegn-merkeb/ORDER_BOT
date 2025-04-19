@@ -1,0 +1,24 @@
+<!-- views/layout.ejs -->
+<!DOCTYPE html>
+<html lang="en" class="bg-gray-100">
+  <head>
+    <meta charset="UTF-8" />
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body class="bg-gray-100">
+    <div class="flex">
+      <!-- Sidebar -->
+      <%- include('partials/sidebar') %>
+
+      <!-- Main Content -->
+      <div class="flex-1 p-6">
+        <!-- Dynamic Page Content -->
+        <%- body %>
+      </div>
+    </div>
+
+    <%- include('partials/footer') %>
+  </body>
+</html>
