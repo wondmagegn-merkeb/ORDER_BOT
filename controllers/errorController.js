@@ -17,11 +17,13 @@ const sendErrorDev = (err, req, res) => {
     });
   }
 
+  // Adding additionalInfo to error page
   res.status(err.statusCode || 500).render('error', {
     title: 'Error',
     message: err.message,
     stack: err.stack,
     statusCode: err.statusCode || 500,
+    additionalInfo: err.additionalInfo || {}, // Ensure additionalInfo is always defined
   });
 };
 
@@ -38,6 +40,7 @@ const sendErrorProd = (err, req, res) => {
     return res.status(err.statusCode).render('error', {
       title: 'Something went wrong',
       message: err.message,
+      additionalInfo: err.additionalInfo || {}, // Ensure additionalInfo is always defined
     });
   }
 
@@ -45,8 +48,10 @@ const sendErrorProd = (err, req, res) => {
   res.status(500).render('error', {
     title: 'Error',
     message: 'Something went wrong. Please try again later.',
+    additionalInfo: {}, // Provide an empty object if no additional info exists
   });
 };
+
 
 // Catch-all global error handler
 const globalErrorHandler = (err, req, res, next) => {
