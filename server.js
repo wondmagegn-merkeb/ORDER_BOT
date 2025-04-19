@@ -5,7 +5,7 @@ const {
   InternalServerError,
   UnauthorizedError,
   ForbiddenError
-} = require('./utils/customErrorcustomError');
+} = require('./utils/customError');
 
 const app = express();
 
