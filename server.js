@@ -1,5 +1,6 @@
 const express = require('express');
 const {
+  CustomError,
   NotFoundError,
   ValidationError,
   InternalServerError,
