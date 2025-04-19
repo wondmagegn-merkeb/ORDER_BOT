@@ -18,8 +18,17 @@ exports.createAdmin = async (req, res) => {
 
     const existing = await Admin.findOne({ where: { email } });
     if (existing) return res.status(400).json({ message: 'Email already in use' });
-    
+    const lastAdmin = await Admin.findOne({ order: [['createdAt', 'DESC']] });
+
+  let newIdNumber = 1;
+  if (lastAdmin && lastAdmin.adminId) {
+    const lastNumber = parseInt(lastAdmin.adminId.replace('ADM', ''));
+    newIdNumber = lastNumber + 1;
+  }
+
+    const adminId = 'ADM' + String(newIdNumber).padStart(3, '0');
     const newAdmin = await Admin.create({
+      adminId,
       username,
       email,
       password, // Using plain password (no hashing)
