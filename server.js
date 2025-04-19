@@ -77,7 +77,7 @@ app.get('/dashboard', (req, res) => {
   };
 
   // Render the dashboard with demo data
-  res.render('admin/dashboard', demoData);
+  res.render('admin/dashboard', {title: 'Home Page', demoData});
 });
 
 // ======= Error Handlers =======
