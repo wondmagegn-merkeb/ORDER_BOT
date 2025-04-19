@@ -23,7 +23,7 @@
         id="searchInput" 
         placeholder="Search by Role or Status" 
         class="w-full p-2 border rounded-md"
-        value="<%= searchQuery %>"
+        value=""
       />
     </div>
 
@@ -64,19 +64,17 @@
       </tbody>
     </table>
 
-    <!-- Pagination -->
+    <!-- Pagination Buttons -->
     <div class="mt-4 flex justify-between">
       <button 
         id="prevBtn" 
-        class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600" 
-        disabled="<%= currentPage === 1 %>"
+        class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
       >
         Prev
       </button>
       <button 
         id="nextBtn" 
-        class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600" 
-        disabled="<%= currentPage === totalPages %>"
+        class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
       >
         Next
       </button>
@@ -84,25 +82,56 @@
   </div>
 
   <script>
-    // Frontend search functionality
+    // Frontend search
     const searchInput = document.getElementById('searchInput');
     const adminTableBody = document.getElementById('adminTableBody');
+    const rows = Array.from(adminTableBody.getElementsByTagName('tr'));
 
-    searchInput.addEventListener('input', function() {
-      const searchQuery = searchInput.value.toLowerCase();
-      const rows = adminTableBody.getElementsByTagName('tr');
-      
-      Array.from(rows).forEach(row => {
-        const roleCell = row.cells[3].textContent.toLowerCase();
-        const statusCell = row.cells[4].textContent.toLowerCase();
+    searchInput.addEventListener('input', function () {
+      const searchQuery = this.value.toLowerCase();
 
-        if (roleCell.includes(searchQuery) || statusCell.includes(searchQuery)) {
+      rows.forEach(row => {
+        const role = row.cells[3].textContent.toLowerCase();
+        const status = row.cells[4].textContent.toLowerCase();
+        if (role.includes(searchQuery) || status.includes(searchQuery)) {
           row.style.display = '';
         } else {
           row.style.display = 'none';
         }
       });
     });
+
+    // Frontend Pagination (basic)
+    let currentPage = 1;
+    const rowsPerPage = 5;
+
+    function displayPage(page) {
+      const start = (page - 1) * rowsPerPage;
+      const end = start + rowsPerPage;
+      rows.forEach((row, index) => {
+        row.style.display = (index >= start && index < end) ? '' : 'none';
+      });
+
+      document.getElementById('prevBtn').disabled = page === 1;
+      document.getElementById('nextBtn').disabled = end >= rows.length;
+    }
+
+    document.getElementById('prevBtn').addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage--;
+        displayPage(currentPage);
+      }
+    });
+
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      if ((currentPage * rowsPerPage) < rows.length) {
+        currentPage++;
+        displayPage(currentPage);
+      }
+    });
+
+    // Init
+    displayPage(currentPage);
   </script>
 </body>
 </html>
