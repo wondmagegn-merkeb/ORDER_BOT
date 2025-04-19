@@ -1,9 +1,12 @@
-
-const Admin = require('../../models/Admin');
+const { getAllAdmins } = require('../api/adminController'); // Adjust path if needed
 
 exports.listAdmins = async (req, res) => {
-  const admins = await Admin.findAll();
-  res.render('admin/list', { admins, title: 'Admin List' });
+  try {
+    const admins = await getAllAdmins();
+    res.render('admin/list', { admins, title: 'Admin List' });
+  } catch (err) {
+    res.status(500).send('Error loading admins.');
+  }
 };
 
 exports.showAddForm = (req, res) => {
@@ -11,6 +14,10 @@ exports.showAddForm = (req, res) => {
 };
 
 exports.showEditForm = async (req, res) => {
-  const admin = await Admin.findByPk(req.params.id);
-  res.render('admin/edit', { admin, title: 'Edit Admin' });
+  try {
+    const admin = await Admin.findByPk(req.params.id);
+ //   res.render('admin/edit', { admin, title: 'Edit Admin' });
+  } catch (err) {
+    res.status(500).send('Error loading admin.');
+  }
 };
