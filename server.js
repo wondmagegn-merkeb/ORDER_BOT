@@ -67,7 +67,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/admin', viewAdminRoutes);
-app.use('/api/admins', apiAdminRoutes);
+app.use('/api/admin', apiAdminRoutes);
 
 app.get('/login', (req, res) => {
   res.render('login', { message: null, layout: false });
