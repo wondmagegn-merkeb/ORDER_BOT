@@ -12,7 +12,7 @@ require('dotenv').config();
 const { globalErrorHandler, notFoundHandler } = require('./controllers/errorController');
 const viewAdminRoutes = require('./routes/view/adminRoutes');
 const apiAdminRoutes = require('./routes/api/adminRoutes');
-const sequelize = require('./config/db');
+const {sequelize } = require('./config/db');
 
 const app = express();
 
