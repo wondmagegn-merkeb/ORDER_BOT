@@ -5,6 +5,7 @@ const rateLimit = require('express-rate-limit');
 const xss = require('xss-clean');
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
+const expressLayouts = require('express-ejs-layouts');
 require('dotenv').config();
 
 const { globalErrorHandler, notFoundHandler } = require('./controllers/errorController');
@@ -14,7 +15,8 @@ const app = express();
 // ======= EJS Setup =======
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-
+app.use(expressLayouts);
+app.set('layout', 'admin/layout/layout'); // points to views/layouts/user/layout.ejs
 // ======= Middleware =======
 app.use(compression()); // Compression for performance
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1d' })); // Static file caching
