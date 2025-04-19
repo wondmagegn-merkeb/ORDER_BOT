@@ -22,4 +22,4 @@ const sequelize = new Sequelize(
 );
 
 // ✅ Export the Sequelize instance so it can be imported elsewhere in your project
-module.exports =  sequelize ;
+module.exports = { sequelize };
