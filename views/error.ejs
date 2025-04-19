@@ -32,6 +32,16 @@
       </div>
     <% } %>
 
+    <!-- Show error stack only in development mode -->
+    <% if (process.env.NODE_ENV === 'development' && err.stack) { %>
+      <div class="bg-gray-50 p-4 rounded-lg shadow-sm mt-4">
+        <h3 class="text-lg font-medium text-gray-800 mb-3">Error Stack</h3>
+        <pre class="text-sm text-gray-700 bg-gray-100 p-3 rounded-md overflow-x-auto">
+          <%= err.stack %>
+        </pre>
+      </div>
+    <% } %>
+
     <div class="text-center mt-6">
       <a href="/" class="text-md text-blue-600 hover:text-blue-800 font-medium">
         ← Back to Home
@@ -41,4 +51,3 @@
 </body>
 
 </html>
-
