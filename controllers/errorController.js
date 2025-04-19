@@ -23,7 +23,7 @@ const sendErrorDev = (err, req, res) => {
     message: err.message,
     stack: err.stack,
     statusCode: err.statusCode || 500,
-    additionalInfo: err.stack || {}, // Ensure additionalInfo is always defined
+    additionalInfo: err.additionalInfo || {}, // Ensure additionalInfo is always defined
   });
 };
 
