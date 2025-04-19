@@ -35,14 +35,22 @@ exports.createAdmin = async (req, res) => {
 };
 
 // ✅ Get all admins
-exports.getAllAdmins = async (req, res) => {
+exports.getAllAdmins = async () => {
   try {
-    const admins = await Admin.findAll();
-    res.render('admins/index', { admins });  // Rendering with EJS
+    // Fetch all admins from the database (no pagination on DB)
+    const admins = await Admin.findAll({
+      order: [['createdAt', 'DESC']]
+    });
+
+    // Return full list — frontend will handle pagination
+    return admins;
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    throw new Error(err.message);
   }
 };
+
+
+
 
 // ✅ Get admin by ID
 exports.getAdminById = async (req, res) => {
