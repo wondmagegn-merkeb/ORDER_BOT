@@ -1,121 +1,70 @@
 <!DOCTYPE html>
-<html lang="en" class="bg-gray-100">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Admin Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  </head>
-  <body class="bg-gray-100">
-    <div class="flex">
-      <!-- Sidebar -->
-      <div class="w-64 bg-blue-800 text-white p-6 min-h-screen">
-        <h1 class="text-3xl font-bold mb-6">Admin Panel</h1>
-        <ul>
-          <li><a href="/dashboard" class="text-lg block py-2 px-4 hover:bg-blue-700">Dashboard</a></li>
-          <li><a href="/orders" class="text-lg block py-2 px-4 hover:bg-blue-700">Orders</a></li>
-          <li><a href="/logout" class="text-lg block py-2 px-4 hover:bg-blue-700">Logout</a></li>
-        </ul>
-      </div>
+<!-- views/dashboard.ejs -->
+<%- layout('layout') %>
 
-      <!-- Main Content -->
-      <div class="flex-1 p-6">
-        <h2 class="text-4xl font-semibold text-blue-600 mb-6">Dashboard</h2>
+<h2 class="text-4xl font-semibold text-blue-600 mb-6">Dashboard</h2>
 
-        <!-- KPIs Section -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <!-- Total Orders -->
-          <div class="bg-white p-6 rounded-lg shadow-md">
-            <h3 class="text-lg font-semibold text-gray-800">Total Orders</h3>
-            <p class="text-3xl text-blue-600 mt-2"><%= totalOrders %></p>
-          </div>
+<!-- KPIs Section -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+  <!-- Total Orders -->
+  <div class="bg-white p-6 rounded-lg shadow-md">
+    <h3 class="text-lg font-semibold text-gray-800">Total Orders</h3>
+    <p class="text-3xl text-blue-600 mt-2"><%= totalOrders %></p>
+  </div>
 
-          <!-- Orders by Status -->
-          <div class="bg-white p-6 rounded-lg shadow-md">
-            <h3 class="text-lg font-semibold text-gray-800">Orders by Status</h3>
-            <ul class="mt-4">
-              <li class="text-sm text-gray-600">Pending: <%= pendingOrders %></li>
-              <li class="text-sm text-gray-600">Completed: <%= completedOrders %></li>
-              <li class="text-sm text-gray-600">Canceled: <%= canceledOrders %></li>
-            </ul>
-          </div>
+  <!-- Orders by Status -->
+  <div class="bg-white p-6 rounded-lg shadow-md">
+    <h3 class="text-lg font-semibold text-gray-800">Orders by Status</h3>
+    <ul class="mt-4">
+      <li class="text-sm text-gray-600">Pending: <%= pendingOrders %></li>
+      <li class="text-sm text-gray-600">Completed: <%= completedOrders %></li>
+      <li class="text-sm text-gray-600">Canceled: <%= canceledOrders %></li>
+    </ul>
+  </div>
 
-          <!-- Revenue -->
-          <div class="bg-white p-6 rounded-lg shadow-md">
-            <h3 class="text-lg font-semibold text-gray-800">Total Revenue</h3>
-            <p class="text-3xl text-green-600 mt-2">$<%= totalRevenue %></p>
-            <div class="relative pt-1">
-              <div class="flex mb-2 items-center justify-between">
-                <div>
-                  <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-teal-600 bg-teal-200">
-                    Revenue Progress
-                  </span>
-                </div>
-                <div class="text-right">
-                  <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-teal-600 bg-teal-200">
-                    75%
-                  </span>
-                </div>
-              </div>
-              <div class="flex mb-2 items-center justify-between">
-                <div class="relative pt-1">
-                  <div class="flex mb-2 items-center justify-between">
-                    <div>
-                      <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-teal-600 bg-teal-200">
-                        Revenue Progress
-                      </span>
-                    </div>
-                    <div class="text-right">
-                      <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-teal-600 bg-teal-200">
-                        75%
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+  <!-- Revenue -->
+  <div class="bg-white p-6 rounded-lg shadow-md">
+    <h3 class="text-lg font-semibold text-gray-800">Total Revenue</h3>
+    <p class="text-3xl text-green-600 mt-2">$<%= totalRevenue %></p>
+  </div>
 
-          <!-- Most Ordered Items -->
-          <div class="bg-white p-6 rounded-lg shadow-md">
-            <h3 class="text-lg font-semibold text-gray-800">Most Ordered Items</h3>
-            <ul class="mt-4">
-              <% mostOrderedItems.forEach(item => { %>
-                <li class="text-sm text-gray-600"><%= item.name %>: <%= item.count %> orders</li>
-              <% }) %>
-            </ul>
-          </div>
-        </div>
+  <!-- Most Ordered Items -->
+  <div class="bg-white p-6 rounded-lg shadow-md">
+    <h3 class="text-lg font-semibold text-gray-800">Most Ordered Items</h3>
+    <ul class="mt-4">
+      <% mostOrderedItems.forEach(item => { %>
+        <li class="text-sm text-gray-600"><%= item.name %>: <%= item.count %> orders</li>
+      <% }) %>
+    </ul>
+  </div>
+</div>
 
-        <!-- Graphs Section -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-          <!-- Order Status Bar Chart -->
-          <div class="bg-white p-6 rounded-lg shadow-md">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Order Status Distribution</h3>
-            <canvas id="orderStatusChart"></canvas>
-          </div>
+<!-- Graphs Section -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+  <!-- Order Status Bar Chart -->
+  <div class="bg-white p-6 rounded-lg shadow-md">
+    <h3 class="text-lg font-semibold text-gray-800 mb-4">Order Status Distribution</h3>
+    <canvas id="orderStatusChart"></canvas>
+  </div>
 
-          <!-- Most Ordered Items Pie Chart -->
-          <div class="bg-white p-6 rounded-lg shadow-md">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Most Ordered Items</h3>
-            <canvas id="mostOrderedItemsChart"></canvas>
-          </div>
-        </div>
+  <!-- Most Ordered Items Pie Chart -->
+  <div class="bg-white p-6 rounded-lg shadow-md">
+    <h3 class="text-lg font-semibold text-gray-800 mb-4">Most Ordered Items</h3>
+    <canvas id="mostOrderedItemsChart"></canvas>
+  </div>
+</div>
 
-        <!-- Daily Revenue Line Chart -->
-        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
-          <h3 class="text-lg font-semibold text-gray-800 mb-4">Daily Revenue</h3>
-          <canvas id="dailyRevenueChart"></canvas>
-        </div>
+<!-- Daily Revenue Line Chart -->
+<div class="bg-white p-6 rounded-lg shadow-md mb-8">
+  <h3 class="text-lg font-semibold text-gray-800 mb-4">Daily Revenue</h3>
+  <canvas id="dailyRevenueChart"></canvas>
+</div>
 
-        <!-- Orders by Day Bar Chart -->
-        <div class="bg-white p-6 rounded-lg shadow-md">
-          <h3 class="text-lg font-semibold text-gray-800 mb-4">Orders by Day</h3>
-          <canvas id="ordersByDayChart"></canvas>
-        </div>
-
-      </div>
-    </div>
+<!-- Orders by Day Bar Chart -->
+<div class="bg-white p-6 rounded-lg shadow-md">
+  <h3 class="text-lg font-semibold text-gray-800 mb-4">Orders by Day</h3>
+  <canvas id="ordersByDayChart"></canvas>
+</div>
 
     <script>
       // Data for Order Status Bar Chart
@@ -209,4 +158,4 @@
     }
   });
 </script>
-</body> </html>
+
