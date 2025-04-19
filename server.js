@@ -1,15 +1,48 @@
 const express = require('express');
-const app = express();
+const path = require('path');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const xss = require('xss-clean');
+const cookieParser = require('cookie-parser');
+require('dotenv').config();
 
 const { globalErrorHandler, notFoundHandler } = require('./controllers/errorController');
 
-// Your routes go here
-// app.use('/api/users', userRoutes);
+const app = express();
 
-// Handle 404
+// ======= EJS Setup =======
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+// ======= Middleware =======
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+app.use(helmet());
+app.use(xss());
+app.use(mongoSanitize());
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: 'Too many requests, try again later.',
+});
+app.use('/api', limiter);
+
+// ======= Example Test Route =======
+app.get('/', (req, res) => {
+  res.render('home', { title: 'Home Page' });
+});
+
+// ======= Error Handlers =======
 app.use(notFoundHandler);
-
-// Global Error Handler
 app.use(globalErrorHandler);
 
-module.exports = app;
+const PORT = process.env.PORT || 8080;
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
+});
+
