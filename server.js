@@ -6,6 +6,7 @@ const xss = require('xss-clean');
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
 const expressLayouts = require('express-ejs-layouts');
+const session = require('express-session');
 require('dotenv').config();
 
 const { globalErrorHandler, notFoundHandler } = require('./controllers/errorController');
@@ -17,6 +18,21 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(expressLayouts);
 app.set('layout', 'admin/layout/layout'); // points to views/layouts/user/layout.ejs
+
+// ======= Session Setup =======
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || 'your_secret_key', // Secret key for signing the session ID cookie
+    resave: false, // Forces the session to be saved back to the store, even if it wasn't modified
+    saveUninitialized: false, // Don't create a session until something is stored
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24, // Session cookie expires in 1 day
+      httpOnly: true, // Ensure cookie is sent only over HTTP(S)
+      secure: process.env.NODE_ENV === 'production', // Set to true if your site is served over HTTPS
+    },
+  })
+);
+
 // ======= Middleware =======
 app.use(compression()); // Compression for performance
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1d' })); // Static file caching
@@ -34,25 +50,38 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);  // Apply rate-limiting only on API routes
 
-// ======= Example Test Route =======
+// Flash message middleware
+app.use((req, res, next) => {
+  res.locals.success = req.session.success;
+  res.locals.error = req.session.error;
+  delete req.session.success;
+  delete req.session.error;
+  next();
+});
+
+// ======= Routes =======
+
 app.get('/', (req, res) => {
-  res.render('home', { title: 'Home Page', layout: false  });
+  res.render('home', { title: 'Home Page', layout: false });
 });
 
 app.get('/login', (req, res) => {
-  res.render('login', { message: null,  layout: false  });
+  res.render('login', { message: null, layout: false });
 });
 
-app.get('/forgot-password', (req, res) => {
-  res.render('forgot-password', { message: null ,  layout: false });
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+  
+  // Assume some login validation logic here
+  if (username === 'admin' && password === 'password') {
+    req.session.success = 'Login successful! Welcome back!';
+    res.redirect('/dashboard');
+  } else {
+    req.session.error = 'Invalid username or password';
+    res.redirect('/login');
+  }
 });
 
-app.get('/reset-password', (req, res) => {
-  const token = req.query.token;  // Get token from the query string
-  res.render('reset-password', { message: null, token,  layout: false  });
-});
-
-// Demo route for the dashboard
 app.get('/dashboard', (req, res) => {
   const demoData = {
     totalOrders: 250,
@@ -76,8 +105,16 @@ app.get('/dashboard', (req, res) => {
     ]
   };
 
-  // Render the dashboard with demo data
-  res.render('admin/dashboard', {title: 'Home Page', ...demoData});
+  res.render('admin/dashboard', { title: 'Dashboard', ...demoData });
+});
+
+app.get('/forgot-password', (req, res) => {
+  res.render('forgot-password', { message: null, layout: false });
+});
+
+app.get('/reset-password', (req, res) => {
+  const token = req.query.token;  // Get token from the query string
+  res.render('reset-password', { message: null, token, layout: false });
 });
 
 // ======= Error Handlers =======
