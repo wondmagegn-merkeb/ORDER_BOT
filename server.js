@@ -50,6 +50,33 @@ app.get('/reset-password', (req, res) => {
   res.render('reset-password', { message: null, token });
 });
 
+// Demo route for the dashboard
+app.get('/dashboard', (req, res) => {
+  const demoData = {
+    totalOrders: 250,
+    pendingOrders: 50,
+    completedOrders: 180,
+    canceledOrders: 20,
+    totalRevenue: 12000,
+    mostOrderedItems: [
+      { name: 'Burger', count: 75 },
+      { name: 'Pizza', count: 60 },
+      { name: 'Soda', count: 45 },
+      { name: 'Pasta', count: 40 },
+      { name: 'Salad', count: 30 }
+    ],
+    recentOrders: [
+      { id: 101, customer: 'John Doe', status: 'Completed', total: 45, date: '2025-04-19' },
+      { id: 102, customer: 'Jane Smith', status: 'Pending', total: 32, date: '2025-04-18' },
+      { id: 103, customer: 'David Lee', status: 'Completed', total: 58, date: '2025-04-17' },
+      { id: 104, customer: 'Sarah Kim', status: 'Canceled', total: 24, date: '2025-04-16' },
+      { id: 105, customer: 'James Brown', status: 'Pending', total: 36, date: '2025-04-15' }
+    ]
+  };
+
+  // Render the dashboard with demo data
+  res.render('dashboard', demoData);
+});
 
 // ======= Error Handlers =======
 app.use(notFoundHandler);
