@@ -1,10 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="en" class="bg-gray-100">
   <head>
     <meta charset="UTF-8" />
     <title>Admin Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body class="bg-gray-100">
     <div class="flex">
@@ -44,6 +44,36 @@
           <div class="bg-white p-6 rounded-lg shadow-md">
             <h3 class="text-lg font-semibold text-gray-800">Total Revenue</h3>
             <p class="text-3xl text-green-600 mt-2">$<%= totalRevenue %></p>
+            <div class="relative pt-1">
+              <div class="flex mb-2 items-center justify-between">
+                <div>
+                  <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-teal-600 bg-teal-200">
+                    Revenue Progress
+                  </span>
+                </div>
+                <div class="text-right">
+                  <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-teal-600 bg-teal-200">
+                    75%
+                  </span>
+                </div>
+              </div>
+              <div class="flex mb-2 items-center justify-between">
+                <div class="relative pt-1">
+                  <div class="flex mb-2 items-center justify-between">
+                    <div>
+                      <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-teal-600 bg-teal-200">
+                        Revenue Progress
+                      </span>
+                    </div>
+                    <div class="text-right">
+                      <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-teal-600 bg-teal-200">
+                        75%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Most Ordered Items -->
@@ -57,33 +87,126 @@
           </div>
         </div>
 
-        <!-- Recent Orders Section -->
-        <div class="bg-white p-6 rounded-lg shadow-md">
-          <h3 class="text-lg font-semibold text-gray-800 mb-4">Recent Orders</h3>
-          <table class="w-full table-auto">
-            <thead>
-              <tr class="bg-gray-100">
-                <th class="text-left p-2">Order ID</th>
-                <th class="text-left p-2">Customer</th>
-                <th class="text-left p-2">Status</th>
-                <th class="text-left p-2">Total</th>
-                <th class="text-left p-2">Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% recentOrders.forEach(order => { %>
-                <tr class="border-b">
-                  <td class="p-2"><%= order.id %></td>
-                  <td class="p-2"><%= order.customer %></td>
-                  <td class="p-2"><%= order.status %></td>
-                  <td class="p-2">$<%= order.total %></td>
-                  <td class="p-2"><%= order.date %></td>
-                </tr>
-              <% }) %>
-            </tbody>
-          </table>
+        <!-- Graphs Section -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+          <!-- Order Status Bar Chart -->
+          <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Order Status Distribution</h3>
+            <canvas id="orderStatusChart"></canvas>
+          </div>
+
+          <!-- Most Ordered Items Pie Chart -->
+          <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Most Ordered Items</h3>
+            <canvas id="mostOrderedItemsChart"></canvas>
+          </div>
         </div>
+
+        <!-- Daily Revenue Line Chart -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4">Daily Revenue</h3>
+          <canvas id="dailyRevenueChart"></canvas>
+        </div>
+
+        <!-- Orders by Day Bar Chart -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4">Orders by Day</h3>
+          <canvas id="ordersByDayChart"></canvas>
+        </div>
+
       </div>
     </div>
-  </body>
-</html>
+
+    <script>
+      // Data for Order Status Bar Chart
+      const orderStatusData = {
+        labels: ['Pending', 'Completed', 'Canceled'],
+        datasets: [{
+          label: 'Orders by Status',
+          data: [<%= pendingOrders %>, <%= completedOrders %>, <%= canceledOrders %>],
+          backgroundColor: ['#FFB74D', '#66BB6A', '#EF5350'],
+          borderColor: ['#FF9800', '#43A047', '#E53935'],
+          borderWidth: 1
+        }]
+      };
+
+      // Order Status Bar Chart
+      const ctxOrderStatus = document.getElementById('orderStatusChart').getContext('2d');
+      new Chart(ctxOrderStatus, {
+        type: 'bar',
+        data: orderStatusData,
+        options: {
+          responsive: true,
+          scales: {
+            x: { beginAtZero: true },
+            y: { beginAtZero: true }
+          }
+        }
+      });
+
+      // Data for Most Ordered Items Pie Chart
+      const mostOrderedItemsData = {
+        labels: [<%= mostOrderedItems.map(item => `'${item.name}'`).join(', ') %>],
+        datasets: [{
+          label: 'Most Ordered Items',
+          data: [<%= mostOrderedItems.map(item => item.count).join(', ') %>],
+          backgroundColor: ['#FFB74D', '#66BB6A', '#EF5350', '#42A5F5', '#AB47BC'],
+        }]
+      };
+
+      // Most Ordered Items Pie Chart
+      const ctxMostOrderedItems = document.getElementById('mostOrderedItemsChart').getContext('2d');
+      new Chart(ctxMostOrderedItems, {
+        type: 'pie',
+        data: mostOrderedItemsData,
+        options: {
+          responsive: true,
+        }
+      });
+
+      // Daily Revenue Line Chart
+      const dailyRevenueData = {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{
+          label: 'Revenue ($)',
+          data: [500, 600, 450, 700, 800, 950, 1050],
+          borderColor: '#42A5F5',
+          backgroundColor: '#42A5F5',
+          fill: false,
+          tension: 0.1
+        }]
+      };
+
+      const ctxDailyRevenue = document.getElementById('dailyRevenueChart').getContext('2d');
+      new Chart(ctxDailyRevenue, {
+        type: 'line',
+        data: dailyRevenueData,
+        options: {
+          responsive: true,
+          scales: {
+            x: { beginAtZero: true },
+            y: { beginAtZero: true }
+          }
+        }
+      });
+
+      // Orders by Day Bar Chart
+      const ordersByDayData = {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{
+          label: 'Orders Count',
+          data: [50, 60, 45, 70, 80, 95, 105], backgroundColor: '#AB47BC', borderColor: '#8E24AA', borderWidth: 1 }] };
+  const ctxOrdersByDay = document.getElementById('ordersByDayChart').getContext('2d');
+  new Chart(ctxOrdersByDay, {
+    type: 'bar',
+    data: ordersByDayData,
+    options: {
+      responsive: true,
+      scales: {
+        x: { beginAtZero: true },
+        y: { beginAtZero: true }
+      }
+    }
+  });
+</script>
+</body> </html>
