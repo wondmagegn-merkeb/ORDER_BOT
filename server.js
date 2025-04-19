@@ -37,6 +37,20 @@ app.get('/', (req, res) => {
   res.render('home', { title: 'Home Page' });
 });
 
+app.get('/login', (req, res) => {
+  res.render('login', { message: null });
+});
+
+app.get('/forgot-password', (req, res) => {
+  res.render('forgot-password', { message: null });
+});
+
+app.get('/reset-password', (req, res) => {
+  const token = req.query.token;  // Get token from the query string
+  res.render('reset-password', { message: null, token });
+});
+
+
 // ======= Error Handlers =======
 app.use(notFoundHandler);
 app.use(globalErrorHandler);
