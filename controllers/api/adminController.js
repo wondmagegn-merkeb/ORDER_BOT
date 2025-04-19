@@ -3,7 +3,7 @@ const Admin = require('../../models/Admin');
 const crypto = require('crypto');
 const { Op } = require('sequelize');
 const jwt = require('jsonwebtoken');
-const sendMail = require('../utils/mailer');
+const sendMail = require('../../utils/mailer');
 const { createAdminSchema, loginSchema, updateAdminSchema, forgotPasswordSchema, resetPasswordSchema } = require('../validation/adminValidation');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
