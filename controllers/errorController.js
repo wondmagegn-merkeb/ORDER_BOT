@@ -14,6 +14,7 @@ const sendErrorDev = (err, req, res) => {
     return res.status(404).render('404', {
       title: 'Page Not Found',
       message: err.message,
+      layout: false 
     });
   }
 
@@ -24,6 +25,7 @@ const sendErrorDev = (err, req, res) => {
     stack: err.stack,
     statusCode: err.statusCode || 500,
     additionalInfo: err.additionalInfo || {}, // Ensure additionalInfo is always defined
+    layout: false 
   });
 };
 
@@ -33,6 +35,7 @@ const sendErrorProd = (err, req, res) => {
     return res.status(404).render('404', {
       title: 'Page Not Found',
       message: err.message,
+      layout: false 
     });
   }
 
@@ -40,7 +43,8 @@ const sendErrorProd = (err, req, res) => {
     return res.status(err.statusCode).render('error', {
       title: 'Something went wrong',
       message: err.message,
-      additionalInfo: err.additionalInfo || {}, // Ensure additionalInfo is always defined
+      additionalInfo: err.additionalInfo || {},
+     layout: false
     });
   }
 
@@ -48,7 +52,8 @@ const sendErrorProd = (err, req, res) => {
   res.status(500).render('error', {
     title: 'Error',
     message: 'Something went wrong. Please try again later.',
-    additionalInfo: {}, // Provide an empty object if no additional info exists
+    additionalInfo: {},
+  layout: false   // Provide an empty object if no additional info exists
   });
 };
 
