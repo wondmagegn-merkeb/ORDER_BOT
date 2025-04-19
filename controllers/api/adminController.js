@@ -23,8 +23,8 @@ exports.createAdmin = async (req, res) => {
       username,
       email,
       password, // Using plain password (no hashing)
-      telegramId:'ADM001',
-      createdBy,
+      telegramId,
+      createdBy:'ADM001',
       role
     });
 
