@@ -1,5 +1,5 @@
 {
-  "name": "workspace",
+  "name": "ORDER_BOT",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
@@ -11,6 +11,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^5.1.0"
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^16.5.0",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.1.0",
+    "xss-clean": "^0.1.4"
   }
 }
