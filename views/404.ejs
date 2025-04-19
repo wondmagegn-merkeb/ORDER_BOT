@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>404 - Not Found</title>
-      <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
     /* Simple animation for the 404 number */
     @keyframes pulse {
@@ -13,11 +13,11 @@
     }
   </style>
 </head>
-<body class="bg-black text-white flex items-center justify-center min-h-screen">
-  <div class="bg-blue-700 border border-purple-500 rounded-xl shadow-md p-8 max-w-lg w-full text-center">
-    <h1 class="text-5xl font-bold mb-2 animate-pulse text-white">404</h1>
-    <p class="text-xl mb-4 text-purple-300">Page Not Found</p>
-    <p class="mb-6 text-white"><%= message || "The page you are looking for doesn't exist." %></p>
+<body class="bg-white text-black flex items-center justify-center min-h-screen">
+  <div class="bg-white border border-gray-300 rounded-xl shadow-lg p-8 max-w-lg w-full text-center">
+    <h1 class="text-5xl font-bold mb-2 animate-pulse text-blue-700">404</h1>
+    <p class="text-xl mb-4 text-purple-600">Page Not Found</p>
+    <p class="mb-6 text-gray-700"><%= message || "The page you are looking for doesn't exist." %></p>
     
     <!-- Back to Home Button -->
     <a href="/" class="inline-block bg-purple-600 text-white font-semibold px-4 py-2 rounded hover:bg-purple-500 transition transform hover:scale-105 mb-4">
@@ -25,9 +25,9 @@
     </a>
 
     <!-- Contact Section -->
-    <div class="mt-8 text-sm text-purple-200">
+    <div class="mt-8 text-sm text-gray-600">
       <p>If you're having trouble finding what you're looking for, feel free to reach out to us:</p>
-      <a href="mailto:support@example.com" class="text-blue-400 hover:underline">support@example.com</a>
+      <a href="mailto:support@example.com" class="text-blue-500 hover:underline">support@example.com</a>
     </div>
   </div>
 </body>
