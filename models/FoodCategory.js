@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('../../config/db');
+const { sequelize } = require('../config/db');
 const FoodCategoryUpdateLog = require('./FoodCategoryUpdateLog'); // Import the log model
 
 const FoodCategory = sequelize.define('FoodCategory', {
