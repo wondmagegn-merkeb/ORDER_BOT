@@ -14,16 +14,16 @@ exports.createAdmin = async (req, res) => {
   if (error) return res.status(400).json({ message: error.details[0].message });
 
   try {
-    const { username, email, password, telegramId, createdBy, role } = req.body;
+    const { username, email, password, telegramId, role } = req.body;
 
     const existing = await Admin.findOne({ where: { email } });
     if (existing) return res.status(400).json({ message: 'Email already in use' });
-
+    
     const newAdmin = await Admin.create({
       username,
       email,
       password, // Using plain password (no hashing)
-      telegramId,
+      telegramId:'ADM001',
       createdBy,
       role
     });
