@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('../../config/db');
+const { sequelize } = require('../config/db');
 
 // ✅ Audit log for Admin actions with old and new data
 const AdminAuditLog = sequelize.define('AdminAuditLog', {
