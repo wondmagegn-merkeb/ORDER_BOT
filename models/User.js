@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('../../config/db');
+const { sequelize } = require('../config/db');
 const UserUpdateLog = require('./UserUpdateLog'); // Import the log model
 
 // ✅ User Model
