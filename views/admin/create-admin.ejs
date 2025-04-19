@@ -1,0 +1,48 @@
+<%- include('./partials/notification') %>
+
+
+<div class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
+  <h2 class="text-2xl font-bold mb-4 text-gray-800">Create New Admin</h2>
+
+  <form action="/admin/create" method="POST" class="space-y-4">
+    <div>
+      <label class="block mb-1 text-gray-700">Username</label>
+      <input type="text" name="username" class="w-full border border-gray-300 p-2 rounded" required>
+    </div>
+
+    <div>
+      <label class="block mb-1 text-gray-700">Email</label>
+      <input type="email" name="email" class="w-full border border-gray-300 p-2 rounded" required>
+    </div>
+
+    <div>
+      <label class="block mb-1 text-gray-700">Password</label>
+      <input type="password" name="password" class="w-full border border-gray-300 p-2 rounded" required>
+    </div>
+
+    <div>
+      <label class="block mb-1 text-gray-700">Telegram ID</label>
+      <input type="text" name="telegramId" class="w-full border border-gray-300 p-2 rounded">
+    </div>
+
+    <div>
+      <label class="block mb-1 text-gray-700">Created By</label>
+      <input type="text" name="createdBy" class="w-full border border-gray-300 p-2 rounded">
+    </div>
+
+    <div>
+      <label class="block mb-1 text-gray-700">Role</label>
+      <select name="role" class="w-full border border-gray-300 p-2 rounded">
+        <option value="admin">Admin</option>
+        <option value="manager">Manager</option>
+        <option value="editor">Editor</option>
+      </select>
+    </div>
+
+    <div class="pt-4">
+      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+        Create Admin
+      </button>
+    </div>
+  </form>
+</div>
