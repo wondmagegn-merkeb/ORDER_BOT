@@ -6,7 +6,7 @@ const {
   UnauthorizedError,
   ForbiddenError,
   ConflictError,
-} = require('../utils/customErrors'); // adjust path if needed
+} = require('../utils/customError'); // adjust path if needed
 
 // Development error response (detailed)
 const sendErrorDev = (err, req, res) => {
