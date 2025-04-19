@@ -36,8 +36,8 @@ app.get('/', (req, res) => {
 });
 
 // ======= Error Handlers =======
-//app.use(notFoundHandler);
-//app.use(globalErrorHandler);
+app.use(notFoundHandler);
+app.use(globalErrorHandler);
 
 const PORT = process.env.PORT || 8080;
 
