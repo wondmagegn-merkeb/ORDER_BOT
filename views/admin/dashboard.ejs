@@ -1,1 +1,89 @@
 
+<!DOCTYPE html>
+<html lang="en" class="bg-gray-100">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  </head>
+  <body class="bg-gray-100">
+    <div class="flex">
+      <!-- Sidebar -->
+      <div class="w-64 bg-blue-800 text-white p-6 min-h-screen">
+        <h1 class="text-3xl font-bold mb-6">Admin Panel</h1>
+        <ul>
+          <li><a href="/dashboard" class="text-lg block py-2 px-4 hover:bg-blue-700">Dashboard</a></li>
+          <li><a href="/orders" class="text-lg block py-2 px-4 hover:bg-blue-700">Orders</a></li>
+          <li><a href="/logout" class="text-lg block py-2 px-4 hover:bg-blue-700">Logout</a></li>
+        </ul>
+      </div>
+
+      <!-- Main Content -->
+      <div class="flex-1 p-6">
+        <h2 class="text-4xl font-semibold text-blue-600 mb-6">Dashboard</h2>
+
+        <!-- KPIs Section -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <!-- Total Orders -->
+          <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold text-gray-800">Total Orders</h3>
+            <p class="text-3xl text-blue-600 mt-2"><%= totalOrders %></p>
+          </div>
+
+          <!-- Orders by Status -->
+          <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold text-gray-800">Orders by Status</h3>
+            <ul class="mt-4">
+              <li class="text-sm text-gray-600">Pending: <%= pendingOrders %></li>
+              <li class="text-sm text-gray-600">Completed: <%= completedOrders %></li>
+              <li class="text-sm text-gray-600">Canceled: <%= canceledOrders %></li>
+            </ul>
+          </div>
+
+          <!-- Revenue -->
+          <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold text-gray-800">Total Revenue</h3>
+            <p class="text-3xl text-green-600 mt-2">$<%= totalRevenue %></p>
+          </div>
+
+          <!-- Most Ordered Items -->
+          <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold text-gray-800">Most Ordered Items</h3>
+            <ul class="mt-4">
+              <% mostOrderedItems.forEach(item => { %>
+                <li class="text-sm text-gray-600"><%= item.name %>: <%= item.count %> orders</li>
+              <% }) %>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Recent Orders Section -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4">Recent Orders</h3>
+          <table class="w-full table-auto">
+            <thead>
+              <tr class="bg-gray-100">
+                <th class="text-left p-2">Order ID</th>
+                <th class="text-left p-2">Customer</th>
+                <th class="text-left p-2">Status</th>
+                <th class="text-left p-2">Total</th>
+                <th class="text-left p-2">Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% recentOrders.forEach(order => { %>
+                <tr class="border-b">
+                  <td class="p-2"><%= order.id %></td>
+                  <td class="p-2"><%= order.customer %></td>
+                  <td class="p-2"><%= order.status %></td>
+                  <td class="p-2">$<%= order.total %></td>
+                  <td class="p-2"><%= order.date %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
