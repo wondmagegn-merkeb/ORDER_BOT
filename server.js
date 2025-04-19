@@ -1,11 +1,11 @@
-import express from 'express';
-import {
+const express = require('express');
+const {
   NotFoundError,
   ValidationError,
   InternalServerError,
   UnauthorizedError,
   ForbiddenError
-} from './utils/customErrorcustomError';
+} = require('./utils/customErrorcustomError');
 
 const app = express();
 
@@ -50,7 +50,7 @@ app.use((err, req, res, next) => {
       },
     });
   }
-  
+
   // Default internal server error handler
   res.status(500).json({
     error: {
