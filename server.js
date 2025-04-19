@@ -36,20 +36,20 @@ app.use('/api', limiter);  // Apply rate-limiting only on API routes
 
 // ======= Example Test Route =======
 app.get('/', (req, res) => {
-  res.render('home', { title: 'Home Page' });
+  res.render('home', { title: 'Home Page', layout: false  });
 });
 
 app.get('/login', (req, res) => {
-  res.render('login', { message: null });
+  res.render('login', { message: null,  layout: false  });
 });
 
 app.get('/forgot-password', (req, res) => {
-  res.render('forgot-password', { message: null });
+  res.render('forgot-password', { message: null ,  layout: false });
 });
 
 app.get('/reset-password', (req, res) => {
   const token = req.query.token;  // Get token from the query string
-  res.render('reset-password', { message: null, token });
+  res.render('reset-password', { message: null, token,  layout: false  });
 });
 
 // Demo route for the dashboard
