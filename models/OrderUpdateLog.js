@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('../../config/db');
+const { sequelize } = require('../config/db');
 const Order = require('./Order'); // Import Order model
 
 // Define the OrderUpdateLog model
