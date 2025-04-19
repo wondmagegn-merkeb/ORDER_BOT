@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('../../config/db');
+const { sequelize } = require('../config/db');
 
 // ✅ Logs only status/userType changes made by admins
 const UserUpdateLog = sequelize.define('UserUpdateLog', {
