@@ -7,7 +7,7 @@
   </div>
 <% } %>
 
-<% if (typeof error === 'undefined') { %>
+<% if (typeof error !== 'undefined') { %>
   <div id="toast-error" class="fixed top-20 right-5 z-50 flex items-start gap-4 p-4 rounded-lg shadow-md bg-red-100 border border-red-400 text-red-700 animate-slide-in">
     <div>
       <strong class="font-semibold">Error:</strong> <%= error %>
