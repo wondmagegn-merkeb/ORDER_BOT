@@ -1,10 +1,20 @@
 const express = require('express');
 const router = express.Router();
-const categoryController = require('../../controllers/api/categoryController');
+const categoryController = require('../../controllers/api/categoryController'); // Adjust path if necessary
 
-// Form POST Routes
-router.post('/add', categoryController.addCategory);
-router.post('/edit/:id', categoryController.updateCategory);
-router.post('/delete/:id', categoryController.deleteCategory);
+// API endpoint to get all categories
+router.get('/', categoryController.getAllCategories);
+
+// API endpoint to get a category by ID
+router.get('/:id', categoryController.getCategoryById);
+
+// API endpoint to create a new category
+router.post('/', categoryController.createCategory);
+
+// API endpoint to update an existing category
+router.put('/:id', categoryController.updateCategory);
+
+// API endpoint to delete a category
+router.delete('/:id', categoryController.deleteCategory);
 
 module.exports = router;
