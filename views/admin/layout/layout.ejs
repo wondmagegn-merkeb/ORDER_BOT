@@ -41,6 +41,7 @@
         <!-- Scrollable Content -->
         <main class="mt-16 p-6 flex-1 overflow-auto bg-gray-100">
           <%- include('../partials/notification') %>
+          <%- include('partials/deleteModal') %>
           <%- body %>
         </main>
 
@@ -50,5 +51,34 @@
         </footer>
       </div>
     </div>
+<!-- views/partials/scripts.ejs -->
+<script>
+  let targetForm = null;
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll('.open-delete-modal').forEach(button => {
+      button.addEventListener('click', function () {
+        const form = this.closest('.delete-form');
+        targetForm = form;
+        document.getElementById('deleteModal').classList.remove('hidden');
+      });
+    });
+
+    document.getElementById('cancelDelete').addEventListener('click', () => {
+      targetForm = null;
+      document.getElementById('deleteModal').classList.add('hidden');
+    });
+
+    document.getElementById('confirmDelete').addEventListener('click', () => {
+      if (targetForm) {
+        const adminId = targetForm.getAttribute('data-id');
+        const action = targetForm.getAttribute('data-action');
+        targetForm.setAttribute('action', `${action}/${adminId}`);
+        targetForm.submit();
+      }
+    });
+  });
+</script>
+
   </body>
 </html>
