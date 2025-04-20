@@ -1,17 +1,73 @@
 <div class="w-64 bg-blue-800 text-white p-6 min-h-screen">
   <h1 class="text-3xl font-bold mb-6">Admin Panel</h1>
-  <ul>
+  <ul class="space-y-1">
     <li>
-      <a href="/dashboard" class="text-lg block py-2 px-4 hover:bg-blue-700">Dashboard</a>
+      <a href="/dashboard" class="flex items-center text-lg py-2 px-4 rounded hover:bg-blue-700 <%= currentPath === '/dashboard' ? 'bg-blue-700 font-semibold' : '' %>">
+        <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
+      </a>
     </li>
     <li>
-      <a href="/orders" class="text-lg block py-2 px-4 hover:bg-blue-700">Orders</a>
+      <a href="/orders" class="flex items-center text-lg py-2 px-4 rounded hover:bg-blue-700 <%= currentPath === '/orders' ? 'bg-blue-700 font-semibold' : '' %>">
+        <i class="fas fa-receipt mr-3"></i> Orders
+      </a>
     </li>
     <li>
-      <a href="/admin" class="text-lg block py-2 px-4 hover:bg-blue-700">Admins</a>
+      <a href="/admin" class="flex items-center text-lg py-2 px-4 rounded hover:bg-blue-700 <%= currentPath === '/admin' ? 'bg-blue-700 font-semibold' : '' %>">
+        <i class="fas fa-user-shield mr-3"></i> Admins
+      </a>
     </li>
     <li>
-      <a href="/logout" class="text-lg block py-2 px-4 hover:bg-blue-700">Logout</a>
+      <a href="/food-items" class="flex items-center text-lg py-2 px-4 rounded hover:bg-blue-700 <%= currentPath === '/food-items' ? 'bg-blue-700 font-semibold' : '' %>">
+        <i class="fas fa-hamburger mr-3"></i> Food Items
+      </a>
+    </li>
+    <li>
+      <a href="/categories" class="flex items-center text-lg py-2 px-4 rounded hover:bg-blue-700 <%= currentPath === '/categories' ? 'bg-blue-700 font-semibold' : '' %>">
+        <i class="fas fa-th-list mr-3"></i> Food Categories
+      </a>
+    </li>
+    <li>
+      <a href="/users" class="flex items-center text-lg py-2 px-4 rounded hover:bg-blue-700 <%= currentPath === '/users' ? 'bg-blue-700 font-semibold' : '' %>">
+        <i class="fas fa-users mr-3"></i> Users
+      </a>
+    </li>
+
+    <!-- Logs Dropdown -->
+    <li>
+      <div class="text-white font-semibold mt-4 mb-1 px-4 text-sm uppercase opacity-70">Logs</div>
+      <ul class="ml-4 space-y-1">
+        <li>
+          <a href="/logs/admin" class="flex items-center text-base py-1 px-4 rounded hover:bg-blue-700 <%= currentPath === '/logs/admin' ? 'bg-blue-700 font-semibold' : '' %>">
+            <i class="fas fa-user-lock mr-2"></i> Admin Log
+          </a>
+        </li>
+        <li>
+          <a href="/logs/user" class="flex items-center text-base py-1 px-4 rounded hover:bg-blue-700 <%= currentPath === '/logs/user' ? 'bg-blue-700 font-semibold' : '' %>">
+            <i class="fas fa-user mr-2"></i> User Log
+          </a>
+        </li>
+        <li>
+          <a href="/logs/orders" class="flex items-center text-base py-1 px-4 rounded hover:bg-blue-700 <%= currentPath === '/logs/orders' ? 'bg-blue-700 font-semibold' : '' %>">
+            <i class="fas fa-clipboard-list mr-2"></i> Orders Log
+          </a>
+        </li>
+        <li>
+          <a href="/logs/items" class="flex items-center text-base py-1 px-4 rounded hover:bg-blue-700 <%= currentPath === '/logs/items' ? 'bg-blue-700 font-semibold' : '' %>">
+            <i class="fas fa-utensils mr-2"></i> Item Log
+          </a>
+        </li>
+        <li>
+          <a href="/logs/categories" class="flex items-center text-base py-1 px-4 rounded hover:bg-blue-700 <%= currentPath === '/logs/categories' ? 'bg-blue-700 font-semibold' : '' %>">
+            <i class="fas fa-list-alt mr-2"></i> Category Log
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <li class="mt-6">
+      <a href="/logout" class="flex items-center text-lg py-2 px-4 rounded hover:bg-blue-700 <%= currentPath === '/logout' ? 'bg-blue-700 font-semibold' : '' %>">
+        <i class="fas fa-sign-out-alt mr-3"></i> Logout
+      </a>
     </li>
   </ul>
 </div>
