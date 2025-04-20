@@ -18,9 +18,8 @@
         <th class="p-3 border-b text-left">ID</th>
         <th class="p-3 border-b text-left">Action</th>
         <th class="p-3 border-b text-left">Performed By</th>
-        <th class="p-3 border-b text-left">Old Data</th>
-        <th class="p-3 border-b text-left">New Data</th>
         <th class="p-3 border-b text-left">Date</th>
+        <th class="p-3 border-b text-left">Details</th> <!-- View Details column -->
       </tr>
     </thead>
     <tbody id="auditTableBody">
@@ -29,9 +28,15 @@
           <td class="p-3 border-b"><%= log.id %></td>
           <td class="p-3 border-b"><%= log.action %></td>
           <td class="p-3 border-b"><%= log.performedBy %></td>
-          <td class="p-3 border-b"><%= JSON.stringify(log.oldData) %></td>
-          <td class="p-3 border-b"><%= JSON.stringify(log.newData) %></td>
           <td class="p-3 border-b"><%= log.createdAt %></td>
+          <!-- View Details button -->
+          <td class="p-3 border-b">
+            <button 
+              class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600" 
+              onclick="viewDetails(<%= JSON.stringify(log) %>)">
+              View Details
+            </button>
+          </td>
         </tr>
       <% }); %>
     </tbody>
@@ -43,11 +48,26 @@
   </div>
 </div>
 
+<!-- Modal for Details -->
+<div id="detailsModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center hidden">
+  <div class="bg-white rounded-lg p-6 max-w-lg w-full">
+    <h2 class="text-2xl font-bold mb-4">Audit Log Details</h2>
+    <div id="modalContent"></div>
+    <div class="mt-4 flex justify-end">
+      <button onclick="closeModal()" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
 <script>
   const searchInput = document.getElementById('searchInput');
   const auditTableBody = document.getElementById('auditTableBody');
   const rows = Array.from(auditTableBody.getElementsByTagName('tr'));
   const paginationContainer = document.getElementById('paginationContainer');
+  const detailsModal = document.getElementById('detailsModal');
+  const modalContent = document.getElementById('modalContent');
 
   const rowsPerPage = 5;
   let currentPage = 1;
@@ -95,6 +115,24 @@
 
       paginationContainer.appendChild(btn);
     }
+  }
+
+  // Function to display more details in a modal when the View Details button is clicked
+  function viewDetails(log) {
+    modalContent.innerHTML = `
+      <p><strong>Action:</strong> ${log.action}</p>
+      <p><strong>Performed By:</strong> ${log.performedBy}</p>
+      <p><strong>Old Data:</strong> ${JSON.stringify(log.oldData)}</p>
+      <p><strong>New Data:</strong> ${JSON.stringify(log.newData)}</p>
+      <p><strong>Date:</strong> ${log.createdAt}</p>
+    `;
+
+    detailsModal.classList.remove('hidden');
+  }
+
+  // Function to close the modal
+  function closeModal() {
+    detailsModal.classList.add('hidden');
   }
 
   // Init
