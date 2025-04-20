@@ -3,7 +3,7 @@ const { getAllAdmins, getAdminById } = require('../api/adminController'); // Adj
 exports.listAdmins = async (req, res) => {
   try {
     const admins = await getAllAdmins();
-    res.render('admin/list', { admins, title: 'Admin List' });
+    res.render('admin/list-admin', { admins, title: 'Admin List' });
   } catch (err) {
     res.status(500).send('Error loading admins.');
   }
