@@ -61,6 +61,10 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use((req, res, next) => {
+  res.locals.currentPath = req.path;
+  next();
+});
 // ======= Routes =======
 app.get('/', (req, res) => {
   res.render('home', { title: 'Home Page', layout: false });
