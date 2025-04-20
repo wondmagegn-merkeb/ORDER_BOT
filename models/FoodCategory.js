@@ -14,6 +14,10 @@ const FoodCategory = sequelize.define('FoodCategory', {
     allowNull: false,
     unique: true
   },
+description: {
+  type: DataTypes.STRING,
+    allowNull: false,  
+},
   createdBy: {
     type: DataTypes.STRING,
     allowNull: true
