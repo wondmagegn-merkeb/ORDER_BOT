@@ -11,13 +11,18 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 // ✅ Create Admin
 exports.createAdmin = async (req, res) => {
   const { error } = createAdminSchema.validate(req.body);
-  if (error) return res.status(400).json({ message: error.details[0].message });
-
+  if (error){
+    res.locals.error = error.details[0].message;
+    res.render('admin/add', { title: 'Add Admin' });
+  }
   try {
     const { username, email, password, telegramId, role } = req.body;
 
     const existing = await Admin.findOne({ where: { email } });
-    if (existing) return res.status(400).json({ message: 'Email already in use' });
+    if (existing){
+      res.locals.error =  'Email already in use' ;
+      res.render('admin/add', { title: 'Add Admin' });
+    }
     const lastAdmin = await Admin.findOne({ order: [['createdAt', 'DESC']] });
 
   let newIdNumber = 1;
@@ -36,7 +41,9 @@ exports.createAdmin = async (req, res) => {
       createdBy:'ADM001',
       role
     });
-  req.session.success = 'Admin added successfully!';
+  
+    res.locals.success =  'Admin added successfully!';;
+    
  // req.session.error;
     res.render('admin/add', { title: 'Add Admin' });
   } catch (err) {
