@@ -31,16 +31,36 @@ exports.getCategoryById = async (req, res) => {
 // Create a new category (API endpoint)
 exports.createCategory = async (req, res) => {
   try {
-    // Validate request body with Joi
+    // Validate request body
     const { error } = categoryValidationSchema.validate(req.body);
-
     if (error) {
       return res.status(400).json({ message: error.details[0].message });
     }
 
-    const { name, description } = req.body;
+    const { categoryName } = req.body;
 
-    const newCategory = await FoodCategory.create({ name, description });
+    // Check if categoryName already exists
+    const existing = await FoodCategory.findOne({ where: { categoryName } });
+    if (existing) {
+      return res.status(409).json({ message: 'Category name already exists' });
+    }
+
+    // Generate categoryId
+    const last = await FoodCategory.findOne({ order: [['createdAt', 'DESC']] });
+    let newIdNumber = 1;
+    if (last && last.categoryId) {
+      const lastNumber = parseInt(last.categoryId.replace('CAT', ''));
+      newIdNumber = lastNumber + 1;
+    }
+
+    const categoryId = 'CAT' + String(newIdNumber).padStart(3, '0');
+
+    // Create the category
+    const newCategory = await FoodCategory.create({
+      categoryId,
+      categoryName,
+      
+    });
 
     res.status(201).json({
       message: 'Category created successfully',
@@ -51,6 +71,7 @@ exports.createCategory = async (req, res) => {
     res.status(500).json({ message: 'Failed to create category', error: error.message });
   }
 };
+
 
 // Update an existing category (API endpoint)
 exports.updateCategory = async (req, res) => {
