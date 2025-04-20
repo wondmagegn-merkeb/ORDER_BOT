@@ -59,18 +59,12 @@ exports.getAllAdmins = async () => {
   }
 };
 
-
-
-
-// ✅ Get admin by ID
-exports.getAdminById = async (req, res) => {
+exports.getAdminById = async (adminId) => {
   try {
-    const { adminId } = req.params;
     const admin = await Admin.findOne({ where: { adminId } });
-    if (!admin) return res.status(404).json({ message: 'Admin not found' });
-    res.render('admins/detail', { admin });  // Rendering with EJS
+    return admin; // Could be null if not found, let controller handle it
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    throw new Error(err.message);
   }
 };
 
