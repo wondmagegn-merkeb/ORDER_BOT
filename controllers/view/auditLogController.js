@@ -1,5 +1,5 @@
 
-const AdminAuditLog = require('../../models/AdminAuditLog');
+const { AdminAuditLog } = require('../../models/index);
 
 // Fetch audit logs with pagination
 const getAuditLogs = async (req, res) => {
