@@ -30,7 +30,7 @@
       <% categories.forEach(category => { %>
         <tr>
           <td class="p-3 border-b"><%= category.categoryId %></td>
-          <td class="p-3 border-b"><%= category.name %></td>
+          <td class="p-3 border-b"><%= category.categoryName %></td>
           <td class="p-3 border-b"><%= category.description %></td>
           <td class="p-3 border-b flex space-x-2">
             <a href="/category/edit/<%= category.categoryId %>" class="text-yellow-500 hover:text-yellow-600">
