@@ -37,7 +37,7 @@ exports.createCategory = async (req, res) => {
       return res.status(400).json({ message: error.details[0].message });
     }
 
-    const { categoryName } = req.body;
+    const { categoryName ,description} = req.body;
 
     // Check if categoryName already exists
     const existing = await FoodCategory.findOne({ where: { categoryName } });
@@ -59,7 +59,7 @@ exports.createCategory = async (req, res) => {
     const newCategory = await FoodCategory.create({
       categoryId,
       categoryName,
-      
+      description
     });
 
     res.status(201).json({
