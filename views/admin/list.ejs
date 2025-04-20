@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin List</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
 </head>
 <body class="bg-gray-100">
   <div class="container mx-auto px-4 py-6">
@@ -48,93 +48,79 @@
             <td class="p-3 border-b"><%= admin.role %></td>
             <td class="p-3 border-b"><%= admin.states %></td>
             <td class="p-3 border-b flex space-x-2">
-              <!-- Update Button -->
               <a href="/admin/edit/<%= admin.adminId %>" class="text-yellow-500 hover:text-yellow-600">
                 <i class="fas fa-edit"></i> Update
               </a>
-              <!-- Delete Button -->
-              <form 
-  method="POST" 
-  class="delete-form inline" 
-  data-id="<%= admin.adminId %>" 
-  data-action="/admin/delete"
->
-  <button type="button" class="open-delete-modal text-red-500 hover:text-red-600">
-    <i class="fas fa-trash-alt"></i> Delete
-  </button>
-</form>
-
+              <form method="POST" class="delete-form inline" data-id="<%= admin.adminId %>" data-action="/admin/delete">
+                <button type="button" class="open-delete-modal text-red-500 hover:text-red-600">
+                  <i class="fas fa-trash-alt"></i> Delete
+                </button>
+              </form>
             </td>
           </tr>
         <% }); %>
       </tbody>
     </table>
 
-    <!-- Pagination Buttons -->
-    <div class="mt-4 flex justify-between">
-      <button 
-        id="prevBtn" 
-        class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
-      >
-        Prev
-      </button>
-      <button 
-        id="nextBtn" 
-        class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
-      >
-        Next
-      </button>
+    <!-- Pagination -->
+    <div class="mt-6 flex justify-end items-center space-x-2" id="paginationContainer">
+      <!-- Pagination buttons will be added by JS -->
     </div>
   </div>
 
   <script>
-    // Frontend search
     const searchInput = document.getElementById('searchInput');
     const adminTableBody = document.getElementById('adminTableBody');
     const rows = Array.from(adminTableBody.getElementsByTagName('tr'));
+    const paginationContainer = document.getElementById('paginationContainer');
 
+    const rowsPerPage = 5;
+    let currentPage = 1;
+
+    // Search functionality
     searchInput.addEventListener('input', function () {
       const searchQuery = this.value.toLowerCase();
-
       rows.forEach(row => {
         const role = row.cells[3].textContent.toLowerCase();
         const status = row.cells[4].textContent.toLowerCase();
-        if (role.includes(searchQuery) || status.includes(searchQuery)) {
-          row.style.display = '';
-        } else {
-          row.style.display = 'none';
-        }
+        row.style.display = (role.includes(searchQuery) || status.includes(searchQuery)) ? '' : 'none';
       });
     });
 
-    // Frontend Pagination (basic)
-    let currentPage = 1;
-    const rowsPerPage = 5;
-
+    // Pagination rendering
     function displayPage(page) {
       const start = (page - 1) * rowsPerPage;
       const end = start + rowsPerPage;
+
       rows.forEach((row, index) => {
         row.style.display = (index >= start && index < end) ? '' : 'none';
       });
 
-      document.getElementById('prevBtn').disabled = page === 1;
-      document.getElementById('nextBtn').disabled = end >= rows.length;
+      renderPagination();
     }
 
-    document.getElementById('prevBtn').addEventListener('click', () => {
-      if (currentPage > 1) {
-        currentPage--;
-        displayPage(currentPage);
-      }
-    });
+    function renderPagination() {
+      paginationContainer.innerHTML = '';
 
-    document.getElementById('nextBtn').addEventListener('click', () => {
-      if ((currentPage * rowsPerPage) < rows.length) {
-        currentPage++;
-        displayPage(currentPage);
+      const totalPages = Math.ceil(rows.length / rowsPerPage);
+
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        btn.className = `px-3 py-1 rounded-md border text-sm ${
+          i === currentPage 
+            ? 'bg-blue-500 text-white border-blue-500' 
+            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
+        }`;
+
+        btn.addEventListener('click', () => {
+          currentPage = i;
+          displayPage(currentPage);
+        });
+
+        paginationContainer.appendChild(btn);
       }
-    });
+    }
 
     // Init
     displayPage(currentPage);
