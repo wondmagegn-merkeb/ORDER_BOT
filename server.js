@@ -12,7 +12,10 @@ require('dotenv').config();
 const { globalErrorHandler, notFoundHandler } = require('./controllers/errorController');
 const viewAdminRoutes = require('./routes/view/adminRoutes');
 const viewLogsRoutes = require('./routes/view/logsRoutes');
+const categoryRoutes = require('./routes/view/categoryRoutes'); // Adjust the path as needed
 const apiAdminRoutes = require('./routes/api/adminRoutes');
+const apiCategoryRoutes = require('./routes/api/categoryRoutes'); // Adjust the path as needed
+
 const {sequelize } = require('./config/db');
 
 const app = express();
@@ -73,8 +76,9 @@ app.get('/', (req, res) => {
 
 app.use('/admin', viewAdminRoutes);
 app.use('/logs', viewLogsRoutes);
+app.use('/categories', categoryRoutes);
 app.use('/api/admin', apiAdminRoutes);
-
+app.use('/api/categories', apiCategoryRoutes);
 app.get('/login', (req, res) => {
   res.render('login', { message: null, layout: false });
 });
