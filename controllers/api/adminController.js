@@ -1,5 +1,5 @@
 
-const Admin = require('../../models/Admin');
+const { Admin } = require('../../models/index);
 const crypto = require('crypto');
 const { Op } = require('sequelize');
 const jwt = require('jsonwebtoken');
