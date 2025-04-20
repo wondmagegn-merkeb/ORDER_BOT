@@ -1,7 +1,7 @@
 const {
   getAllCategories,
   getCategoryById,
-} = require('../api/categoryApiController');
+} = require('../api/categoryController');
 
 
 exports.listCategories = async (req, res) => {
