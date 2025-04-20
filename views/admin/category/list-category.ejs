@@ -1,0 +1,103 @@
+<div class="container mx-auto px-4 py-6">
+  <h1 class="text-3xl font-bold mb-4">Category Management</h1>
+
+  <!-- Add Category Button -->
+  <a href="/category/add" class="mb-4 inline-block bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">
+    Add Category
+  </a>
+
+  <!-- Search Form -->
+  <div class="mb-4">
+    <input 
+      type="text" 
+      id="searchCategory" 
+      placeholder="Search by Category Name or Description" 
+      class="w-full p-2 border rounded-md"
+    />
+  </div>
+
+  <!-- Category Table -->
+  <table class="min-w-full bg-white border border-gray-300 rounded-md shadow-md">
+    <thead>
+      <tr>
+        <th class="p-3 border-b text-left">Category ID</th>
+        <th class="p-3 border-b text-left">Name</th>
+        <th class="p-3 border-b text-left">Description</th>
+        <th class="p-3 border-b text-left">Actions</th>
+      </tr>
+    </thead>
+    <tbody id="categoryTableBody">
+      <% categories.forEach(category => { %>
+        <tr>
+          <td class="p-3 border-b"><%= category.categoryId %></td>
+          <td class="p-3 border-b"><%= category.name %></td>
+          <td class="p-3 border-b"><%= category.description %></td>
+          <td class="p-3 border-b flex space-x-2">
+            <a href="/category/edit/<%= category.categoryId %>" class="text-yellow-500 hover:text-yellow-600">
+              <i class="fas fa-edit"></i> Update
+            </a>
+            <form method="POST" class="delete-form inline" data-id="<%= category.categoryId %>" data-action="/category/delete">
+              <button type="button" class="open-delete-modal text-red-500 hover:text-red-600">
+                <i class="fas fa-trash-alt"></i> Delete
+              </button>
+            </form>
+          </td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+
+  <!-- Pagination -->
+  <div class="mt-6 flex justify-end items-center space-x-2" id="categoryPaginationContainer">
+    <!-- JS inserts pagination buttons here -->
+  </div>
+</div>
+
+<script>
+  const categoryInput = document.getElementById('searchCategory');
+  const categoryTableBody = document.getElementById('categoryTableBody');
+  const categoryRows = Array.from(categoryTableBody.getElementsByTagName('tr'));
+  const categoryPagination = document.getElementById('categoryPaginationContainer');
+
+  const rowsPerPage = 5;
+  let currentPage = 1;
+
+  function filterAndPaginate() {
+    const query = categoryInput.value.toLowerCase();
+    const filtered = categoryRows.filter(row => {
+      const name = row.cells[1].textContent.toLowerCase();
+      const desc = row.cells[2].textContent.toLowerCase();
+      return name.includes(query) || desc.includes(query);
+    });
+    displayFilteredPage(filtered, 1);
+  }
+
+  function displayFilteredPage(filteredRows, page) {
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+    categoryRows.forEach(row => row.style.display = 'none');
+    filteredRows.forEach((row, index) => {
+      row.style.display = (index >= start && index < end) ? '' : 'none';
+    });
+    renderPagination(filteredRows, page);
+  }
+
+  function renderPagination(filteredRows, page) {
+    categoryPagination.innerHTML = '';
+    const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+
+    for (let i = 1; i <= totalPages; i++) {
+      const btn = document.createElement('button');
+      btn.textContent = i;
+      btn.className = `px-3 py-1 rounded-md border text-sm ${
+        i === page ? 'bg-green-500 text-white border-green-500' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
+      }`;
+
+      btn.addEventListener('click', () => displayFilteredPage(filteredRows, i));
+      categoryPagination.appendChild(btn);
+    }
+  }
+
+  categoryInput.addEventListener('input', filterAndPaginate);
+  displayFilteredPage(categoryRows, currentPage);
+</script>
