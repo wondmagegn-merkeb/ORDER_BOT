@@ -5,7 +5,7 @@ const { FoodCategory } = require('../../models/index'); // Adjust path if necess
 exports.getAllCategories = async (req, res) => {
   try {
     const categories = await FoodCategory.findAll();
-    res.status(200).json(categories);
+    return categories;
   } catch (error) {
     console.error('Error fetching categories:', error.message);
     res.status(500).json({ message: 'Failed to fetch categories', error: error.message });
@@ -21,7 +21,7 @@ exports.getCategoryById = async (req, res) => {
       return res.status(404).json({ message: 'Category not found' });
     }
 
-    res.status(200).json(category);
+    return category;
   } catch (error) {
     console.error('Error fetching category:', error.message);
     res.status(500).json({ message: 'Failed to fetch category', error: error.message });
