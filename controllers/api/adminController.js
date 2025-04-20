@@ -36,8 +36,9 @@ exports.createAdmin = async (req, res) => {
       createdBy:'ADM001',
       role
     });
-
-    res.status(201).json({ message: 'Admin created', admin: newAdmin });
+  req.session.success = 'Admin added successfully!';
+ // req.session.error;
+    res.render('admin/add', { title: 'Add Admin' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
