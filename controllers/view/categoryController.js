@@ -7,20 +7,20 @@ const {
 exports.listCategories = async (req, res) => {
   try {
     const categories = await getAllCategories();
-    res.render('category', { categories, title: 'Category List'});
+    res.render('admin/category/list-category', { categories, title: 'Category List'});
   } catch (error) {
     res.status(500).send(error.message);
   }
 };
 
 exports.showAddForm = (req, res) => {
-  res.render('addCategory',{title: 'Category Add'});
+  res.render('admin/category/create-category',{title: 'Category Add'});
 };
 
 exports.showEditForm = async (req, res) => {
   try {
     const category = await getCategoryById();
-    res.render('editCategory', { category, title: 'Category Update'});
+    res.render('admin/category/update-category', { category, title: 'Category Update'});
   } catch (error) {
     res.status(500).send(error.message);
   }
