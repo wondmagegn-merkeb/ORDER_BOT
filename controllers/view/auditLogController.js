@@ -27,6 +27,7 @@ const getAuditLogs = async (req, res) => {
       auditLogs: logs,
       currentPage: page,
       totalPages: totalPages,
+      title: 'Admin Logs'
     });
   } catch (error) {
     console.error('Error fetching audit logs:', error);
