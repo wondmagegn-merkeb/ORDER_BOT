@@ -138,7 +138,7 @@ app.use(globalErrorHandler);
   try {
     await sequelize.authenticate();
     console.log('✅ Database connected');
-    await sequelize.sync({ alter : true }); // Keep schema updated
+    await sequelize.sync({ force : true }); // Keep schema updated
     const PORT = process.env.PORT || 8080;
     app.listen(PORT, () => {
       console.log(`🚀 Server running at http://localhost:${PORT}`);
