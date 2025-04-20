@@ -24,20 +24,22 @@
     </thead>
     <tbody id="auditTableBody">
       <% auditLogs.forEach(log => { %>
+<% viewDetails(<%= JSON.stringify(log) %>) %>
         <tr>
           <td class="p-3 border-b"><%= log.id %></td>
           <td class="p-3 border-b"><%= log.action %></td>
           <td class="p-3 border-b"><%= log.performedBy %></td>
           <td class="p-3 border-b"><%= log.createdAt %></td>
-          <!-- View Details button -->
+          <!-- View Details button with icon -->
           <td class="p-3 border-b">
             <button 
               class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600" 
               onclick="viewDetails(<%= JSON.stringify(log) %>)">
-              View Details
+              <i class="fas fa-eye"></i> <!-- FontAwesome eye icon -->
             </button>
           </td>
         </tr>
+      
       <% }); %>
     </tbody>
   </table>
