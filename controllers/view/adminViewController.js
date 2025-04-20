@@ -1,35 +1,37 @@
-const { getAllAdmins, getAdminById } = require('../api/adminController'); // Adjust path if needed
+const { getAllCategories, getCategoryById } = require('../api/categoryController'); // Adjust path if needed
 
-exports.listAdmins = async (req, res) => {
+// List all categories
+exports.listCategories = async (req, res) => {
   try {
-    const admins = await getAllAdmins();
-    res.render('admin/list-admin', { admins, title: 'Admin List' });
+    const categories = await getAllCategories();
+    res.render('category/list-category', { categories, title: 'Category List' });
   } catch (err) {
-    res.status(500).send('Error loading admins.');
+    console.error('Error loading categories:', err.message);
+    res.status(500).send('Error loading categories.');
   }
 };
 
+// Show form to add a new category
 exports.showAddForm = (req, res) => {
-  res.render('admin/add', { title: 'Add Admin' });
+  res.render('category/add-category', { title: 'Add Category' });
 };
 
-
+// Show form to edit an existing category
 exports.showEditForm = async (req, res) => {
   try {
-    const adminId = req.params.id; // or req.query.adminId if passed as query param
-    const admin = await getAdminById(adminId);
+    const categoryId = req.params.id; // or req.query.categoryId if passed as query param
+    const category = await getCategoryById(categoryId);
 
-    if (!admin) {
-      return res.status(404).send('Admin not found.');
+    if (!category) {
+      return res.status(404).send('Category not found.');
     }
 
-    res.render('admin/update-admin', {
-      admin,
-      title: 'Edit Admin'
+    res.render('category/edit-category', { 
+      category, 
+      title: 'Edit Category' 
     });
   } catch (err) {
-    console.error('Error loading admin:', err.message);
-    res.status(500).send('Error loading admin.');
+    console.error('Error loading category:', err.message);
+    res.status(500).send('Error loading category.');
   }
 };
-
