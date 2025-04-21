@@ -15,7 +15,7 @@ const viewLogsRoutes = require('./routes/view/logsRoutes');
 const categoryRoutes = require('./routes/view/categoryRoutes'); // Adjust the path as needed
 const apiAdminRoutes = require('./routes/api/adminRoutes');
 const apiCategoryRoutes = require('./routes/api/categoryRoutes'); // Adjust the path as needed
-
+const adminController = require('./controllers/api/adminController');
 const {sequelize } = require('./config/db');
 
 const app = express();
@@ -85,16 +85,7 @@ app.get('/login', (req, res) => {
   res.render('login', { message: null, layout: false });
 });
 
-app.post('/login', (req, res) => {
-  const { username, password } = req.body;
-  if (username === 'admin' && password === 'password') {
-    req.session.success = 'Login successful! Welcome back!';
-    res.redirect('/dashboard');
-  } else {
-    req.session.error = 'Invalid username or password';
-    res.redirect('/login');
-  }
-});
+app.post('/login',adminController.login);
 
 app.get('/dashboard', (req, res) => {
   const demoData = {
