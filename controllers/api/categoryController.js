@@ -59,7 +59,8 @@ exports.createCategory = async (req, res) => {
     const newCategory = await FoodCategory.create({
       categoryId,
       categoryName,
-      description
+      description,
+      createdBy: req.admin.adminId,
     });
 
     res.status(201).json({
@@ -94,7 +95,7 @@ exports.updateCategory = async (req, res) => {
 
     category.name = name || category.name;
     category.description = description || category.description;
-
+    category.updatedBy: req.admin.adminId,
     await category.save();
 
     res.status(200).json({
@@ -117,7 +118,7 @@ exports.deleteCategory = async (req, res) => {
     if (!category) {
       return res.status(404).json({ message: 'Category not found' });
     }
-
+    category.updatedBy: req.admin.adminId,
     await category.destroy();
 
     res.status(200).json({ message: 'Category deleted successfully' });
