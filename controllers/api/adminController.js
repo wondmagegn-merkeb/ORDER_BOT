@@ -174,7 +174,7 @@ exports.updateAdmin = async (req, res, next) => {
 // ✅ Admin login
 exports.login = async (req, res, next) => {
   const { error } = loginSchema.validate(req.body);
-  if (error) return next(new ValidationError(error.details[0].message));
+  if (error) res.render('login', { error: error.details[0].message, layout: false });
 
   try {
     const { username, password } = req.body;
@@ -183,7 +183,8 @@ exports.login = async (req, res, next) => {
     if (!admin) return next(new NotFoundError('Admin not found'));
 
     const isMatch = await bcrypt.compare(password, admin.password);
-    if (!isMatch) return next(new UnauthorizedError('Invalid credentials'));
+    if (!isMatch) res.render('login', { error: 'Invalid credentials', layout: false });
+      
 
     // Sign JWT token
     const token = jwt.sign(
@@ -194,11 +195,8 @@ exports.login = async (req, res, next) => {
 
     // Store only the token in session
     req.session.token = token;
-
-    res.json({
-      message: 'Login successful',
-      token,  // Optionally send the token to the frontend as well
-    });
+    res.render('login', { success: 'Login successful', layout: false });
+    
 
   } catch (err) {
     return next(new InternalServerError(err.message));
