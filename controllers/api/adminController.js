@@ -100,7 +100,7 @@ await sendMail({
       </body>
     </html>
   `
-};
+)};
 
     
     const newAdmin = await Admin.create({
