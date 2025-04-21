@@ -1,11 +1,9 @@
 const Joi = require('joi');
 
 exports.createAdminSchema = Joi.object({
-  username: Joi.string().min(3).required(),
   email: Joi.string().email().required(),
-  password: Joi.string().min(6).required(),
   telegramId: Joi.string().required(),
-  role: Joi.string().valid('admin', 'superadmin', 'delivery').required() // added 'delivery' role
+  role: Joi.string().valid('admin', 'manager', 'delivery').required() // added 'delivery' role
 });
 
 exports.loginSchema = Joi.object({
@@ -18,7 +16,7 @@ exports.updateAdminSchema = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().min(6).required(),
   telegramId: Joi.string().required(),
-  role: Joi.string().valid('admin', 'superadmin', 'delivery').required(), // added 'delivery' role
+  role: Joi.string().valid('admin', 'manager', 'delivery').required(), // added 'delivery' role
   states: Joi.string().required() // states made required
 });
 
