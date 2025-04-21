@@ -123,7 +123,7 @@ app.get('/reset-password', (req, res) => {
   res.render('reset-password', { message: null, token, layout: false });
 });
 // app.js (or the main file where your routes are defined)
-app.post('/logout', (req, res) => {
+app.get('/logout', (req, res) => {
   // Destroy the session to log out the user
   req.session.destroy((err) => {
     if (err) {
