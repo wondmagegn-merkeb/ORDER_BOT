@@ -219,6 +219,7 @@ exports.forgotPassword = async (req, res, next) => {
 
     admin.resetToken = token;
     admin.resetTokenExpires = expiry;
+    admin.updatedBy = req.admin.adminId;
     await admin.save();
 
      const baseUrl = process.env.ADMIN_LOGIN_URL;
