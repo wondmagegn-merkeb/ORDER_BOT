@@ -1,45 +1,62 @@
-<div class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
-  <h2 class="text-3xl font-extrabold mb-6 text-gray-800 text-center flex items-center justify-center gap-2">
+<style>
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+  }
+</style>
+
+<div class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md animate-fade-in-up">
+  <h2 class="text-3xl font-extrabold mb-6 text-gray-800 text-center flex items-center justify-center gap-2 transition duration-500">
     <i class="fas fa-user-shield text-blue-600"></i>
     Create New Admin
   </h2>
 
   <form action="/api/admin" method="POST" class="space-y-5">
-    <div>
+    <div class="transition duration-300 transform hover:scale-[1.01]">
       <label class="block mb-1 text-gray-700 font-medium">Username</label>
-      <div class="flex items-center border border-gray-300 p-2 rounded">
+      <div class="flex items-center border border-gray-300 p-2 rounded focus-within:ring-2 focus-within:ring-blue-400">
         <i class="fas fa-user text-gray-400 mr-2"></i>
         <input type="text" name="username" class="w-full focus:outline-none" placeholder="Enter username" required>
       </div>
     </div>
 
-    <div>
+    <div class="transition duration-300 transform hover:scale-[1.01]">
       <label class="block mb-1 text-gray-700 font-medium">Email</label>
-      <div class="flex items-center border border-gray-300 p-2 rounded">
+      <div class="flex items-center border border-gray-300 p-2 rounded focus-within:ring-2 focus-within:ring-blue-400">
         <i class="fas fa-envelope text-gray-400 mr-2"></i>
         <input type="email" name="email" class="w-full focus:outline-none" placeholder="Enter email" required>
       </div>
     </div>
 
-    <div>
+    <div class="transition duration-300 transform hover:scale-[1.01]">
       <label class="block mb-1 text-gray-700 font-medium">Password</label>
-      <div class="flex items-center border border-gray-300 p-2 rounded">
+      <div class="flex items-center border border-gray-300 p-2 rounded focus-within:ring-2 focus-within:ring-blue-400">
         <i class="fas fa-lock text-gray-400 mr-2"></i>
         <input type="password" name="password" class="w-full focus:outline-none" placeholder="Enter password" required>
       </div>
     </div>
 
-    <div>
+    <div class="transition duration-300 transform hover:scale-[1.01]">
       <label class="block mb-1 text-gray-700 font-medium">Telegram ID</label>
-      <div class="flex items-center border border-gray-300 p-2 rounded">
+      <div class="flex items-center border border-gray-300 p-2 rounded focus-within:ring-2 focus-within:ring-blue-400">
         <i class="fab fa-telegram text-gray-400 mr-2"></i>
         <input type="text" name="telegramId" class="w-full focus:outline-none" placeholder="Enter Telegram ID">
       </div>
     </div>
 
-    <div>
+    <div class="transition duration-300 transform hover:scale-[1.01]">
       <label class="block mb-1 text-gray-700 font-medium">Role</label>
-      <div class="flex items-center border border-gray-300 p-2 rounded">
+      <div class="flex items-center border border-gray-300 p-2 rounded focus-within:ring-2 focus-within:ring-blue-400">
         <i class="fas fa-user-tag text-gray-400 mr-2"></i>
         <select name="role" class="w-full bg-white focus:outline-none">
           <option value="admin">Admin (Owner)</option>
@@ -50,7 +67,7 @@
     </div>
 
     <div class="pt-6 flex justify-between items-center">
-      <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded flex items-center gap-2 hover:bg-blue-700 transition font-semibold">
+      <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded flex items-center gap-2 hover:bg-blue-700 active:scale-95 transition font-semibold">
         <i class="fas fa-plus-circle"></i>
         Create Admin
       </button>
