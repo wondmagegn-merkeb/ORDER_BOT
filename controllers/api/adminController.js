@@ -222,7 +222,7 @@ exports.forgotPassword = async (req, res, next) => {
     admin.updatedBy = admin.adminId;
     await admin.save();
 
-     const baseUrl = process.env.ADMIN_LOGIN_URL;
+     const baseUrl = process.env.ADMIN_BASE_URL;
 const resetLink = `${baseUrl}/reset-password?token=${token}`;
 
 
