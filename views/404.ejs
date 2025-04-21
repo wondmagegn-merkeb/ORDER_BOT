@@ -3,31 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <title>404 - Not Found</title>
-<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <style>
-    /* Simple animation for the 404 number */
     @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.2); }
-      100% { transform: scale(1); }
+      0% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.8; }
+    }
+    .animate-pulse-slow {
+      animation: pulse 1.8s infinite;
     }
   </style>
 </head>
 <body class="bg-white text-black flex items-center justify-center min-h-screen">
-  <div class="bg-white border border-gray-300 rounded-xl shadow-lg p-8 max-w-lg w-full text-center">
-    <h1 class="text-5xl font-bold mb-2 animate-pulse text-blue-700">404</h1>
-    <p class="text-xl mb-4 text-purple-600">Page Not Found</p>
-    <p class="mb-6 text-gray-700"><%= message || "The page you are looking for doesn't exist." %></p>
+  <div class="bg-white border border-gray-200 rounded-2xl shadow-xl p-10 max-w-lg w-full text-center space-y-5">
+    
+    <!-- 404 Title -->
+    <h1 class="text-7xl font-extrabold text-blue-600 animate-pulse-slow">
+      <i class="fas fa-exclamation-triangle text-yellow-400 mr-2"></i> 404
+    </h1>
+
+    <!-- Subheading -->
+    <p class="text-2xl text-purple-700 font-semibold">Oops! Page Not Found</p>
+    <p class="text-gray-600 text-base"><%= message || "The page you are looking for doesn't exist or has been moved." %></p>
     
     <!-- Back to Home Button -->
-    <a href="/" class="inline-block bg-purple-600 text-white font-semibold px-4 py-2 rounded hover:bg-purple-500 transition transform hover:scale-105 mb-4">
-      ← Back to Home
+    <a href="/" class="inline-flex items-center gap-2 bg-purple-600 text-white font-medium px-5 py-2 rounded-lg hover:bg-purple-500 transition transform hover:scale-105 shadow">
+      <i class="fas fa-arrow-left"></i> Back to Home
     </a>
 
-    <!-- Contact Section -->
-    <div class="mt-8 text-sm text-gray-600">
-      <p>If you're having trouble finding what you're looking for, feel free to reach out to us:</p>
-      <a href="mailto:support@example.com" class="text-blue-500 hover:underline">support@example.com</a>
+    <!-- Divider -->
+    <div class="border-t pt-4 mt-6 text-sm text-gray-500">
+      <p>If you need help, contact our support team:</p>
+      <a href="mailto:support@example.com" class="text-blue-600 hover:underline">
+        <i class="fas fa-envelope"></i> support@example.com
+      </a>
     </div>
   </div>
 </body>
