@@ -220,12 +220,76 @@ exports.forgotPassword = async (req, res, next) => {
     admin.resetTokenExpires = expiry;
     await admin.save();
 
-    const resetLink = `http://localhost:3000/reset-password?token=${token}`;
+     const baseUrl = process.env.ADMIN_LOGIN_URL;
+const resetLink = `${baseUrl}/reset-password?token=${token}`;
+
 
     await sendMail({
       to: admin.email,
       subject: 'Reset Your Password',
-      html: `<p>You requested a password reset. <a href="${resetLink}">Click here</a> to reset.</p>`
+      html: `<!DOCTYPE html>
+<html lang="en" class="bg-gray-100">
+<head>
+  <meta charset="UTF-8" />
+  <title>Password Reset</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    @keyframes fadeInUp {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-fade-in-up {
+      animation: fadeInUp 0.6s ease-out;
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+  <div class="bg-white p-10 rounded-2xl shadow-lg text-center max-w-lg w-full animate-fade-in-up">
+    
+    <!-- Welcome Header -->
+    <h1 class="text-4xl font-extrabold text-blue-600 flex items-center justify-center gap-3 mb-3">
+      <i class="fas fa-lock"></i> Reset Your Password 🔒
+    </h1>
+    
+    <p class="text-gray-600 text-lg">We received a request to reset your password. If this was not you, you can safely ignore this email.</p>
+    <p class="text-gray-600 text-lg mt-4">To reset your password, please click the link below:</p>
+
+    <!-- Reset Password Link -->
+    <div class="mt-6">
+      <a href="${resetLink}" class="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition font-medium">
+        <i class="fas fa-unlock-alt"></i> Reset Password
+      </a>
+    </div>
+
+    <!-- Additional Info -->
+    <div class="mt-8 text-left">
+      <h2 class="text-2xl font-semibold text-gray-800 flex items-center gap-2">
+        <i class="fas fa-info-circle text-yellow-400"></i> Important:
+      </h2>
+      <ul class="mt-4 space-y-2 text-gray-700 ml-1">
+        <li><i class="fas fa-check-circle text-green-500 mr-2"></i> The reset link is valid for 1 hour.</li>
+        <li><i class="fas fa-check-circle text-green-500 mr-2"></i> If you did not request this, no action is needed.</li>
+      </ul>
+    </div>
+
+    <!-- Login Link -->
+    <div class="mt-10">
+      <a href="/login" class="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition font-medium">
+        <i class="fas fa-sign-in-alt"></i> Login to Your Account
+      </a>
+    </div>
+  </div>
+</body>
+</html>
+`
     });
 
     res.json({ message: 'Reset email sent' });
