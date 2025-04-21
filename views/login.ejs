@@ -57,47 +57,46 @@
   </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
-  <div class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md animate-fade-in-up">
-    
-      <h2 class="text-3xl font-extrabold text-gray-800 text-center mb-6">
-        <i class="fas fa-sign-in-alt text-blue-600"></i>
-        Login
-      </h2>
+<div class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md animate-fade-in-up">
+  <h2 class="text-3xl font-extrabold mb-6 text-gray-800 text-center flex items-center justify-center gap-2 transition duration-500">
+    <i class="fas fa-sign-in-alt text-blue-600"></i>
+    Login
+  </h2>
 
-      <form action="/login" method="POST" class="space-y-5">
-        <!-- Username -->
-        <div>
-          <label class="block mb-1 text-gray-700 font-medium">Username</label>
-          <div class="flex items-center border border-gray-300 p-2 rounded focus-within:ring-2 focus-within:ring-blue-400">
-            <i class="fas fa-user text-gray-400 mr-2"></i>
-            <input type="text" name="username" class="w-full focus:outline-none input-focus" placeholder="Enter username" required>
-          </div>
-        </div>
-
-        <!-- Password -->
-        <div>
-          <label class="block mb-1 text-gray-700 font-medium">Password</label>
-          <div class="flex items-center border border-gray-300 p-2 rounded focus-within:ring-2 focus-within:ring-blue-400">
-            <i class="fas fa-lock text-gray-400 mr-2"></i>
-            <input type="password" name="password" class="w-full focus:outline-none input-focus" placeholder="Enter password" required>
-          </div>
-        </div>
-
-        <!-- Submit Button -->
-        <div class="pt-6">
-          <button type="submit" class="w-full bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 active:scale-95 transition font-semibold btn-hover">
-            <i class="fas fa-sign-in-alt"></i>
-            Login
-          </button>
-        </div>
-      </form>
-
-      <!-- Link to Register (optional) -->
-      <div class="text-center mt-4">
-        <p class="text-gray-600">
-          <a href="/forgot-password" class="text-blue-500 hover:underline">Forgot Password?</a>
-        </p>
+  <form action="/login" method="POST" class="space-y-5">
+    <!-- Username -->
+    <div class="transition duration-300 transform hover:scale-[1.01]">
+      <label class="block mb-1 text-gray-700 font-medium">Username</label>
+      <div class="flex items-center border border-gray-300 p-2 rounded focus-within:ring-2 focus-within:ring-blue-400">
+        <i class="fas fa-user text-gray-400 mr-2"></i>
+        <input type="text" name="username" class="w-full focus:outline-none" placeholder="Enter username" required>
       </div>
+    </div>
+
+    <!-- Password -->
+    <div class="transition duration-300 transform hover:scale-[1.01]">
+      <label class="block mb-1 text-gray-700 font-medium">Password</label>
+      <div class="flex items-center border border-gray-300 p-2 rounded focus-within:ring-2 focus-within:ring-blue-400">
+        <i class="fas fa-lock text-gray-400 mr-2"></i>
+        <input type="password" name="password" class="w-full focus:outline-none" placeholder="Enter password" required>
+      </div>
+    </div>
+
+    <!-- Submit Button -->
+    <div class="pt-6 flex justify-between items-center">
+      <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded flex items-center gap-2 hover:bg-blue-700 active:scale-95 transition font-semibold">
+        <i class="fas fa-sign-in-alt"></i>
+        Login
+      </button>
+
+      <a href="/forgot-password" class="text-gray-600 hover:text-blue-500 transition flex items-center gap-2 font-medium">
+        <i class="fas fa-question-circle text-blue-500"></i>
+        Forgot Password?
+      </a>
+    </div>
+  </form>
+</div>
+
     
   </div>
 </body>
