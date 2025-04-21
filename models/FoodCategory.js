@@ -43,7 +43,7 @@ FoodCategory.beforeCreate(async (category) => {
       const lastNumber = parseInt(last.categoryId.replace('CAT', ''));
       newIdNumber = lastNumber + 1;
     }
-
+console.log(category)
     category.categoryId = 'CAT' + String(newIdNumber).padStart(3, '0');
   } catch (error) {
     throw new InternalServerError('Failed to generate category ID', error);
