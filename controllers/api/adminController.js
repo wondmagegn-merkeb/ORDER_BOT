@@ -82,8 +82,8 @@ await sendMail({
               <i class="fas fa-user-cog text-blue-600"></i> Admin Account Details:
             </h2>
             <ul class="space-y-2 text-gray-700">
-              <li><strong>Username:</strong> ${admin.username}</li>
-              <li><strong>Password:</strong> ${admin._previousDataValues.password} (set by the system)</li>
+              <li><strong>Username:</strong> ${username}</li>
+              <li><strong>Password:</strong> ${password} (set by the system)</li>
             </ul>
           </div>
           <p class="text-gray-600 text-lg mb-8">Please change your password after logging in for the first time.</p>
@@ -100,9 +100,8 @@ await sendMail({
       </body>
     </html>
   `
-)};
+});
 
-    
     const newAdmin = await Admin.create({
       adminId,
       username,
