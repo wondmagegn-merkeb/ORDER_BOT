@@ -75,11 +75,10 @@ Admin.beforeCreate(async (admin, options) => {
     const lastNumber = parseInt(lastAdmin.adminId.replace('ADM', ''));
     newIdNumber = lastNumber + 1;
   }
-console.log( 'ADM' + String(newIdNumber).padStart(3, '0'))
   
   admin.adminId = 'ADM' + String(newIdNumber).padStart(3, '0');
-  console.log(admin.adminId)
   admin.password = await bcrypt.hash(admin.password, saltRounds);
+  console.log(admin)
 });
 
 // 🔁 Hook: Before Update — rehash password if changed
