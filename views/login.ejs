@@ -50,7 +50,6 @@
         <p id="passwordError" class="text-red-500 text-sm hidden">Password is required.</p>
       </div>
 
-
       <!-- Submit Button -->
       <div class="pt-6 flex-col justify-between items-center">
         <button type="submit" class="w-full bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 active:scale-95 transition font-semibold">
@@ -60,13 +59,13 @@
       </div>
     </form>
 
-      <!-- Forgot Password Link -->
-      <div class="flex justify-center mt-2">
-        <a href="/forgot-password" class="text-gray-600 hover:text-blue-500 transition flex items-center gap-2 font-medium">
-          <i class="fas fa-question-circle text-blue-500"></i>
-          Forgot Password?
-        </a>
-      </div>
+    <!-- Forgot Password Link -->
+    <div class="flex justify-center mt-2">
+      <a href="/forgot-password" class="text-gray-600 hover:text-blue-500 transition flex items-center gap-2 font-medium">
+        <i class="fas fa-question-circle text-blue-500"></i>
+        Forgot Password?
+      </a>
+    </div>
   </div>
 
   <!-- Error Modal -->
@@ -78,46 +77,7 @@
     </div>
   </div>
 
-  <script>
-alert('welcom')
-    // Validation and Error Modal Script
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-      let valid = true;
-
-      // Reset error messages
-      document.getElementById('usernameError').classList.add('hidden');
-      document.getElementById('passwordError').classList.add('hidden');
-
-      // Check for empty fields
-      if (!username) {
-        document.getElementById('usernameError').classList.remove('hidden');
-        valid = false;
-      }
-      if (!password) {
-        document.getElementById('passwordError').classList.remove('hidden');
-        valid = false;
-      }
-
-      if (!valid) {
-        showErrorModal('Please fill out all required fields.');
-      } else {
-        // Proceed with form submission (e.g., via AJAX or standard form submission)
-        this.submit();
-      }
-    });
-
-    function showErrorModal(message) {
-      document.getElementById('errorMessage').innerText = message;
-      document.getElementById('errorModal').classList.remove('hidden');
-    }
-
-    function closeErrorModal() {
-      document.getElementById('errorModal').classList.add('hidden');
-    }
-  </script>
+  <!-- Include the JavaScript file -->
+  <script src="js/login.js"></script>
 </body>
 </html>
