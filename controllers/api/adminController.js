@@ -102,7 +102,6 @@ await sendMail({
   `
 };
 
-    });
     
     const newAdmin = await Admin.create({
       adminId,
