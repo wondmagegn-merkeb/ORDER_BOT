@@ -39,14 +39,18 @@ const Admin = sequelize.define('Admin', {
     type: DataTypes.STRING,
     defaultValue: 'admin'
   },
+  mustChangeCredentials: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true // Forces change on first login
+  },
   resetToken: {
-  type: DataTypes.STRING,
-  allowNull: true
-},
-resetTokenExpires: {
-  type: DataTypes.DATE,
-  allowNull: true
-},
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  resetTokenExpires: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
   // Audit fields
   createdBy: {
     type: DataTypes.STRING,
@@ -71,8 +75,10 @@ Admin.beforeCreate(async (admin, options) => {
     const lastNumber = parseInt(lastAdmin.adminId.replace('ADM', ''));
     newIdNumber = lastNumber + 1;
   }
-
+console.log( 'ADM' + String(newIdNumber).padStart(3, '0'))
+  
   admin.adminId = 'ADM' + String(newIdNumber).padStart(3, '0');
+  console.log(admin.adminId)
   admin.password = await bcrypt.hash(admin.password, saltRounds);
 });
 
