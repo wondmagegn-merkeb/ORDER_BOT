@@ -31,7 +31,7 @@ exports.createAdmin = async (req, res, next) => {
 
     const adminId =1// `ADM${newIdNumber.toString().padStart(3, '0')}`;
     const newAdmin = await Admin.create({
-      adminId,
+      
       username,
       email,
       password,
