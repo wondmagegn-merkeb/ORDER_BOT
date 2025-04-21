@@ -74,6 +74,7 @@ const Admin = sequelize.define('Admin', {
 // Before Create
 Admin.beforeCreate(async (admin, options) => {
   try {
+    console.log(admin)
     const lastAdmin = await Admin.findOne({ order: [['createdAt', 'DESC']] });
     let newIdNumber = 1;
 
