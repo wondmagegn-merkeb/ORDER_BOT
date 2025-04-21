@@ -31,7 +31,7 @@ exports.createAdmin = async (req, res) => {
     newIdNumber = lastNumber + 1;
   }
 
-    const adminId = null;
+    const adminId = 1;
     const newAdmin = await Admin.create({
       adminId,
       username,
