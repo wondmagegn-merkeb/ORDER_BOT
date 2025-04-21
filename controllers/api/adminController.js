@@ -31,9 +31,9 @@ exports.createAdmin = async (req, res) => {
     newIdNumber = lastNumber + 1;
   }
 
-    const adminId = 'ADM' + String(newIdNumber).padStart(3, '0');
+    const adminId = null;
     const newAdmin = await Admin.create({
-      
+      adminId,
       username,
       email,
       password, // Using plain password (no hashing)
