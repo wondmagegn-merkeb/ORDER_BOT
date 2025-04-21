@@ -10,7 +10,7 @@ exports.listAdmins = async (req, res) => {
 };
 
 exports.showAddForm = (req, res) => {
-  res.render('admin/add', { title: 'Add Admin' });
+  res.render('admin/create-admin', { title: 'Add Admin' });
 };
 
 
