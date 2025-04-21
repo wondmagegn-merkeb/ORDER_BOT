@@ -1,20 +1,23 @@
+
 <div class="container mx-auto px-4 py-6">
   <h1 class="text-3xl font-bold mb-4">Category Management</h1>
+<h1 class="text-3xl font-bold text-center mb-8 text-gray-800">Food Management</h1>
 
-  <!-- Add Category Button -->
-  <a href="/categories/add" class="mb-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
-    Add Category
-  </a>
-
-  <!-- Search Form -->
-  <div class="mb-4">
-    <input 
-      type="text" 
+    <!-- Search and Add -->
+    <div class="flex justify-between items-center mb-6">
+      <div class="relative w-full max-w-md">
+        <input type="text" 
       id="searchCategory" 
       placeholder="Search by Category Name or Description" 
-      class="w-full p-2 border rounded-md"
-    />
-  </div>
+class="w-full p-2 pl-10 border border-gray-300 rounded">
+        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+      </div>
+
+      <a href="/categories/add" class="ml-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition inline-flex items-center gap-2">
+        <i class="fas fa-plus"></i> Add
+      </a>
+    </div>
+  
 
   <!-- Category Table -->
   <table class="min-w-full bg-white border border-gray-300 rounded-md shadow-md">
