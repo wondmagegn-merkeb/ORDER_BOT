@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/db');
-const FoodCategoryUpdateLog = require('./FoodCategoryUpdateLog'); // Import the log model
+const FoodCategoryUpdateLog = require('./FoodCategoryUpdateLog');
+const { InternalServerError } = require('../utils/customError'); // Adjust path if needed
 
 const FoodCategory = sequelize.define('FoodCategory', {
   categoryId: {
@@ -14,10 +15,10 @@ const FoodCategory = sequelize.define('FoodCategory', {
     allowNull: false,
     unique: true
   },
-description: {
-  type: DataTypes.STRING,
-    allowNull: true,  
-},
+  description: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   createdBy: {
     type: DataTypes.STRING,
     allowNull: true
@@ -28,59 +29,72 @@ description: {
   }
 }, {
   timestamps: true,
-  paranoid: true, // Enable soft delete (deletedAt)
+  paranoid: true,
   tableName: 'food_categories'
 });
 
 // 🔁 Custom ID: CAT001
 FoodCategory.beforeCreate(async (category) => {
-  const last = await FoodCategory.findOne({ order: [['createdAt', 'DESC']] });
-  let newIdNumber = 1;
+  try {
+    const last = await FoodCategory.findOne({ order: [['createdAt', 'DESC']] });
+    let newIdNumber = 1;
 
-  if (last && last.categoryId) {
-    const lastNumber = parseInt(last.categoryId.replace('CAT', ''));
-    newIdNumber = lastNumber + 1;
+    if (last && last.categoryId) {
+      const lastNumber = parseInt(last.categoryId.replace('CAT', ''));
+      newIdNumber = lastNumber + 1;
+    }
+
+    category.categoryId = 'CAT' + String(newIdNumber).padStart(3, '0');
+  } catch (error) {
+    throw new InternalServerError('Failed to generate category ID', error);
   }
-
-  category.categoryId = 'CAT' + String(newIdNumber).padStart(3, '0');
 });
 
-// 🔁 Hook: After Create — Log the creation of the food category
-FoodCategory.afterCreate(async (category, options) => {
-  console.log(category)
-  await FoodCategoryUpdateLog.create({
-    categoryId: category.categoryId,    
-    oldValue: null,  // No old value for a new creation
-    newValue: category.categoryName,
-    performedBy: category.createdBy || 'system',
-    action: 'CREATE'  // Action is 'CREATE' for new records
-  });
-});
-
-// 🔁 Hook: After Update — Log the update of the food category
-FoodCategory.afterUpdate(async (category, options) => {
-  console.log(category)
-  // Assuming categoryName is being updated
-  if (category.changed('categoryName')) {
+// 🔁 Hook: After Create — Log creation
+FoodCategory.afterCreate(async (category) => {
+  try {
     await FoodCategoryUpdateLog.create({
-      categoryId: category.categoryId,      
-      oldValue: category._previousDataValues.categoryName,  // Fetch the old value before the update
-      newValue: category.categoryName,
-      performedBy: category.updatedBy || 'system',
-      action: 'UPDATE'  // Action is 'UPDATE' for updated records
+      categoryId: category.categoryId,
+      oldValue: null,
+      newValue: category.toJSON(),
+      performedBy: category.createdBy,
+      action: 'CREATE'
     });
+  } catch (error) {
+    throw new InternalServerError('Failed to log category creation', error);
   }
 });
 
-// 🔁 Hook: After Delete — Log the deletion of the food category
-FoodCategory.afterDestroy(async (category, options) => {
-  await FoodCategoryUpdateLog.create({
-    categoryId: category.categoryId,
-    oldValue: category.categoryName,  // The value that is being deleted
-    newValue: null,  // No new value after deletion
-    performedBy: category.updatedBy || 'system',
-    action: 'DELETE'  // Action is 'DELETE' for deleted records
-  });
+// 🔁 Hook: After Update — Log update
+FoodCategory.afterUpdate(async (category) => {
+  try {
+    if (category.changed('categoryName') || category.changed('description')) {
+      await FoodCategoryUpdateLog.create({
+        categoryId: category.categoryId,
+        oldValue: category._previousDataValues,
+        newValue: category.toJSON(),
+        performedBy: category.updatedBy,
+        action: 'UPDATE'
+      });
+    }
+  } catch (error) {
+    throw new InternalServerError('Failed to log category update', error);
+  }
+});
+
+// 🔁 Hook: After Destroy — Log deletion
+FoodCategory.afterDestroy(async (category) => {
+  try {
+    await FoodCategoryUpdateLog.create({
+      categoryId: category.categoryId,
+      oldValue: category.toJSON(),
+      newValue: null,
+      performedBy: category.updatedBy,
+      action: 'DELETE'
+    });
+  } catch (error) {
+    throw new InternalServerError('Failed to log category deletion', error);
+  }
 });
 
 module.exports = FoodCategory;
