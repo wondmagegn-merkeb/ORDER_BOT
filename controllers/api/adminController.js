@@ -1,5 +1,5 @@
 const { Admin } = require('../../models/index');
-const { NotFoundError, ValidationError, InternalServerError, UnauthorizedError } = require('../../errors/customError');
+const { NotFoundError, ValidationError, InternalServerError, UnauthorizedError } = require('../../utiles/customError');
 const jwt = require('jsonwebtoken');
 const sendMail = require('../../utils/mailer');
 const { createAdminSchema, loginSchema, updateAdminSchema, forgotPasswordSchema, resetPasswordSchema } = require('../../validators/adminValidator');
