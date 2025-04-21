@@ -33,24 +33,6 @@ const FoodCategory = sequelize.define('FoodCategory', {
   tableName: 'food_categories'
 });
 
-// 🔁 Custom ID: CAT001
-FoodCategory.beforeCreate(async (category) => {
-  try {
-    console.log(category)
-    const last = await FoodCategory.findOne({ order: [['createdAt', 'DESC']] });
-    let newIdNumber = 1;
-
-    if (last && last.categoryId) {
-      const lastNumber = parseInt(last.categoryId.replace('CAT', ''));
-      newIdNumber = lastNumber + 1;
-    }
-console.log(category)
-    category.categoryId = 'CAT' + String(newIdNumber).padStart(3, '0');
-  } catch (error) {
-    throw new InternalServerError('Failed to generate category ID', error);
-  }
-});
-
 // 🔁 Hook: After Create — Log creation
 FoodCategory.afterCreate(async (category) => {
   try {
