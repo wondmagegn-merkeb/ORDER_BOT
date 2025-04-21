@@ -30,7 +30,7 @@ exports.getAllFoods = async (req, res) => {
       }
     ];
 
-    res.json(foods); // Respond with demo data
+    return foods; // Respond with demo data
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch food items', error });
   }
