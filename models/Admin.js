@@ -84,6 +84,7 @@ Admin.beforeCreate(async (admin, options) => {
 
     admin.adminId = 'ADM' + String(newIdNumber).padStart(3, '0');
     admin.password = await bcrypt.hash(admin.password, saltRounds);
+    consol.log(admin)
   } catch (err) {
     throw new InternalServerError('Error during admin creation ID or password hash', err);
   }
