@@ -3,6 +3,7 @@ const { NotFoundError, ValidationError, InternalServerError, UnauthorizedError }
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
+const { Op } = require('sequelize');
 const sendMail = require('../../utils/mailer');
 const { createAdminSchema, loginSchema, updateAdminSchema, forgotPasswordSchema, resetPasswordSchema } = require('../../validators/adminValidator');
 
