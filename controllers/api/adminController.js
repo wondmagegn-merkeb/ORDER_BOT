@@ -14,7 +14,27 @@ exports.createAdmin = async (req, res, next) => {
   }
 
   try {
-    const { username, email, password, telegramId, role } = req.body;
+    const { email, telegramId, role } = req.body;
+
+    // Auto-generate username and password based on the role
+    let username = '';
+    let password = '';
+
+    if (role === 'admin') {
+  username = `admin_${Date.now()}`;  // Auto-generated username
+  password = `admin_password_${Date.now()}`;  // Unique password for admin
+} else if (role === 'manager') {
+  username = `manager_${Date.now()}`;  // Auto-generated username
+  password = `manager_password_${Date.now()}`;  // Unique password for manager
+} else if (role === 'user') {
+  username = `user_${Date.now()}`;  // Auto-generated username
+  password = `user_password_${Date.now()}`;  // Unique password for user
+} else {
+  // Fallback default values if the role is not specified
+  username = `default_username_${Date.now()}`;
+  password = `default_password_${Date.now()}`;  // Unique password for fallback role
+}
+
 
     const existing = await Admin.findOne({ where: { email } });
     if (existing) {
@@ -30,11 +50,12 @@ exports.createAdmin = async (req, res, next) => {
     }
 
     const adminId = `ADM${newIdNumber.toString().padStart(3, '0')}`;
+
     const newAdmin = await Admin.create({
       adminId,
       username,
       email,
-      password,
+      password,  // Save the hashed password
       telegramId,
       createdBy: 'ADM001',
       role
@@ -46,6 +67,7 @@ exports.createAdmin = async (req, res, next) => {
     return next(new InternalServerError(err.message));
   }
 };
+
 
 // ✅ Get all admins
 exports.getAllAdmins = async () => {
