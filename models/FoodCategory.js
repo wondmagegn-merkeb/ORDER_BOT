@@ -47,6 +47,7 @@ FoodCategory.beforeCreate(async (category) => {
 
 // 🔁 Hook: After Create — Log the creation of the food category
 FoodCategory.afterCreate(async (category, options) => {
+  console.log(category)
   await FoodCategoryUpdateLog.create({
     categoryId: category.categoryId,    
     oldValue: null,  // No old value for a new creation
@@ -58,6 +59,7 @@ FoodCategory.afterCreate(async (category, options) => {
 
 // 🔁 Hook: After Update — Log the update of the food category
 FoodCategory.afterUpdate(async (category, options) => {
+  console.log(category)
   // Assuming categoryName is being updated
   if (category.changed('categoryName')) {
     await FoodCategoryUpdateLog.create({
