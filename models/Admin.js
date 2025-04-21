@@ -108,11 +108,57 @@ Admin.afterCreate(async (admin, options) => {
     });
 
     const mailOptions = {
-      from: 'wondmagegnmerkebbeleka@gmail.com',
-      to: admin.email,
-      subject: 'Your Admin Account Details',
-      text: `Hello ${admin.username},\n\nYour admin account has been created.\n\nUsername: ${admin.username}\nPassword: ${admin.password} (set by the system)\n\nPlease change your password after logging in for the first time.\n\nBest regards,\nYour Team`
-    };
+  from: 'wondmagegnmerkebbeleka@gmail.com',
+  to: admin.email,
+  subject: 'Your Admin Account Details',
+  html: `
+    <html>
+      <head>
+        <title>Admin Account Details</title>
+        <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+        <style>
+          @keyframes fadeInUp {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+          }
+
+          .animate-fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+          }
+        </style>
+      </head>
+      <body class="flex items-center justify-center min-h-screen">
+        <div class="bg-white p-10 rounded-2xl shadow-lg text-center max-w-lg w-full animate-fade-in-up">
+          <h1 class="text-4xl font-extrabold text-blue-600 flex items-center justify-center gap-3 mb-3">
+            <i class="fas fa-hand-peace"></i> Welcome 🎉
+          </h1>
+          <p class="text-gray-600 text-lg mb-4">Your admin account has been successfully created. Please find your login details below:</p>
+          <div class="text-left mb-6">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-2">
+              <i class="fas fa-user-cog text-blue-600"></i> Admin Account Details:
+            </h2>
+            <ul class="space-y-2 text-gray-700">
+              <li><strong>Username:</strong> ${admin.username}</li>
+              <li><strong>Password:</strong> ${admin.password} (set by the system)</li>
+            </ul>
+          </div>
+          <p class="text-gray-600 text-lg mb-8">Please change your password after logging in for the first time.</p>
+          <div class="mt-10">
+            <a href="/admin" class="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition font-medium">
+              <i class="fas fa-sign-in-alt"></i> Login to Get Started
+            </a>
+          </div>
+          <div class="mt-12 text-gray-500 text-sm">
+            <p>Best regards,</p>
+            <p>Your Team</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `
+};
+
 
     await transporter.sendMail(mailOptions);
     console.log('Email sent to ' + admin.email);
