@@ -16,6 +16,7 @@ const categoryRoutes = require('./routes/view/categoryRoutes'); // Adjust the pa
 const apiAdminRoutes = require('./routes/api/adminRoutes');
 const apiCategoryRoutes = require('./routes/api/categoryRoutes'); // Adjust the path as needed
 const adminController = require('./controllers/api/adminController');
+const { authenticateAndAuthorize } = require('./middleware/authMiddleware'); 
 const {sequelize } = require('./config/db');
 
 const app = express();
@@ -77,7 +78,7 @@ app.get('/', (req, res) => {
 app.use('/admin', viewAdminRoutes);
 app.use('/logs', viewLogsRoutes);
 app.use('/categories', categoryRoutes);
-app.use('/api/admin', apiAdminRoutes);
+app.use('/api/admin',authenticateAndAuthorize('admin', 'superadmin'), apiAdminRoutes);
 app.use('/api/categories', apiCategoryRoutes);
 app.use('/api/food', require('./routes/api/foodRoutes'));
 app.use('/food', require('./routes/view/foodRoutes'));
@@ -120,6 +121,18 @@ app.get('/forgot-password', (req, res) => {
 app.get('/reset-password', (req, res) => {
   const token = req.query.token;
   res.render('reset-password', { message: null, token, layout: false });
+});
+// app.js (or the main file where your routes are defined)
+app.post('/logout', (req, res) => {
+  // Destroy the session to log out the user
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({ message: 'Failed to log out' });
+    }
+
+    // Redirect to the login page or send a success message
+    res.render('login', { message: null, layout: false });;
+  });
 });
 
 // ======= Error Handlers =======
