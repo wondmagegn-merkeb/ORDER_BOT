@@ -1,51 +1,41 @@
-const categoryValidationSchema = require('../../validators/categoryValidation'); // Adjust the path if necessary
-const { FoodCategory } = require('../../models/index'); // Adjust path if necessary
+const categoryValidationSchema = require('../../validators/categoryValidation');
+const { FoodCategory } = require('../../models/index');
+const { InternalServerError } = require('../../utils/customError');
 
-// Get all categories (API endpoint)
-exports.getAllCategories = async (req, res) => {
+// Get all categories
+exports.getAllCategories = async (req, res, next) => {
   try {
     const categories = await FoodCategory.findAll();
     return categories;
   } catch (error) {
-    console.error('Error fetching categories:', error.message);
-    res.status(500).json({ message: 'Failed to fetch categories', error: error.message });
+    next(new InternalServerError('Failed to fetch categories'));
   }
 };
 
-// Get a single category by ID (API endpoint)
-exports.getCategoryById = async (req, res) => {
+// Get a single category by ID
+exports.getCategoryById = async (req, res, next) => {
   try {
     const category = await FoodCategory.findByPk(req.params.id);
-
     if (!category) {
       return res.status(404).json({ message: 'Category not found' });
     }
-
     return category;
   } catch (error) {
-    console.error('Error fetching category:', error.message);
-    res.status(500).json({ message: 'Failed to fetch category', error: error.message });
+    next(new InternalServerError('Failed to fetch category'));
   }
 };
 
-// Create a new category (API endpoint)
-exports.createCategory = async (req, res) => {
+// Create a new category
+exports.createCategory = async (req, res, next) => {
   try {
-    // Validate request body
     const { error } = categoryValidationSchema.validate(req.body);
-    if (error) {
-      return res.status(400).json({ message: error.details[0].message });
-    }
+    if (error) return res.status(400).json({ message: error.details[0].message });
 
-    const { categoryName ,description} = req.body;
+    const { categoryName, description } = req.body;
 
-    // Check if categoryName already exists
     const existing = await FoodCategory.findOne({ where: { categoryName } });
-    if (existing) {
-      return res.status(409).json({ message: 'Category name already exists' });
-    }
+    if (existing) return res.status(409).json({ message: 'Category name already exists' });
 
-    // Generate categoryId
     const last = await FoodCategory.findOne({ order: [['createdAt', 'DESC']] });
     let newIdNumber = 1;
     if (last && last.categoryId) {
@@ -55,7 +45,6 @@ exports.createCategory = async (req, res) => {
 
     const categoryId = 'CAT' + String(newIdNumber).padStart(3, '0');
 
-    // Create the category
     const newCategory = await FoodCategory.create({
       categoryId,
       categoryName,
@@ -68,34 +57,26 @@ exports.createCategory = async (req, res) => {
       category: newCategory
     });
   } catch (error) {
-    console.error('Error creating category:', error.message);
-    res.status(500).json({ message: 'Failed to create category', error: error.message });
+    next(new InternalServerError('Failed to create category'));
   }
 };
 
-
-// Update an existing category (API endpoint)
-exports.updateCategory = async (req, res) => {
+// Update category
+exports.updateCategory = async (req, res, next) => {
   try {
-    // Validate request body with Joi
     const { error } = categoryValidationSchema.validate(req.body);
+    if (error) return res.status(400).json({ message: error.details[0].message });
 
-    if (error) {
-      return res.status(400).json({ message: error.details[0].message });
-    }
-
-    const { name, description } = req.body;
+    const { categoryName, description } = req.body;
     const categoryId = req.params.id;
 
     const category = await FoodCategory.findByPk(categoryId);
+    if (!category) return res.status(404).json({ message: 'Category not found' });
 
-    if (!category) {
-      return res.status(404).json({ message: 'Category not found' });
-    }
-
-    category.name = name || category.name;
+    category.categoryName = categoryName || category.categoryName;
     category.description = description || category.description;
-    category.updatedBy = req.admin.adminId,
+    category.updatedBy = req.admin.adminId;
+
     await category.save();
 
     res.status(200).json({
@@ -103,27 +84,23 @@ exports.updateCategory = async (req, res) => {
       category
     });
   } catch (error) {
-    console.error('Error updating category:', error.message);
-    res.status(500).json({ message: 'Failed to update category', error: error.message });
+    next(new InternalServerError('Failed to update category'));
   }
 };
 
-// Delete a category (API endpoint)
-exports.deleteCategory = async (req, res) => {
+// Delete category
+exports.deleteCategory = async (req, res, next) => {
   try {
     const categoryId = req.params.id;
-
     const category = await FoodCategory.findByPk(categoryId);
 
-    if (!category) {
-      return res.status(404).json({ message: 'Category not found' });
-    }
-    category.updatedBy = req.admin.adminId,
+    if (!category) return res.status(404).json({ message: 'Category not found' });
+
+    category.updatedBy = req.admin.adminId;
     await category.destroy();
 
     res.status(200).json({ message: 'Category deleted successfully' });
   } catch (error) {
-    console.error('Error deleting category:', error.message);
-    res.status(500).json({ message: 'Failed to delete category', error: error.message });
+    next(new InternalServerError('Failed to delete category'));
   }
 };
