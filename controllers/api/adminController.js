@@ -109,7 +109,7 @@ await sendMail({
       email,
       password,  // Save the hashed password
       telegramId,
-      createdBy: 'ADM001',
+      createdBy: req.admin.adminId,
       role
     });
 
