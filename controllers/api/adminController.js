@@ -2,6 +2,7 @@ const { Admin } = require('../../models/index');
 const { NotFoundError, ValidationError, InternalServerError, UnauthorizedError } = require('../../utils/customError');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const sendMail = require('../../utils/mailer');
 const { createAdminSchema, loginSchema, updateAdminSchema, forgotPasswordSchema, resetPasswordSchema } = require('../../validators/adminValidator');
 
