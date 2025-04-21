@@ -7,6 +7,7 @@ const {
 exports.listCategories = async (req, res) => {
   try {
     const categories = await getAllCategories();
+    console.log(categories)
     res.render('admin/category/list-category', { categories, title: 'Category List'});
   } catch (error) {
     res.status(500).send(error.message);
