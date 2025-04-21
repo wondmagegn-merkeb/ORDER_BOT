@@ -74,7 +74,10 @@ const Admin = sequelize.define('Admin', {
 // Before Create
 Admin.beforeCreate(async (admin, options) => {
   try {
-    console.log(admin)
+    // Debugging: Check if admin object is as expected
+    console.log('Before creating admin:', admin);
+
+    // Generate adminId based on the last admin's ID
     const lastAdmin = await Admin.findOne({ order: [['createdAt', 'DESC']] });
     let newIdNumber = 1;
 
@@ -83,13 +86,22 @@ Admin.beforeCreate(async (admin, options) => {
       newIdNumber = lastNumber + 1;
     }
 
+    // Assign adminId
     admin.adminId = 'ADM' + String(newIdNumber).padStart(3, '0');
+
+    // Hash password before saving
     admin.password = await bcrypt.hash(admin.password, saltRounds);
-    console.log(admin)
+
+    // Debugging: Ensure adminId is set correctly
+    console.log('Generated adminId:', admin.adminId);
+
+    console.log('After generating adminId and hashing password:', admin);
+
   } catch (err) {
     throw new InternalServerError('Error during admin creation ID or password hash', err);
   }
 });
+
 
 // After Create
 Admin.afterCreate(async (admin, options) => {
