@@ -87,7 +87,15 @@ app.get('/login', (req, res) => {
 });
 
 app.post('/login',adminController.login);
-
+app.get('/forgot-password', (req, res) => {
+  res.render('forgot-password', { message: null, layout: false });
+});
+app.post('/forgot-password', adminController.forgotPassword);
+app.get('/reset-password', (req, res) => {
+  const token = req.query.token;
+  res.render('reset-password', { message: null, token, layout: false });
+});
+app.post('/reset-password', adminController.resetPassword);
 app.get('/dashboard', (req, res) => {
   const demoData = {
     totalOrders: 250,
@@ -114,14 +122,7 @@ app.get('/dashboard', (req, res) => {
   res.render('admin/dashboard', { title: 'Dashboard', ...demoData });
 });
 
-app.get('/forgot-password', (req, res) => {
-  res.render('forgot-password', { message: null, layout: false });
-});
 
-app.get('/reset-password', (req, res) => {
-  const token = req.query.token;
-  res.render('reset-password', { message: null, token, layout: false });
-});
 // app.js (or the main file where your routes are defined)
 app.get('/logout', (req, res) => {
   // Destroy the session to log out the user
