@@ -21,7 +21,7 @@ exports.getCategoryById = async (req, res, next) => {
     }
     return category;
   } catch (error) {
-    next(new InternalServerError('Failed to fetch category'));
+    next(new InternalServerError('Failed to fetch category',error));
   }
 };
 
