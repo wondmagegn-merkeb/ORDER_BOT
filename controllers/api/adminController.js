@@ -161,7 +161,7 @@ exports.updateAdmin = async (req, res, next) => {
     if (telegramId) admin.telegramId = telegramId;
     if (states) admin.states = states;
     if (role) admin.role = role;
-    admin.updatedBy = updatedBy;
+    admin.updatedBy = req.admin.adminId;
 
     await admin.save();
     res.redirect(`/admins/${adminId}`);
@@ -219,7 +219,7 @@ exports.forgotPassword = async (req, res, next) => {
 
     admin.resetToken = token;
     admin.resetTokenExpires = expiry;
-    admin.updatedBy = req.admin.adminId;
+    admin.updatedBy = admin.adminId;
     await admin.save();
 
      const baseUrl = process.env.ADMIN_LOGIN_URL;
@@ -320,6 +320,7 @@ exports.resetPassword = async (req, res, next) => {
     admin.password = newPassword;
     admin.resetToken = null;
     admin.resetTokenExpires = null;
+    admin.updatedBy = admin.adminId
     await admin.save();
 
     res.json({ message: 'Password reset successful' });
