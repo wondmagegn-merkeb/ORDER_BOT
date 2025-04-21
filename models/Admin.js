@@ -1,11 +1,12 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/db');
 const bcrypt = require('bcrypt');
-const saltRounds = 10;
+const nodemailer = require('nodemailer');
 const AdminAuditLog = require('./AdminAuditLog'); // Import log model
 
+const saltRounds = 10;
+
 const Admin = sequelize.define('Admin', {
-  // Custom string ID, e.g., ADM001
   adminId: {
     type: DataTypes.STRING,
     primaryKey: true,
@@ -51,7 +52,6 @@ const Admin = sequelize.define('Admin', {
     type: DataTypes.DATE,
     allowNull: true
   },
-  // Audit fields
   createdBy: {
     type: DataTypes.STRING,
     allowNull: true
@@ -75,10 +75,44 @@ Admin.beforeCreate(async (admin, options) => {
     const lastNumber = parseInt(lastAdmin.adminId.replace('ADM', ''));
     newIdNumber = lastNumber + 1;
   }
-  
+
   admin.adminId = 'ADM' + String(newIdNumber).padStart(3, '0');
   admin.password = await bcrypt.hash(admin.password, saltRounds);
-  console.log(admin)
+  console.log(admin);
+});
+
+// 🔁 Hook: After Create — log to audit and send email
+Admin.afterCreate(async (admin, options) => {
+  // Audit log
+  await AdminAuditLog.create({
+    action: 'CREATE',
+    performedBy: admin.createdBy || 'system', // Log admin who performed the action
+    newData: admin.toJSON() // Save the new data after creation
+  });
+
+  // Send email with username and password to the admin
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail', // You can change this to any email service provider
+      auth: {
+        user: 'wondmagegnmerkebbeleka@gmail.com', // Your email address
+        pass: 'jfwp dcrm khrm ypsd' // Your email password or app-specific password
+      }
+    });
+
+    const mailOptions = {
+      from: 'wondmagegnmerkebbeleka@gmail.com',
+      to: admin.email, // Admin's email from the DB
+      subject: 'Your Admin Account Details',
+      text: `Hello ${admin.username},\n\nYour admin account has been created.\n\nUsername: ${admin.username}\nPassword: Your Password (set by the system)\n\nPlease change your password after logging in for the first time.\n\nBest regards,\nYour Team`
+    };
+
+    // Send email
+    await transporter.sendMail(mailOptions);
+    console.log('Email sent successfully to ' + admin.email);
+  } catch (error) {
+    console.error('Error sending email:', error);
+  }
 });
 
 // 🔁 Hook: Before Update — rehash password if changed
@@ -88,37 +122,28 @@ Admin.beforeUpdate(async (admin, options) => {
   }
 });
 
-// 🔁 Hook: After Create — log to audit
-Admin.afterCreate(async (admin, options) => {
-  await AdminAuditLog.create({
-    action: 'CREATE',
-    performedBy: admin.createdBy || 'system',  // Log admin who performed the action
-    newData: admin.toJSON() // Save the new data after creation
-  });
-});
-
 // 🔁 Hook: After Update — log to audit
 Admin.afterUpdate(async (admin, options) => {
-  const oldData = admin._previousDataValues; // Get the old data before update
-  const newData = admin.toJSON(); // Get the new data after update
+  const oldData = admin._previousDataValues;
+  const newData = admin.toJSON();
 
   await AdminAuditLog.create({
     action: 'UPDATE',
-    performedBy: admin.updatedBy || 'system',  // Log admin who performed the action
-    oldData: oldData,  // Log the old data
-    newData: newData   // Log the new data
+    performedBy: admin.updatedBy || 'system',
+    oldData: oldData,
+    newData: newData
   });
 });
 
 // 🔁 Hook: After Soft Delete — log to audit
 Admin.afterDestroy(async (admin, options) => {
-  const oldData = admin.toJSON(); // Before deletion, log the old data
+  const oldData = admin.toJSON();
 
   await AdminAuditLog.create({
     action: 'DELETE',
-    performedBy: admin.updatedBy || 'system',  // Log admin who performed the action
-    oldData: oldData,  // Log the old data (before delete)
-    newData: null      // No new data as the record is deleted
+    performedBy: admin.updatedBy || 'system',
+    oldData: oldData,
+    newData: null
   });
 });
 
