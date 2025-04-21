@@ -1,0 +1,47 @@
+<div class="max-w-2xl mx-auto px-4 py-6">
+  <h1 class="text-2xl font-bold text-center mb-6 text-gray-800">
+    <%= food ? 'Update Food' : 'Add New Food' %>
+  </h1>
+
+  <form action="<%= food ? '/foods/' + food.id + '?_method=PUT' : '/foods' %>" method="POST" class="bg-white shadow-md rounded-lg p-6 space-y-4">
+    
+    <div>
+      <label class="block text-gray-700 mb-1 font-semibold">Name</label>
+      <input type="text" name="name" value="<%= food?.name || '' %>" required
+        class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring focus:border-blue-400">
+    </div>
+
+    <div>
+      <label class="block text-gray-700 mb-1 font-semibold">Description</label>
+      <textarea name="description" rows="3"
+        class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring focus:border-blue-400"><%= food?.description || '' %></textarea>
+    </div>
+
+    <div>
+      <label class="block text-gray-700 mb-1 font-semibold">Price ($)</label>
+      <input type="number" name="price" step="0.01" value="<%= food?.price || '' %>" required
+        class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring focus:border-blue-400">
+    </div>
+
+    <div>
+      <label class="block text-gray-700 mb-1 font-semibold">Image URL</label>
+      <input type="url" name="imageUrl" value="<%= food?.imageUrl || '' %>"
+        class="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring focus:border-blue-400">
+    </div>
+
+    <div>
+      <label class="inline-flex items-center">
+        <input type="checkbox" name="isAvailable" value="true" <%= food?.isAvailable ? 'checked' : '' %> />
+        <span class="ml-2 text-sm text-gray-700">Available</span>
+      </label>
+    </div>
+
+    <div class="flex justify-end gap-4">
+      <a href="/foods" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Cancel</a>
+      <button type="submit"
+        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+        <%= food ? 'Update' : 'Add' %> Food
+      </button>
+    </div>
+  </form>
+</div>
