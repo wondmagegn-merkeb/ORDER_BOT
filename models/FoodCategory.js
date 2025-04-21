@@ -36,6 +36,7 @@ const FoodCategory = sequelize.define('FoodCategory', {
 // 🔁 Custom ID: CAT001
 FoodCategory.beforeCreate(async (category) => {
   try {
+    console.log(category)
     const last = await FoodCategory.findOne({ order: [['createdAt', 'DESC']] });
     let newIdNumber = 1;
 
