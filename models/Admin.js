@@ -2,7 +2,12 @@ const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/db');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
-const AdminAuditLog = require('./AdminAuditLog'); // Import log model
+const AdminAuditLog = require('./AdminAuditLog');
+
+// Import error classes
+const {
+  InternalServerError,
+} = require('../utils/customError');
 
 const saltRounds = 10;
 
@@ -42,7 +47,7 @@ const Admin = sequelize.define('Admin', {
   },
   mustChangeCredentials: {
     type: DataTypes.BOOLEAN,
-    defaultValue: true // Forces change on first login
+    defaultValue: true
   },
   resetToken: {
     type: DataTypes.STRING,
@@ -62,89 +67,97 @@ const Admin = sequelize.define('Admin', {
   }
 }, {
   timestamps: true,
-  paranoid: true, // enables soft delete (deletedAt)
+  paranoid: true,
   tableName: 'admins'
 });
 
-// 🔁 Hook: Before Create — generate ID and hash password
+// Before Create
 Admin.beforeCreate(async (admin, options) => {
-  const lastAdmin = await Admin.findOne({ order: [['createdAt', 'DESC']] });
+  try {
+    const lastAdmin = await Admin.findOne({ order: [['createdAt', 'DESC']] });
+    let newIdNumber = 1;
 
-  let newIdNumber = 1;
-  if (lastAdmin && lastAdmin.adminId) {
-    const lastNumber = parseInt(lastAdmin.adminId.replace('ADM', ''));
-    newIdNumber = lastNumber + 1;
+    if (lastAdmin && lastAdmin.adminId) {
+      const lastNumber = parseInt(lastAdmin.adminId.replace('ADM', ''));
+      newIdNumber = lastNumber + 1;
+    }
+
+    admin.adminId = 'ADM' + String(newIdNumber).padStart(3, '0');
+    admin.password = await bcrypt.hash(admin.password, saltRounds);
+  } catch (err) {
+    throw new InternalServerError('Error during admin creation ID or password hash', err);
   }
-
-  admin.adminId = 'ADM' + String(newIdNumber).padStart(3, '0');
-  admin.password = await bcrypt.hash(admin.password, saltRounds);
-  console.log(admin);
 });
 
-// 🔁 Hook: After Create — log to audit and send email
+// After Create
 Admin.afterCreate(async (admin, options) => {
-  // Audit log
-  await AdminAuditLog.create({
-    action: 'CREATE',
-    performedBy: admin.createdBy || 'system', // Log admin who performed the action
-    newData: admin.toJSON() // Save the new data after creation
-  });
-
-  // Send email with username and password to the admin
   try {
+    await AdminAuditLog.create({
+      action: 'CREATE',
+      performedBy: admin.createdBy || 'system',
+      newData: admin.toJSON()
+    });
+
     const transporter = nodemailer.createTransport({
-      service: 'gmail', // You can change this to any email service provider
+      service: 'gmail',
       auth: {
-        user: 'wondmagegnmerkebbeleka@gmail.com', // Your email address
-        pass: 'jfwp dcrm khrm ypsd' // Your email password or app-specific password
+        user: 'wondmagegnmerkebbeleka@gmail.com',
+        pass: 'jfwp dcrm khrm ypsd'
       }
     });
 
     const mailOptions = {
       from: 'wondmagegnmerkebbeleka@gmail.com',
-      to: admin.email, // Admin's email from the DB
+      to: admin.email,
       subject: 'Your Admin Account Details',
       text: `Hello ${admin.username},\n\nYour admin account has been created.\n\nUsername: ${admin.username}\nPassword: Your Password (set by the system)\n\nPlease change your password after logging in for the first time.\n\nBest regards,\nYour Team`
     };
 
-    // Send email
     await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully to ' + admin.email);
-  } catch (error) {
-    console.error('Error sending email:', error);
+    console.log('Email sent to ' + admin.email);
+  } catch (err) {
+    console.error('Error in afterCreate hook:', err);
+    throw new InternalServerError('Error during admin post-creation tasks (audit log or email).', err);
   }
 });
 
-// 🔁 Hook: Before Update — rehash password if changed
+// Before Update
 Admin.beforeUpdate(async (admin, options) => {
-  if (admin.changed('password')) {
-    admin.password = await bcrypt.hash(admin.password, saltRounds);
+  try {
+    if (admin.changed('password')) {
+      admin.password = await bcrypt.hash(admin.password, saltRounds);
+    }
+  } catch (err) {
+    throw new InternalServerError('Error hashing updated password.', err);
   }
 });
 
-// 🔁 Hook: After Update — log to audit
+// After Update
 Admin.afterUpdate(async (admin, options) => {
-  const oldData = admin._previousDataValues;
-  const newData = admin.toJSON();
-
-  await AdminAuditLog.create({
-    action: 'UPDATE',
-    performedBy: admin.updatedBy || 'system',
-    oldData: oldData,
-    newData: newData
-  });
+  try {
+    await AdminAuditLog.create({
+      action: 'UPDATE',
+      performedBy: admin.updatedBy || 'system',
+      oldData: admin._previousDataValues,
+      newData: admin.toJSON()
+    });
+  } catch (err) {
+    throw new InternalServerError('Error logging admin update to audit log.', err);
+  }
 });
 
-// 🔁 Hook: After Soft Delete — log to audit
+// After Soft Delete
 Admin.afterDestroy(async (admin, options) => {
-  const oldData = admin.toJSON();
-
-  await AdminAuditLog.create({
-    action: 'DELETE',
-    performedBy: admin.updatedBy || 'system',
-    oldData: oldData,
-    newData: null
-  });
+  try {
+    await AdminAuditLog.create({
+      action: 'DELETE',
+      performedBy: admin.updatedBy || 'system',
+      oldData: admin.toJSON(),
+      newData: null
+    });
+  } catch (err) {
+    throw new InternalServerError('Error logging admin deletion to audit log.', err);
+  }
 });
 
 module.exports = Admin;
