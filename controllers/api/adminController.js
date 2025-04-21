@@ -1,6 +1,7 @@
 const { Admin } = require('../../models/index');
 const { NotFoundError, ValidationError, InternalServerError, UnauthorizedError } = require('../../utils/customError');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 const sendMail = require('../../utils/mailer');
 const { createAdminSchema, loginSchema, updateAdminSchema, forgotPasswordSchema, resetPasswordSchema } = require('../../validators/adminValidator');
 
@@ -174,18 +175,29 @@ exports.login = async (req, res, next) => {
   if (error) return next(new ValidationError(error.details[0].message));
 
   try {
-    const { email, password } = req.body;
+    const { username, password } = req.body;
 
-    const admin = await Admin.findOne({ where: { email } });
+    const admin = await Admin.findOne({ where: { username } });
     if (!admin) return next(new NotFoundError('Admin not found'));
 
-    if (admin.password !== password) return next(new UnauthorizedError('Invalid credentials'));
+    const isMatch = await bcrypt.compare(password, admin.password);
+    if (!isMatch) return next(new UnauthorizedError('Invalid credentials'));
 
-    const token = jwt.sign({ adminId: admin.adminId, role: admin.role }, JWT_SECRET, {
-      expiresIn: '1h'
+    // Sign JWT token
+    const token = jwt.sign(
+      { adminId: admin.adminId, role: admin.role },
+      process.env.JWT_SECRET || 'your_jwt_secret',
+      { expiresIn: '1h' }
+    );
+
+    // Store only the token in session
+    req.session.token = token;
+
+    res.json({
+      message: 'Login successful',
+      token,  // Optionally send the token to the frontend as well
     });
 
-    res.json({ token, admin: { adminId: admin.adminId, username: admin.username, role: admin.role } });
   } catch (err) {
     return next(new InternalServerError(err.message));
   }
