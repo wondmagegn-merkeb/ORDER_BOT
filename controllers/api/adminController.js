@@ -113,7 +113,7 @@ await sendMail({
     });
 
     res.locals.success = 'Admin added successfully!';
-    res.render('admin/add', { title: 'Add Admin' });
+    res.render('admin/create-admin', { title: 'Add Admin' });
   } catch (err) {
     return next(new InternalServerError(err.message));
   }
