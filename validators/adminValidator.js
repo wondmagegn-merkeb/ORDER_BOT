@@ -7,7 +7,7 @@ exports.createAdminSchema = Joi.object({
 });
 
 exports.loginSchema = Joi.object({
-  email: Joi.string().email().required(),
+  username: Joi.string().min(3).required(),
   password: Joi.string().required()
 });
 
