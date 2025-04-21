@@ -111,7 +111,7 @@ Admin.afterCreate(async (admin, options) => {
       from: 'wondmagegnmerkebbeleka@gmail.com',
       to: admin.email,
       subject: 'Your Admin Account Details',
-      text: `Hello ${admin.username},\n\nYour admin account has been created.\n\nUsername: ${admin.username}\nPassword: Your Password (set by the system)\n\nPlease change your password after logging in for the first time.\n\nBest regards,\nYour Team`
+      text: `Hello ${admin.username},\n\nYour admin account has been created.\n\nUsername: ${admin.username}\nPassword: ${admin.password} (set by the system)\n\nPlease change your password after logging in for the first time.\n\nBest regards,\nYour Team`
     };
 
     await transporter.sendMail(mailOptions);
