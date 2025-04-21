@@ -8,7 +8,7 @@ exports.getAllCategories = async (req, res, next) => {
     const categories = await FoodCategory.findAll();
     return categories;
   } catch (error) {
-    next(new InternalServerError('Failed to fetch categories'));
+    next(new InternalServerError('Failed to fetch categories',error));
   }
 };
 
@@ -58,7 +58,7 @@ exports.createCategory = async (req, res, next) => {
       category: newCategory
     });
   } catch (error) {
-    next(new InternalServerError('Failed to create category'));
+    next(new InternalServerError('Failed to create category',error));
   }
 };
 
@@ -85,7 +85,7 @@ exports.updateCategory = async (req, res, next) => {
       category
     });
   } catch (error) {
-    next(new InternalServerError('Failed to update category'));
+    next(new InternalServerError('Failed to update category',error));
   }
 };
 
@@ -102,6 +102,6 @@ exports.deleteCategory = async (req, res, next) => {
 
     res.status(200).json({ message: 'Category deleted successfully' });
   } catch (error) {
-    next(new InternalServerError('Failed to delete category'));
+    next(new InternalServerError('Failed to delete category',error));
   }
 };
