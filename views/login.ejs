@@ -21,40 +21,6 @@
       animation: fadeInUp 0.6s ease-out;
     }
   </style>
-  <style>
-    /* Add some custom animations */
-    .fade-in {
-      animation: fadeIn 1s ease-out;
-    }
-
-    @keyframes fadeIn {
-      0% {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    /* Animation for button hover */
-    .btn-hover {
-      transition: all 0.3s ease;
-    }
-
-    .btn-hover:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    /* Focus effects */
-    .input-focus:focus {
-      outline: none;
-      border-color: #4C8BF5;
-      box-shadow: 0 0 0 2px rgba(76, 139, 245, 0.5);
-    }
-  </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
   <div class="w-full max-w-md mx-auto bg-white p-6 rounded-lg shadow-md animate-fade-in-up">
@@ -63,23 +29,33 @@
       Login
     </h2>
 
-    <form action="/login" method="POST" class="space-y-5">
+    <form action="/login" method="POST" class="space-y-5" id="loginForm">
       <!-- Username -->
-      <div class="transition duration-300 transform hover:scale-[1.01]">
+      <div>
         <label class="block mb-1 text-gray-700 font-medium">Username</label>
         <div class="flex items-center border border-gray-300 p-2 rounded focus-within:ring-2 focus-within:ring-blue-400">
           <i class="fas fa-user text-gray-400 mr-2"></i>
-          <input type="text" name="username" class="w-full focus:outline-none" placeholder="Enter username" required>
+          <input type="text" name="username" id="username" class="w-full focus:outline-none" placeholder="Enter username" required>
         </div>
+        <p id="usernameError" class="text-red-500 text-sm hidden">Username is required.</p>
       </div>
 
       <!-- Password -->
-      <div class="transition duration-300 transform hover:scale-[1.01]">
+      <div>
         <label class="block mb-1 text-gray-700 font-medium">Password</label>
         <div class="flex items-center border border-gray-300 p-2 rounded focus-within:ring-2 focus-within:ring-blue-400">
           <i class="fas fa-lock text-gray-400 mr-2"></i>
-          <input type="password" name="password" class="w-full focus:outline-none" placeholder="Enter password" required>
+          <input type="password" name="password" id="password" class="w-full focus:outline-none" placeholder="Enter password" required>
         </div>
+        <p id="passwordError" class="text-red-500 text-sm hidden">Password is required.</p>
+      </div>
+
+      <!-- Forgot Password Link -->
+      <div class="flex justify-center mb-4">
+        <a href="/forgot-password" class="text-gray-600 hover:text-blue-500 transition flex items-center gap-2 font-medium">
+          <i class="fas fa-question-circle text-blue-500"></i>
+          Forgot Password?
+        </a>
       </div>
 
       <!-- Submit Button -->
@@ -88,13 +64,58 @@
           <i class="fas fa-sign-in-alt"></i>
           Login
         </button>
-
-        <a href="/forgot-password" class="text-gray-600 hover:text-blue-500 transition flex items-center gap-2 font-medium">
-          <i class="fas fa-question-circle text-blue-500"></i>
-          Forgot Password?
-        </a>
       </div>
     </form>
   </div>
+
+  <!-- Error Modal -->
+  <div class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden justify-center items-center z-50" id="errorModal">
+    <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+      <h3 class="text-xl font-bold text-red-600">Error</h3>
+      <p id="errorMessage" class="text-gray-600"></p>
+      <button class="mt-4 px-4 py-2 bg-blue-600 text-white rounded" onclick="closeErrorModal()">Close</button>
+    </div>
+  </div>
+
+  <script>
+    // Validation and Error Modal Script
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      let valid = true;
+
+      // Reset error messages
+      document.getElementById('usernameError').classList.add('hidden');
+      document.getElementById('passwordError').classList.add('hidden');
+
+      // Check for empty fields
+      if (!username) {
+        document.getElementById('usernameError').classList.remove('hidden');
+        valid = false;
+      }
+      if (!password) {
+        document.getElementById('passwordError').classList.remove('hidden');
+        valid = false;
+      }
+
+      if (!valid) {
+        showErrorModal('Please fill out all required fields.');
+      } else {
+        // Proceed with form submission (e.g., via AJAX or standard form submission)
+        this.submit();
+      }
+    });
+
+    function showErrorModal(message) {
+      document.getElementById('errorMessage').innerText = message;
+      document.getElementById('errorModal').classList.remove('hidden');
+    }
+
+    function closeErrorModal() {
+      document.getElementById('errorModal').classList.add('hidden');
+    }
+  </script>
 </body>
 </html>
