@@ -295,7 +295,7 @@ const resetLink = `${baseUrl}/reset-password?token=${token}`;
 `
     });
 
-    res.json({ message: 'Reset email sent' });
+    res.render('reset-email-sent', { layout: false });
   } catch (err) {
     return next(new InternalServerError(err.message));
   }
@@ -324,7 +324,7 @@ exports.resetPassword = async (req, res, next) => {
     admin.updatedBy = admin.adminId
     await admin.save();
 
-    res.json({ message: 'Password reset successful' });
+    res.render('login', { message: 'Password reset successful', layout: false  });
   } catch (err) {
     return next(new InternalServerError(err.message));
   }
