@@ -10,7 +10,7 @@
         <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
       </div>
 
-      <a href="/admin/food/add" class="ml-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition inline-flex items-center gap-2">
+      <a href="/food/add" class="ml-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition inline-flex items-center gap-2">
         <i class="fas fa-plus"></i> Add Food
       </a>
     </div>
@@ -38,10 +38,10 @@
             </div>
 
             <div class="flex justify-between mt-3">
-              <a href="/admin/food/edit/<%= food.id %>" class="text-yellow-500 hover:underline font-medium inline-flex items-center gap-1">
+              <a href="/food/edit/<%= food.id %>" class="text-yellow-500 hover:underline font-medium inline-flex items-center gap-1">
                 <i class="fas fa-edit"></i> Edit
               </a>
-              <form action="/admin/food/delete/<%= food.id %>" method="POST" onsubmit="return confirm('Delete this food item?');">
+              <form action="/api/food/delete/<%= food.id %>" method="POST" onsubmit="return confirm('Delete this food item?');">
                 <button type="submit" class="text-red-500 hover:underline font-medium inline-flex items-center gap-1">
                   <i class="fas fa-trash"></i> Delete
                 </button>
