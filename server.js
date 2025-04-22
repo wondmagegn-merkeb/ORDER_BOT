@@ -147,18 +147,44 @@ app.get('/logout', (req, res) => {
 app.use(notFoundHandler);
 app.use(globalErrorHandler);
 // test-cloudinary.js
-const cloudinary = require('./config/cloudinary');
+const sharp = require('sharp');
+const cloudinary = require('../config/cloudinary');
+const path = require('path');
+const fs = require('fs');
 
-(async () => {
+const uploadImage = async () => {
   try {
-    const result = await cloudinary.uploader.upload("public/uploads/welcome.jpg", {
-      folder: "test"
+    const filePath = path.join(__dirname, './public/uploads/welcome.png');
+
+    const optimizedBuffer = await sharp(filePath)
+      .resize({ width: 800 })
+      .webp({ quality: 80 })
+      .toBuffer();
+
+    const result = await new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        {
+          folder: 'foods',
+          resource_type: 'image',
+          format: 'webp',
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+
+      stream.end(optimizedBuffer);
     });
-    console.log("✅ Upload successful:", result.secure_url);
+
+    console.log('✅ Uploaded:', result.secure_url);
   } catch (err) {
-    console.error("❌ Upload failed:", err.message);
+    console.error('❌ Upload failed:', err.message);
   }
-})();
+};
+
+uploadImage();
+
 
 // ======= Sequelize Init & Server Start =======
 (async () => {
