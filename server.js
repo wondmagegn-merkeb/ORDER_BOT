@@ -146,6 +146,19 @@ app.get('/logout', (req, res) => {
 // ======= Error Handlers =======
 app.use(notFoundHandler);
 app.use(globalErrorHandler);
+// test-cloudinary.js
+const cloudinary = require('./config/cloudinary');
+
+(async () => {
+  try {
+    const result = await cloudinary.uploader.upload("public/uploads/welcome.jpg", {
+      folder: "test"
+    });
+    console.log("✅ Upload successful:", result.secure_url);
+  } catch (err) {
+    console.error("❌ Upload failed:", err.message);
+  }
+})();
 
 // ======= Sequelize Init & Server Start =======
 (async () => {
