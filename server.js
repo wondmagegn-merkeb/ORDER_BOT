@@ -154,7 +154,7 @@ const fs = require('fs');
 
 const uploadImage = async () => {
   try {
-    const filePath = path.join(__dirname, './public/uploads/welcome.png');
+    const filePath = path.join(__dirname, './public/welcome.png');
 
     const optimizedBuffer = await sharp(filePath)
       .resize({ width: 800 })
