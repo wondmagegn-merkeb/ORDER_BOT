@@ -17,7 +17,11 @@ exports.getUserById = async (userId) => {
   try {
     
     const user = await User.findByPk(userId);
-    
+    if (!user) {   
+      
+      res.locals.error =  'User not found';
+      return res.render('admin/user/update-user', { title: 'Update User' }); // Rend
+    }
     
     return user;
   } catch (error) {
