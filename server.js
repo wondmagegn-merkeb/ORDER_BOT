@@ -148,7 +148,7 @@ app.use(notFoundHandler);
 app.use(globalErrorHandler);
 // test-cloudinary.js
 const sharp = require('sharp');
-const cloudinary = require('../config/cloudinary');
+const cloudinary = require('./config/cloudinary');
 
 const fs = require('fs');
 
