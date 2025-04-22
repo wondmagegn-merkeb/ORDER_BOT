@@ -7,7 +7,7 @@ const { InternalServerError } = require('../../utils/customError');
 // List all users
 exports.listUsers = async (req, res, next) => {
   try {
-    const users = await getAllUsers();
+    const users = await getAllUsers(userId);
     res.render('admin/user/list-user', { users, title: 'User List' });
   } catch (error) {
     next(new InternalServerError('Failed to list users', error));
