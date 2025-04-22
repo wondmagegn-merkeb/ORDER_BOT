@@ -15,19 +15,19 @@ const menuItems = [
     name: 'Pizza',
     price: '10$',
     description: 'Delicious cheese pizza',
-    photoPath: path.resolve(__dirname, '../public/welcome.jpg') // Path to the photo
+    
   },
   {
     name: 'Burger',
     price: '5$',
     description: 'Juicy beef burger',
-    photoPath: path.resolve(__dirname, '../public/welcome.jpg') // Path to the photo
+    
   },
   {
     name: 'Pasta',
     price: '8$',
     description: 'Pasta with marinara sauce',
-    photoPath: path.resolve(__dirname, '../public/welcome.jpg') // Path to the photo
+    
   }
 ];
 
@@ -81,14 +81,14 @@ userBot.start(async (ctx) => {
 userBot.hears('view menu', async (ctx) => {
   try {
     let menuMessage = '🍽️ Here are the available menu items:\n\n';
-
+const imagePath = path.resolve(__dirname, '../public/welcome.png');
     // Loop through the menu items and send each one with its photo and description
     for (let i = 0; i < menuItems.length; i++) {
       const item = menuItems[i];
       menuMessage += `${i + 1}. *${item.name}* - ${item.price}\n  *Description*: ${item.description}\n\n`;
 
       await ctx.replyWithPhoto(
-        { source: fs.createReadStream(item.photoPath) },
+        { source: fs.createReadStream(imagePath) },
         {
           caption: `${item.name}\n${item.description}\nPrice: ${item.price}`,
           parse_mode: 'Markdown',
