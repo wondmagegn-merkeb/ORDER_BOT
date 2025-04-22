@@ -33,6 +33,10 @@ const Food = sequelize.define('Food', {
     type: DataTypes.STRING,
     allowNull: false
   },
+  cloudinaryPublicId:{
+    type: DataTypes.STRING,
+    allowNull: false
+  },
   createdBy: {
     type: DataTypes.STRING,
     allowNull: true
