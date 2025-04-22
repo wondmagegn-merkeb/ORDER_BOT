@@ -38,7 +38,7 @@ userBot.start(async (ctx) => {
     }
   } catch (err) {
     console.error('Error handling /start:', err);
-    ctx.reply('Something went wrong. Please try again later.'+error);
+    ctx.reply('Something went wrong. Please try again later.'+err);
   }
 });
 
