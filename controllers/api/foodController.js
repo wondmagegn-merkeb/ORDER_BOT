@@ -66,7 +66,7 @@ exports.createFood = async (req, res) => {
 exports.getAllFoods = async (req, res) => {
   try {
     const foods = await Food.findAll();
-    res.json(foods);
+    return foods;
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch foods", error: err.message });
   }
@@ -76,7 +76,7 @@ exports.getFoodById = async (req, res) => {
   try {
     const food = await Food.findByPk(req.params.id);
     if (!food) return res.status(404).json({ message: "❌ Food not found" });
-    res.json(food);
+    return food;
   } catch (err) {
     res.status(500).json({ message: "Error fetching food", error: err.message });
   }
