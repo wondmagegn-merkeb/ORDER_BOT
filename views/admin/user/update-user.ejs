@@ -5,23 +5,11 @@
   </h2>
 
   <form action="/api/users/<%= user.userId %>?_method=PUT" method="POST" class="space-y-5">
-    <!-- Username (read-only) -->
-    <div>
-      <label class="block mb-1 text-gray-700 font-medium">Username</label>
-      <div class="flex items-center border border-gray-300 p-2 rounded">
-        <i class="fas fa-user text-gray-400 mr-2"></i>
-        <input type="text" name="username" value="<%= user.username %>" class="w-full focus:outline-none bg-gray-100 cursor-not-allowed" readonly>
-      </div>
-    </div>
+    <!-- Hidden Username -->
+    <input type="hidden" name="username" value="<%= user.username %>">
 
-    <!-- Telegram ID (read-only) -->
-    <div>
-      <label class="block mb-1 text-gray-700 font-medium">Telegram ID</label>
-      <div class="flex items-center border border-gray-300 p-2 rounded">
-        <i class="fab fa-telegram text-gray-400 mr-2"></i>
-        <input type="text" name="telegramId" value="<%= user.telegramId %>" class="w-full focus:outline-none bg-gray-100 cursor-not-allowed" readonly>
-      </div>
-    </div>
+    <!-- Hidden Telegram ID -->
+    <input type="hidden" name="telegramId" value="<%= user.telegramId %>">
 
     <!-- User Type Selection -->
     <div>
