@@ -49,8 +49,8 @@ exports.createCategory = async (req, res, next) => {
       categoryId,
       categoryName,
       description,
-      category.updatedBy = req.admin.adminId,
-      category.createdByedBy = req.admin.adminId                                      
+      updatedBy :req.admin.adminId,
+      createdBy :req.admin.adminId                                      
     });
 
     res.status(201).json({
