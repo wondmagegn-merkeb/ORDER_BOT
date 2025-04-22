@@ -1,4 +1,3 @@
-const stream = require("stream");
 const sharp = require("sharp");
 const cloudinary = require("../../config/cloudinary");
 const { Food } = require("../../models/index");
@@ -26,37 +25,30 @@ exports.createFood = async (req, res) => {
       .webp({ quality: 80 })
       .toBuffer();
 
-    const uploadStream = cloudinary.uploader.upload_stream(
-      {
-        folder: "foods",
-        resource_type: "image",
-        format: "webp",
-      },
-      async (error, result) => {
-        if (error) {
-    res.locals.error = "Image upload failed";
-      res.render('admin/food/create-food', { title: 'Add Food' });
-          
-        }
+    // 📦 Convert to base64 Data URI
+    const base64 = buffer.toString("base64");
+    const dataUri = `data:image/webp;base64,${base64}`;
 
-        const food = await Food.create({
-          name: value.name,
-          description: value.description,
-          price: value.price,
-          isAvailable: value.isAvailable ?? true,
-          categoryId: value.categoryId,
-          createdBy: req.admin.adminId,
-          updatedBy: req.admin.adminId,
-          imageUrl: result.secure_url,
-          cloudinaryPublicId: result.public_id,
-        });
-        res.status(201).json({ message: "✅ Food created successfully", food });
-      }
-    );
+    // ☁️ Upload to Cloudinary
+    const result = await cloudinary.uploader.upload(dataUri, {
+      folder: "foods"
+    });
 
-    const readable = new stream.PassThrough();
-    readable.end(buffer);
-    readable.pipe(uploadStream);
+    // ✅ Create food item in DB
+    const food = await Food.create({
+      name: value.name,
+      description: value.description,
+      price: value.price,
+      isAvailable: value.isAvailable ?? true,
+      categoryId: value.categoryId,
+      createdBy: req.admin.adminId,
+      updatedBy: req.admin.adminId,
+      imageUrl: result.secure_url,
+      cloudinaryPublicId: result.public_id,
+    });
+res.locals.success = "✅ Food created successfully";
+    return res.render('admin/food/create-food', { title: 'Add Food', food });
+    
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "❌ Internal Server Error", error: err.message });
@@ -84,40 +76,47 @@ exports.getFoodById = async (req, res) => {
 
 exports.updateFood = async (req, res) => {
   try {
+    // ✅ Validate input
     const { error, value } = foodSchema.validate(req.body, { abortEarly: false });
     if (error) {
       res.locals.error = error.details[0].message;
-      res.render('admin/food/update-food', { title: 'Update Food' });
+      return res.render('admin/food/update-food', { title: 'Update Food' });
     }
 
+    // ❌ Check if food exists
     const food = await Food.findByPk(req.params.id);
     if (!food) {
       res.locals.error = "❌ Food not found";
-      res.render('admin/food/update-food', { title: 'update Food' });
+      return res.render('admin/food/update-food', { title: 'Update Food' });
     }
 
-    // Optional: handle new image upload
+    // 📸 Handle optional new image upload
     if (req.file) {
+      // 🧊 Optimize new image
       const buffer = await sharp(req.file.buffer)
         .resize({ width: 800 })
         .webp({ quality: 80 })
         .toBuffer();
 
-      const uploadResult = await new Promise((resolve, reject) => {
-        const streamUpload = cloudinary.uploader.upload_stream(
-          { folder: "foods", resource_type: "image", format: "webp" },
-          (err, result) => (err ? reject(err) : resolve(result))
-        );
-        const readable = new stream.PassThrough();
-        readable.end(buffer);
-        readable.pipe(streamUpload);
+      // 🧼 Remove old image from Cloudinary
+      if (food.cloudinaryPublicId) {
+        await cloudinary.uploader.destroy(food.cloudinaryPublicId);
+      }
+
+      // 📦 Convert and upload new image
+      const base64 = buffer.toString("base64");
+      const dataUri = `data:image/webp;base64,${base64}`;
+
+      const result = await cloudinary.uploader.upload(dataUri, {
+        folder: "foods"
       });
 
-      food.imageUrl = uploadResult.secure_url;
-      food.cloudinaryPublicId = uploadResult.public_id;
+      // 📝 Save new image data
+      food.imageUrl = result.secure_url;
+      food.cloudinaryPublicId = result.public_id;
     }
 
-    // Update fields
+    // 🛠️ Update food fields
     await food.update({
       name: value.name,
       description: value.description,
@@ -128,13 +127,15 @@ exports.updateFood = async (req, res) => {
       updatedBy: req.admin.adminId,
       cloudinaryPublicId: food.cloudinaryPublicId,
     });
-res.locals.success = "✅ Food updated successfully";
-    res.render('admin/food/update-food', { title: 'update Food' });
-    
+
+    res.locals.success = "✅ Food updated successfully";
+    return res.render('admin/food/update-food', { title: 'Update Food', food });
   } catch (err) {
-    res.status(500).json({ message: "❌ Update failed", error: err.message });
+    console.error("❌ Error updating food:", err);
+    return res.status(500).json({ message: "❌ Update failed", error: err.message });
   }
 };
+
 
 exports.deleteFood = async (req, res) => {
   try {
