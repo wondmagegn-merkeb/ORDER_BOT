@@ -12,7 +12,7 @@ router.get('/:id', categoryController.getCategoryById);
 router.post('/', categoryController.createCategory);
 
 // API endpoint to update an existing category
-router.put('/:id', categoryController.updateCategory);
+router.post('/:id', categoryController.updateCategory);
 
 // API endpoint to delete a category
 router.delete('/:id', categoryController.deleteCategory);
