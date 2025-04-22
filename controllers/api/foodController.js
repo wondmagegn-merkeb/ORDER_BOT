@@ -32,8 +32,18 @@ exports.createFood = async (req, res) => {
     const result = await cloudinary.uploader.upload(dataUri, {
       folder: "foods"
     });
+const last = await Food.findOne({ order: [['createdAt', 'DESC']] });
+  let newIdNumber = 1;
 
+  if (last && last.foodId) {
+    const lastNumber = parseInt(last.foodId.replace('FOOD', ''));
+    newIdNumber = lastNumber + 1;
+  }
+
+  const foodId = 'FOOD' + String(newIdNumber).padStart(3, '0');
+    
     const food = await Food.create({
+      foodId,
       name: value.name,
       description: value.description,
       price: value.price,
