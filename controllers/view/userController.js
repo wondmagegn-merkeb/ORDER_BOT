@@ -20,7 +20,7 @@ exports.showEditForm = async (req, res, next) => {
     const userId = req.params.id;
     
     // Fetch user by ID using the userController's method
-    const user = await getUserById(userId);
+    const user = await getUserById();
 
     // If the user is not found, return a 404 error
     if (!user) {
