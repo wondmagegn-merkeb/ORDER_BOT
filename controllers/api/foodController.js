@@ -1,93 +1,147 @@
-// const Food = require('../../models/Food'); // Uncomment when using actual DB
+const stream = require("stream");
+const sharp = require("sharp");
+const cloudinary = require("../../config/cloudinary");
+const { Food } = require("../../models/index");
+const { foodSchema } = require("../../validators/foodValidation");
+
+exports.createFood = async (req, res) => {
+  try {
+    // Validate input
+    const { error, value } = foodSchema.validate(req.body, { abortEarly: false });
+    if (error) {
+      return res.status(400).json({
+        message: "Validation error",
+        errors: error.details.map((err) => err.message),
+      });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ message: "📸 Image file is required." });
+    }
+
+    // Optimize image
+    const buffer = await sharp(req.file.buffer)
+      .resize({ width: 800 })
+      .webp({ quality: 80 })
+      .toBuffer();
+
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: "foods",
+        resource_type: "image",
+        format: "webp",
+      },
+      async (error, result) => {
+        if (error) {
+          return res.status(500).json({ message: "Image upload failed", error });
+        }
+
+        const food = await Food.create({
+          name: value.name,
+          description: value.description,
+          price: value.price,
+          isAvailable: value.isAvailable ?? true,
+          categoryId: value.categoryId,
+          createdBy: req.user?.id || "system",
+          imageUrl: result.secure_url,
+          cloudinaryPublicId: result.public_id,
+        });
+
+        res.status(201).json({ message: "✅ Food created successfully", food });
+      }
+    );
+
+    const readable = new stream.PassThrough();
+    readable.end(buffer);
+    readable.pipe(uploadStream);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "❌ Internal Server Error", error: err.message });
+  }
+};
 
 exports.getAllFoods = async (req, res) => {
   try {
-    const foods = [
-      {
-        id: 1,
-        name: 'Margherita Pizza',
-        description: 'Classic Margherita pizza with fresh basil and mozzarella.',
-        price: 10.99,
-        isAvailable: true,
-        category: 'Pizza',
-        imageUrl: 'https://images.unsplash.com/photo-1601924582971-d62b5f2bcd35?auto=format&fit=crop&w=800&q=80'
-      },
-      {
-        id: 2,
-        name: 'Beef Burger',
-        description: 'Juicy beef patty with cheese, lettuce, and tomato.',
-        price: 9.49,
-        isAvailable: true,
-        category: 'Burgers',
-        imageUrl: 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=800&q=80'
-      },
-      {
-        id: 3,
-        name: 'Spaghetti Carbonara',
-        description: 'Traditional Italian pasta with creamy sauce and bacon.',
-        price: 12.75,
-        isAvailable: true,
-        category: 'Pasta',
-        imageUrl: 'https://images.unsplash.com/photo-1603079847937-cd2a92b1c4c5?auto=format&fit=crop&w=800&q=80'
-      },
-      {
-        id: 4,
-        name: 'Grilled Chicken Salad',
-        description: 'Healthy salad with grilled chicken, avocado, and vinaigrette.',
-        price: 8.99,
-        isAvailable: false,
-        category: 'Salads',
-        imageUrl: 'https://images.unsplash.com/photo-1562967916-eb82221dfb36?auto=format&fit=crop&w=800&q=80'
-      },
-      {
-        id: 5,
-        name: 'French Fries',
-        description: 'Crispy golden French fries with ketchup.',
-        price: 4.99,
-        isAvailable: true,
-        category: 'Sides',
-        imageUrl: 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=800&q=80'
-      },
-      {
-        id: 6,
-        name: 'Sushi Platter',
-        description: 'Fresh assorted sushi with soy sauce and wasabi.',
-        price: 15.50,
-        isAvailable: true,
-        category: 'Japanese',
-        imageUrl: 'https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=800&q=80'
-      },
-      {
-        id: 7,
-        name: 'Chicken Shawarma',
-        description: 'Flavor-packed shawarma wrap with garlic sauce.',
-        price: 7.95,
-        isAvailable: false,
-        category: 'Middle Eastern',
-        imageUrl: 'https://images.unsplash.com/photo-1631515243347-425d60ad7857?auto=format&fit=crop&w=800&q=80'
-      },
-      {
-        id: 8,
-        name: 'Pancakes',
-        description: 'Fluffy pancakes served with maple syrup and berries.',
-        price: 6.49,
-        isAvailable: true,
-        category: 'Breakfast',
-        imageUrl: 'https://images.unsplash.com/photo-1587740896339-64d876c2776b?auto=format&fit=crop&w=800&q=80'
-      },
-      {
-        id: 9,
-        name: 'Ice Cream Sundae',
-        description: 'Vanilla ice cream with chocolate syrup and nuts.',
-        price: 5.75,
-        isAvailable: true,
-        category: 'Desserts',
-        imageUrl: 'https://images.unsplash.com/photo-1625941343032-f2b55c383be9?auto=format&fit=crop&w=800&q=80'
-      }
-    ];
+    const foods = await Food.findAll();
+    res.json(foods);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch foods", error: err.message });
+  }
+};
 
-    return foods;
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to fetch food items', error });
+exports.getFoodById = async (req, res) => {
+  try {
+    const food = await Food.findByPk(req.params.id);
+    if (!food) return res.status(404).json({ message: "❌ Food not found" });
+    res.json(food);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching food", error: err.message });
+  }
+};
+
+exports.updateFood = async (req, res) => {
+  try {
+    const { error, value } = foodSchema.validate(req.body, { abortEarly: false });
+    if (error) {
+      return res.status(400).json({
+        message: "Validation error",
+        errors: error.details.map((err) => err.message),
+      });
+    }
+
+    const food = await Food.findByPk(req.params.id);
+    if (!food) return res.status(404).json({ message: "❌ Food not found" });
+
+    // Optional: handle new image upload
+    if (req.file) {
+      const buffer = await sharp(req.file.buffer)
+        .resize({ width: 800 })
+        .webp({ quality: 80 })
+        .toBuffer();
+
+      const uploadResult = await new Promise((resolve, reject) => {
+        const streamUpload = cloudinary.uploader.upload_stream(
+          { folder: "foods", resource_type: "image", format: "webp" },
+          (err, result) => (err ? reject(err) : resolve(result))
+        );
+        const readable = new stream.PassThrough();
+        readable.end(buffer);
+        readable.pipe(streamUpload);
+      });
+
+      food.imageUrl = uploadResult.secure_url;
+      food.cloudinaryPublicId = uploadResult.public_id;
+    }
+
+    // Update fields
+    await food.update({
+      name: value.name,
+      description: value.description,
+      price: value.price,
+      isAvailable: value.isAvailable,
+      categoryId: value.categoryId,
+      imageUrl: food.imageUrl,
+      cloudinaryPublicId: food.cloudinaryPublicId,
+    });
+
+    res.json({ message: "✅ Food updated", food });
+  } catch (err) {
+    res.status(500).json({ message: "❌ Update failed", error: err.message });
+  }
+};
+
+exports.deleteFood = async (req, res) => {
+  try {
+    const food = await Food.findByPk(req.params.id);
+    if (!food) return res.status(404).json({ message: "❌ Food not found" });
+
+    if (food.cloudinaryPublicId) {
+      await cloudinary.uploader.destroy(food.cloudinaryPublicId);
+    }
+
+    await food.destroy();
+    res.json({ message: "🗑️ Food deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Delete error", error: err.message });
   }
 };
