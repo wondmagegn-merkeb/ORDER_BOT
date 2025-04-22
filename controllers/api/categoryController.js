@@ -29,12 +29,18 @@ exports.getCategoryById = async (req, res, next) => {
 exports.createCategory = async (req, res, next) => {
   try {
     const { error } = categoryValidationSchema.validate(req.body);
-    if (error) return res.status(400).json({ message: error.details[0].message });
+    if (error) {   
+      res.locals.error = error.details[0].message;
+      res.render('admin/category/create-category', { title: 'Add Category' });
+    }
 
     const { categoryName, description } = req.body;
 
     const existing = await FoodCategory.findOne({ where: { categoryName } });
-    if (existing) return res.status(409).json({ message: 'Category name already exists' });
+    if (existing) {   
+      res.locals.error = 'Category name already exists';
+      res.render('admin/category/create-category', { title: 'Add Category' });
+    }
 
     const last = await FoodCategory.findOne({ order: [['createdAt', 'DESC']] });
     let newIdNumber = 1;
@@ -53,10 +59,9 @@ exports.createCategory = async (req, res, next) => {
       createdBy :req.admin.adminId                                      
     });
 
-    res.status(201).json({
-      message: 'Category created successfully',
-      category: newCategory
-    });
+    
+    res.locals.success = 'Category added successfully!';
+    res.render('admin/category/create-category', { title: 'Add Category' });
   } catch (error) {
     next(new InternalServerError('Failed to create category',error));
   }
@@ -66,13 +71,20 @@ exports.createCategory = async (req, res, next) => {
 exports.updateCategory = async (req, res, next) => {
   try {
     const { error } = categoryValidationSchema.validate(req.body);
-    if (error) return res.status(400).json({ message: error.details[0].message });
-
+    if (error) {   
+      res.locals.error =error.details[0].message;
+      res.render('admin/category/update-category', { title: 'Update Category' });
+    }
+      
     const { categoryName, description } = req.body;
     const categoryId = req.params.id;
 
     const category = await FoodCategory.findByPk(categoryId);
-    if (!category) return res.status(404).json({ message: 'Category not found' });
+    if (!category) {   
+      res.locals.error =  'Category not found';
+      res.render('admin/category/update-category', { title: 'Update Category' });
+    }
+      
 
     category.categoryName = categoryName || category.categoryName;
     category.description = description || category.description;
@@ -80,10 +92,8 @@ exports.updateCategory = async (req, res, next) => {
 
     await category.save();
 
-    res.status(200).json({
-      message: 'Category updated successfully',
-      category
-    });
+    res.locals.success = 'Category updated successfully!';
+    res.render('admin/category/update-category', { title: 'Update Category' });
   } catch (error) {
     next(new InternalServerError('Failed to update category',error));
   }
@@ -95,12 +105,17 @@ exports.deleteCategory = async (req, res, next) => {
     const categoryId = req.params.id;
     const category = await FoodCategory.findByPk(categoryId);
 
-    if (!category) return res.status(404).json({ message: 'Category not found' });
+    if (!category) {   
+      res.locals.error =  'Category not found';
+      res.render('admin/category/list-category', { title: 'List Category' });
+    }
+      
 
     category.updatedBy = req.admin.adminId;
     await category.destroy();
-
-    res.status(200).json({ message: 'Category deleted successfully' });
+    res.locals.success = 'Category deleted successfully!';
+    res.render('admin/category/list-category', { title: 'List Category' });
+    
   } catch (error) {
     next(new InternalServerError('Failed to delete category',error));
   }
