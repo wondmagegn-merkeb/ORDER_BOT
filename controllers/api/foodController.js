@@ -1,6 +1,6 @@
 const sharp = require("sharp");
 const cloudinary = require("../../config/cloudinary");
-const { Food } = require("../../models/index");
+const { Food, FoodCategory } = require("../../models/index");
 const { foodSchema } = require("../../validators/foodValidation");
 const {
   getAllCategories,
@@ -69,13 +69,22 @@ const last = await Food.findOne({ order: [['createdAt', 'DESC']] });
 
 exports.getAllFoods = async (req, res) => {
   try {
-    const foods = await Food.findAll();
+    const foods = await Food.findAll({
+      include: {
+        model: FoodCategory,
+        attributes: ['categoryName'], // You can customize which fields to fetch
+      }
+    });
     return foods;
   } catch (err) {
     console.error("❌ Internal Error (getAllFoods):", err);
-    res.status(500).json({ message: "🚨 Failed to fetch foods. Please try again later.", error: err.message });
+    res.status(500).json({
+      message: "🚨 Failed to fetch foods. Please try again later.",
+      error: err.message
+    });
   }
 };
+
 
 exports.getFoodById = async (req, res) => {
   try {
