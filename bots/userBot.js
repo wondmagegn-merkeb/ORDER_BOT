@@ -88,11 +88,8 @@ const imagePath = path.resolve(__dirname, '../public/welcome.png');
       menuMessage += `${i + 1}. *${item.name}* - ${item.price}\n  *Description*: ${item.description}\n\n`;
 
       await ctx.replyWithPhoto(
-        { source: fs.createReadStream(imagePath) },
-        {
-          caption: `${item.name}\n${item.description}\nPrice: ${item.price}`,
-          parse_mode: 'Markdown',
-        }
+        { source: fs.createReadStream(imagePath) }
+        
       );
     }
 
