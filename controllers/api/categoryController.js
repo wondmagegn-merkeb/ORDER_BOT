@@ -13,10 +13,10 @@ exports.getAllCategories = async (req, res, next) => {
 };
 
 // Get a single category by ID
-exports.getCategoryById = async (req, res, next) => {
+exports.getCategoryById = async (categoryId) => {
   try {
     console.log(req.body)
-    const category = await FoodCategory.findByPk(req.params.id);
+    const category = await FoodCategory.findByPk(categoryId);
     
     if (!category) {   
       res.locals.error =  'Category not found';
@@ -24,7 +24,7 @@ exports.getCategoryById = async (req, res, next) => {
     }
     return category;
   } catch (error) {
-    next(new InternalServerError('Failed to fetch category',error));
+    return next(new InternalServerError('Failed to fetch category',error));
   }
 };
 
