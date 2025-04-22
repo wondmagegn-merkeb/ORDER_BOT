@@ -2,28 +2,32 @@ const {
   getAllCategories,
   getCategoryById,
 } = require('../api/categoryController');
+const { InternalServerError } = require('../../utils/customError');
 
-
-exports.listCategories = async (req, res) => {
+exports.listCategories = async (req, res, next) => {
   try {
     const categories = await getAllCategories();
-    console.log(categories)
-    res.render('admin/category/list-category', { categories, title: 'Category List'});
+    res.render('admin/category/list-category', { categories, title: 'Category List' });
   } catch (error) {
-    res.status(500).send(error.message);
+    next(new InternalServerError('Failed to list categories', error));
   }
 };
 
 exports.showAddForm = (req, res) => {
-  res.render('admin/category/create-category',{title: 'Category Add'});
+  res.render('admin/category/create-category', { title: 'Category Add' });
 };
 
-exports.showEditForm = async (req, res) => {
+exports.showEditForm = async (req, res, next) => {
   try {
-    const category = await getCategoryById();
-    res.render('admin/category/update-category', { category, title: 'Category Update'});
+    const categoryId = req.params.id;
+    const category = await getCategoryById(categoryId);
+
+    if (!category) {
+      return res.status(404).send('Category not found');
+    }
+
+    res.render('admin/category/update-category', { category, title: 'Category Update' });
   } catch (error) {
-    res.status(500).send(error.message);
+    next(new InternalServerError('Failed to fetch category for editing', error));
   }
 };
-
