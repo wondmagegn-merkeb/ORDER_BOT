@@ -13,19 +13,15 @@ exports.getAllUsers = async (req, res, next) => {
 };
 
 // Get a single user by ID
-exports.getUserById = async (req, res, next) => {
+exports.getUserById = async (userId) => {
   try {
-    const userId = req.params.id;
+    
     const user = await User.findByPk(userId);
     
-    if (!user) {   
-      
-      res.locals.error =  'User not found';
-      return res.render('admin/user/update-user', { title: 'Update User' }); // Rend
-    }
+    
     return user;
   } catch (error) {
-    next(new InternalServerError('Failed to fetch user', error));
+    return next(new InternalServerError('Failed to fetch user', error));
   }
 };
 
