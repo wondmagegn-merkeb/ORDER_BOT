@@ -159,7 +159,7 @@ app.use(globalErrorHandler);
 
     // Start the bot first
     try {
-      await userBot.launch();
+      //await userBot.launch();
       console.log('🤖 Bot started');
     } catch (botError) {
       console.error('❌ Error launching bot:', botError);
