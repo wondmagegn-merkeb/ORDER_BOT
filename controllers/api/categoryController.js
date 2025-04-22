@@ -15,7 +15,7 @@ exports.getAllCategories = async (req, res, next) => {
 // Get a single category by ID
 exports.getCategoryById = async (categoryId) => {
   try {
-    console.log(req.body)
+    console.log('id:'+categoryId)
     const category = await FoodCategory.findByPk(categoryId);
     
     if (!category) {   
