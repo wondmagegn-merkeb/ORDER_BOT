@@ -12,10 +12,14 @@ require('dotenv').config();
 const { globalErrorHandler, notFoundHandler } = require('./controllers/errorController');
 const viewAdminRoutes = require('./routes/view/adminRoutes');
 const viewLogsRoutes = require('./routes/view/logsRoutes');
+const apiUserRoutes = require('./routes/api/userRoutes');
 const categoryRoutes = require('./routes/view/categoryRoutes'); // Adjust the path as needed
 const apiAdminRoutes = require('./routes/api/adminRoutes');
 const apiCategoryRoutes = require('./routes/api/categoryRoutes'); // Adjust the path as needed
 const adminController = require('./controllers/api/adminController');
+const userRoutes = require('./routes/view/userRoutes');
+
+
 const { authenticateAndAuthorize } = require('./middleware/authMiddleware'); 
 const { userBot } = require('./bots/userBot');  // Import the bot from bot.js
 const {sequelize } = require('./config/db');
@@ -79,8 +83,10 @@ app.get('/', (req, res) => {
 app.use('/admin', viewAdminRoutes);
 app.use('/logs', viewLogsRoutes);
 app.use('/categories', categoryRoutes);
+app.use('/users', userRoutes);
 app.use('/api/admin',authenticateAndAuthorize('admin', 'superadmin'), apiAdminRoutes);
 app.use('/api/categories',authenticateAndAuthorize('admin', 'superadmin'), apiCategoryRoutes);
+app.use('/api/users', authenticateAndAuthorize('admin', 'superadmin'), apiUserRoutes);
 app.use('/api/food',authenticateAndAuthorize('admin', 'superadmin'), require('./routes/api/foodRoutes'));
 app.use('/food', require('./routes/view/foodRoutes'));
 app.get('/login', (req, res) => {
