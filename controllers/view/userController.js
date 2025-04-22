@@ -7,7 +7,7 @@ const { InternalServerError } = require('../../utils/customError');
 // List all users
 exports.listUsers = async (req, res, next) => {
   try {
-    const users = await getAllUsers(userId);
+    const users = await getAllUsers();
     res.render('admin/user/list-user', { users, title: 'User List' });
   } catch (error) {
     next(new InternalServerError('Failed to list users', error));
@@ -20,7 +20,7 @@ exports.showEditForm = async (req, res, next) => {
     const userId = req.params.id;
     
     // Fetch user by ID using the userController's method
-    const user = await getUserById();
+    const user = await getUserById(userId);
 
     // If the user is not found, return a 404 error
     if (!user) {
