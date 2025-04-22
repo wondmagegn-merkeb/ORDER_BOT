@@ -1,0 +1,48 @@
+<div class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
+  <h2 class="text-3xl font-extrabold mb-6 text-gray-800 text-center flex items-center justify-center gap-2">
+    <i class="fas fa-edit text-yellow-500"></i>
+    Update Category
+  </h2>
+
+  <form action="/api/categories/<%= category.id %>" method="POST" class="space-y-5">
+    <div>
+      <label class="block mb-1 text-gray-700 font-medium">Category Name</label>
+      <div class="flex items-center border border-gray-300 p-2 rounded">
+        <i class="fas fa-tag text-gray-400 mr-2"></i>
+        <input 
+          type="text" 
+          name="categoryName" 
+          value="<%= category.categoryName %>" 
+          class="w-full focus:outline-none" 
+          placeholder="Enter category name" 
+          required
+        >
+      </div>
+    </div>
+
+    <div>
+      <label class="block mb-1 text-gray-700 font-medium">Description</label>
+      <div class="flex items-start border border-gray-300 p-2 rounded">
+        <i class="fas fa-align-left text-gray-400 mt-1 mr-2"></i>
+        <textarea 
+          name="description" 
+          class="w-full focus:outline-none resize-none" 
+          placeholder="Write a short description..." 
+          rows="3"
+        ><%= category.description %></textarea>
+      </div>
+    </div>
+
+    <div class="pt-6 flex justify-between items-center">
+      <button type="submit" class="bg-yellow-500 text-white px-6 py-2 rounded flex items-center gap-2 hover:bg-yellow-600 transition font-semibold">
+        <i class="fas fa-save"></i>
+        Update Category
+      </button>
+
+      <a href="/categories" class="text-gray-600 hover:text-red-500 transition flex items-center gap-2 font-medium">
+        <i class="fas fa-times-circle text-red-500"></i>
+        Cancel
+      </a>
+    </div>
+  </form>
+</div>
