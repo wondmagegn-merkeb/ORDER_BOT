@@ -149,7 +149,7 @@ app.use(globalErrorHandler);
 // test-cloudinary.js
 const sharp = require('sharp');
 const cloudinary = require('../config/cloudinary');
-const path = require('path');
+
 const fs = require('fs');
 
 const uploadImage = async () => {
