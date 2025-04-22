@@ -2,12 +2,34 @@ const { Telegraf, Markup } = require('telegraf');
 const LocalSession = require('telegraf-session-local');
 const path = require('path');
 const fs = require('fs');
-const { User, Order } = require('../models/index');
+const { User, Order } = require('../models/index'); // Assuming User and Order models are defined in your Sequelize setup
 
 const userBot = new Telegraf(process.env.USER_BOT_TOKEN);
 
 // Session support
 userBot.use(new LocalSession({ database: 'session_db.json' }).middleware());
+
+// Demo menu items with photos
+const menuItems = [
+  {
+    name: 'Pizza',
+    price: '10$',
+    description: 'Delicious cheese pizza',
+    photoPath: path.resolve(__dirname, '../public/welcome.jpg') // Path to the photo
+  },
+  {
+    name: 'Burger',
+    price: '5$',
+    description: 'Juicy beef burger',
+    photoPath: path.resolve(__dirname, '../public/welcome.jpg') // Path to the photo
+  },
+  {
+    name: 'Pasta',
+    price: '8$',
+    description: 'Pasta with marinara sauce',
+    photoPath: path.resolve(__dirname, '../public/welcome.jpg') // Path to the photo
+  }
+];
 
 // /start command
 userBot.start(async (ctx) => {
@@ -19,7 +41,20 @@ userBot.start(async (ctx) => {
     let user = await User.findOne({ where: { telegramId } });
 
     if (!user) {
-      user = await User.create({ telegramId, username });
+      const lastUser = await User.findOne({
+        order: [['createdAt', 'DESC']],
+      });
+
+      let newIdNumber = 1;
+
+      if (lastUser && lastUser.userId) {
+        const lastNumber = parseInt(lastUser.userId.replace('USR', ''));
+        newIdNumber = lastNumber + 1;
+      }
+
+      const userId = 'USR' + String(newIdNumber).padStart(3, '0');
+      user = await User.create({ userId, telegramId, username });
+
       const imagePath = path.resolve(__dirname, '../public/welcome.png');
       await ctx.replyWithPhoto({ source: fs.createReadStream(imagePath) }, {
         caption: `👋 Welcome ${firstName} to our Telegram Order Bot! 🛒\n\n` +
@@ -30,32 +65,36 @@ userBot.start(async (ctx) => {
         parse_mode: 'Markdown',
         ...Markup.keyboard([
           ['view menu', 'last order', 'profile'],
-          ['history']
-        ]).resize()
+          ['history'],
+        ]).resize(),
       });
     } else {
-      //start(ctx, 'menu');
+      await ctx.reply(`Welcome back, ${firstName}! Type *menu* to start ordering.`);
     }
   } catch (err) {
     console.error('Error handling /start:', err);
-    ctx.reply('Something went wrong. Please try again later.'+err);
+    ctx.reply('Something went wrong. Please try again later.');
   }
 });
 
 // /view menu command
 userBot.hears('view menu', async (ctx) => {
   try {
-    // Example menu items; you could fetch them from a database or API
-    const menuItems = [
-      { name: 'Pizza', price: '10$', description: 'Delicious cheese pizza' },
-      { name: 'Burger', price: '5$', description: 'Juicy beef burger' },
-      { name: 'Pasta', price: '8$', description: 'Pasta with marinara sauce' }
-    ];
-
     let menuMessage = '🍽️ Here are the available menu items:\n\n';
-    menuItems.forEach((item, index) => {
-      menuMessage += `${index + 1}. *${item.name}* - ${item.price}\n  *Description*: ${item.description}\n\n`;
-    });
+
+    // Loop through the menu items and send each one with its photo and description
+    for (let i = 0; i < menuItems.length; i++) {
+      const item = menuItems[i];
+      menuMessage += `${i + 1}. *${item.name}* - ${item.price}\n  *Description*: ${item.description}\n\n`;
+
+      await ctx.replyWithPhoto(
+        { source: fs.createReadStream(item.photoPath) },
+        {
+          caption: `${item.name}\n${item.description}\nPrice: ${item.price}`,
+          parse_mode: 'Markdown',
+        }
+      );
+    }
 
     await ctx.reply(menuMessage, { parse_mode: 'Markdown' });
   } catch (err) {
@@ -69,7 +108,10 @@ userBot.hears('history', async (ctx) => {
   const telegramId = ctx.from.id.toString();
 
   try {
-    const orders = await Order.findAll({ where: { telegramId }, order: [['createdAt', 'DESC']] });
+    const orders = await Order.findAll({
+      where: { telegramId },
+      order: [['createdAt', 'DESC']],
+    });
 
     if (orders.length === 0) {
       return ctx.reply('You have no past orders yet. Start by placing an order!');
@@ -94,7 +136,7 @@ userBot.hears('last order', async (ctx) => {
   try {
     const lastOrder = await Order.findOne({
       where: { telegramId },
-      order: [['createdAt', 'DESC']]
+      order: [['createdAt', 'DESC']],
     });
 
     if (!lastOrder) {
@@ -134,6 +176,35 @@ userBot.hears('profile', async (ctx) => {
   } catch (err) {
     console.error('Error fetching profile:', err);
     ctx.reply('Sorry, there was an issue fetching your profile. Please try again later.');
+  }
+});
+
+// Command to handle item ordering (e.g., ordering pizza)
+userBot.hears('order item', async (ctx) => {
+  const telegramId = ctx.from.id.toString();
+
+  // Example logic for ordering Pizza (can be dynamic based on user selection)
+  const selectedItem = menuItems[0]; // Example: ordering Pizza
+  const item = selectedItem;
+
+  if (!item) {
+    return ctx.reply('Item not available.');
+  }
+
+  try {
+    const newOrder = await Order.create({
+      telegramId,
+      items: item.name,
+      status: 'Pending',
+      price: item.price,
+    });
+
+    ctx.reply(`Your order for *${item.name}* has been placed!\nStatus: ${newOrder.status}\nTotal: ${newOrder.price}`, {
+      parse_mode: 'Markdown',
+    });
+  } catch (err) {
+    console.error('Error placing order:', err);
+    ctx.reply('Sorry, there was an issue placing your order. Please try again later.');
   }
 });
 
