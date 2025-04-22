@@ -20,6 +20,7 @@ exports.showAddForm = (req, res) => {
 exports.showEditForm = async (req, res, next) => {
   try {
     const categoryId = req.params.id;
+    console.log(req)
     const category = await getCategoryById(categoryId);
 
     if (!category) {
