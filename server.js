@@ -146,45 +146,6 @@ app.get('/logout', (req, res) => {
 // ======= Error Handlers =======
 app.use(notFoundHandler);
 app.use(globalErrorHandler);
-// test-cloudinary.js
-const sharp = require('sharp');
-const cloudinary = require('./config/cloudinary');
-
-const fs = require('fs');
-
-const uploadImage = async () => {
-  try {
-    const filePath = path.join(__dirname, './public/welcome.png');
-
-    const optimizedBuffer = await sharp(filePath)
-      .resize({ width: 800 })
-      .webp({ quality: 80 })
-      .toBuffer();
-
-    const result = await new Promise((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        {
-          folder: 'foods',
-          resource_type: 'image',
-          format: 'webp',
-        },
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
-        }
-      );
-
-      stream.end(optimizedBuffer);
-    });
-
-    console.log('✅ Uploaded:', result.secure_url);
-  } catch (err) {
-    console.error('❌ Upload failed:', err.message);
-  }
-};
-
-uploadImage();
-
 
 // ======= Sequelize Init & Server Start =======
 (async () => {
