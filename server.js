@@ -83,10 +83,10 @@ app.get('/', (req, res) => {
 app.use('/admin', viewAdminRoutes);
 app.use('/logs', viewLogsRoutes);
 app.use('/categories', categoryRoutes);
-//app.use('/users', userRoutes);
+app.use('/users', userRoutes);
 app.use('/api/admin',authenticateAndAuthorize('admin', 'superadmin'), apiAdminRoutes);
 app.use('/api/categories',authenticateAndAuthorize('admin', 'superadmin'), apiCategoryRoutes);
-//app.use('/api/users', authenticateAndAuthorize('admin', 'superadmin'), apiUserRoutes);
+app.use('/api/users', authenticateAndAuthorize('admin', 'superadmin'), apiUserRoutes);
 app.use('/api/food',authenticateAndAuthorize('admin', 'superadmin'), require('./routes/api/foodRoutes'));
 app.use('/food', require('./routes/view/foodRoutes'));
 app.get('/login', (req, res) => {
