@@ -17,6 +17,7 @@ const apiAdminRoutes = require('./routes/api/adminRoutes');
 const apiCategoryRoutes = require('./routes/api/categoryRoutes'); // Adjust the path as needed
 const adminController = require('./controllers/api/adminController');
 const { authenticateAndAuthorize } = require('./middleware/authMiddleware'); 
+const { userBot } = require('./bots/userBot');  // Import the bot from bot.js
 const {sequelize } = require('./config/db');
 
 const app = express();
@@ -145,12 +146,26 @@ app.use(globalErrorHandler);
   try {
     await sequelize.authenticate();
     console.log('✅ Database connected');
+
     await sequelize.sync({ alter: true }); // Keep schema updated
+
     const PORT = process.env.PORT || 8080;
+
+    // Start the bot first
+    try {
+      await userBot.launch();
+      console.log('🤖 Bot started');
+    } catch (botError) {
+      console.error('❌ Error launching bot:', botError);
+    }
+
+    // Start the server
     app.listen(PORT, () => {
       console.log(`🚀 Server running at http://localhost:${PORT}`);
     });
+
   } catch (error) {
     console.error('❌ DB connection error:', error);
   }
 })();
+
