@@ -4,42 +4,35 @@ const { Food } = require("../../models/index");
 const { foodSchema } = require("../../validators/foodValidation");
 const {
   getAllCategories,
-  
 } = require('./categoryController');
+
 exports.createFood = async (req, res) => {
   try {
     const categories = await getAllCategories();
     
-    // Validate input
     const { error, value } = foodSchema.validate(req.body, { abortEarly: false });
     if (error) {
-      
       res.locals.error = error.details[0].message;
-      res.render('admin/food/create-food', { categories,title:'Food List' });
-    }
-      
-    if (!req.file) {
-      
-      res.locals.error = '📸 Image file is required.';
-      res.render('admin/food/create-food', { categories,title:'Food List' });
+      res.render('admin/food/create-food', { categories, title: 'Food List' });
     }
 
-    // Optimize image
+    if (!req.file) {
+      res.locals.error = '📸 Image file is required.';
+      res.render('admin/food/create-food', { categories, title: 'Food List' });
+    }
+
     const buffer = await sharp(req.file.buffer)
       .resize({ width: 800 })
       .webp({ quality: 80 })
       .toBuffer();
 
-    // 📦 Convert to base64 Data URI
     const base64 = buffer.toString("base64");
     const dataUri = `data:image/webp;base64,${base64}`;
 
-    // ☁️ Upload to Cloudinary
     const result = await cloudinary.uploader.upload(dataUri, {
       folder: "foods"
     });
 
-    // ✅ Create food item in DB
     const food = await Food.create({
       name: value.name,
       description: value.description,
@@ -51,12 +44,15 @@ exports.createFood = async (req, res) => {
       imageUrl: result.secure_url,
       cloudinaryPublicId: result.public_id,
     });
-res.locals.success = "✅ Food created successfully";
-res.render('admin/food/create-food', { categories,title:'Food List' });
-    
+
+    res.locals.success = "✅ Food created successfully";
+    res.render('admin/food/create-food', { categories, title: 'Food List' });
+
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "❌ Internal Server Error", error: err.message });
+    console.error("❌ Internal Error (createFood):", err);
+    res.locals.error = "🚨 Internal server error occurred. Please try again.";
+    const categories = await getAllCategories();
+    res.render('admin/food/create-food', { categories, title: 'Food List' });
   }
 };
 
@@ -65,7 +61,8 @@ exports.getAllFoods = async (req, res) => {
     const foods = await Food.findAll();
     return foods;
   } catch (err) {
-    res.status(500).json({ message: "Failed to fetch foods", error: err.message });
+    console.error("❌ Internal Error (getAllFoods):", err);
+    res.status(500).json({ message: "🚨 Failed to fetch foods. Please try again later.", error: err.message });
   }
 };
 
@@ -75,40 +72,35 @@ exports.getFoodById = async (req, res) => {
     if (!food) return res.status(404).json({ message: "❌ Food not found" });
     return food;
   } catch (err) {
-    res.status(500).json({ message: "Error fetching food", error: err.message });
+    console.error("❌ Internal Error (getFoodById):", err);
+    res.status(500).json({ message: "🚨 Error fetching food. Please try again later.", error: err.message });
   }
 };
 
 exports.updateFood = async (req, res) => {
   try {
-    // ✅ Validate input
     const { error, value } = foodSchema.validate(req.body, { abortEarly: false });
     if (error) {
       res.locals.error = error.details[0].message;
       return res.render('admin/food/update-food', { title: 'Update Food' });
     }
 
-    // ❌ Check if food exists
     const food = await Food.findByPk(req.params.id);
     if (!food) {
       res.locals.error = "❌ Food not found";
       return res.render('admin/food/update-food', { title: 'Update Food' });
     }
 
-    // 📸 Handle optional new image upload
     if (req.file) {
-      // 🧊 Optimize new image
       const buffer = await sharp(req.file.buffer)
         .resize({ width: 800 })
         .webp({ quality: 80 })
         .toBuffer();
 
-      // 🧼 Remove old image from Cloudinary
       if (food.cloudinaryPublicId) {
         await cloudinary.uploader.destroy(food.cloudinaryPublicId);
       }
 
-      // 📦 Convert and upload new image
       const base64 = buffer.toString("base64");
       const dataUri = `data:image/webp;base64,${base64}`;
 
@@ -116,12 +108,10 @@ exports.updateFood = async (req, res) => {
         folder: "foods"
       });
 
-      // 📝 Save new image data
       food.imageUrl = result.secure_url;
       food.cloudinaryPublicId = result.public_id;
     }
 
-    // 🛠️ Update food fields
     await food.update({
       name: value.name,
       description: value.description,
@@ -135,30 +125,36 @@ exports.updateFood = async (req, res) => {
 
     res.locals.success = "✅ Food updated successfully";
     return res.render('admin/food/update-food', { title: 'Update Food', food });
+
   } catch (err) {
-    console.error("❌ Error updating food:", err);
-    return res.status(500).json({ message: "❌ Update failed", error: err.message });
+    console.error("❌ Internal Error (updateFood):", err);
+    res.locals.error = "🚨 Failed to update food. Please try again later.";
+    return res.render('admin/food/update-food', { title: 'Update Food' });
   }
 };
-
 
 exports.deleteFood = async (req, res) => {
   try {
     const food = await Food.findByPk(req.params.id);
     if (!food) {
       res.locals.error = "❌ Food not found";
-      res.render('admin/food/list-food', { title: 'Add List' });
+      return res.render('admin/food/list-food', { title: 'Add List' });
     }
-    
+
     if (food.cloudinaryPublicId) {
       await cloudinary.uploader.destroy(food.cloudinaryPublicId);
     }
-    food.updatedBy= req.admin.adminId,
+
+    food.updatedBy = req.admin.adminId;
     await food.destroy();
+
     res.locals.success = "🗑️ Food deleted successfully";
     res.render('admin/food/list-food', { title: 'Add List' });
-    
+
   } catch (err) {
-    res.status(500).json({ message: "Delete error", error: err.message });
+    console.error("❌ Internal Error (deleteFood):", err);
+    res.locals.error = "🚨 Failed to delete food. Please try again later.";
+    res.render('admin/food/list-food', { title: 'Add List' });
   }
 };
+
