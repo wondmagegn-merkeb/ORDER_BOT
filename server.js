@@ -79,8 +79,8 @@ app.use('/admin', viewAdminRoutes);
 app.use('/logs', viewLogsRoutes);
 app.use('/categories', categoryRoutes);
 app.use('/api/admin',authenticateAndAuthorize('admin', 'superadmin'), apiAdminRoutes);
-app.use('/api/categories', apiCategoryRoutes);
-app.use('/api/food', require('./routes/api/foodRoutes'));
+app.use('/api/categories',authenticateAndAuthorize('admin', 'superadmin'), apiCategoryRoutes);
+app.use('/api/food',authenticateAndAuthorize('admin', 'superadmin'), require('./routes/api/foodRoutes'));
 app.use('/food', require('./routes/view/foodRoutes'));
 app.get('/login', (req, res) => {
   res.render('login', { message: null, layout: false });
