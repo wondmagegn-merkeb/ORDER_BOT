@@ -42,7 +42,7 @@ exports.createFood = async (req, res) => {
           price: value.price,
           isAvailable: value.isAvailable ?? true,
           categoryId: value.categoryId,
-          createdBy: req.user?.id || "system",
+          createdBy: req.admin.adminId,
           imageUrl: result.secure_url,
           cloudinaryPublicId: result.public_id,
         });
