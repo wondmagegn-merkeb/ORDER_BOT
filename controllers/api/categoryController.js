@@ -15,9 +15,12 @@ exports.getAllCategories = async (req, res, next) => {
 // Get a single category by ID
 exports.getCategoryById = async (req, res, next) => {
   try {
+    console.log(req.body)
     const category = await FoodCategory.findByPk(req.params.id);
-    if (!category) {
-      return res.status(404).json({ message: 'Category not found' });
+    
+    if (!category) {   
+      res.locals.error =  'Category not found';
+      res.render('admin/category/list-category', { title: 'List Category' });
     }
     return category;
   } catch (error) {
