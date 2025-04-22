@@ -43,17 +43,18 @@ const last = await Food.findOne({ order: [['createdAt', 'DESC']] });
   const foodId = 'FOOD' + String(newIdNumber).padStart(3, '0');
     
     const food = await Food.create({
-      foodId,
-      name: value.name,
-      description: value.description,
-      price: value.price,
-      isAvailable: value.isAvailable ?? true,
-      categoryId: value.categoryId,
-      createdBy: req.admin.adminId,
-      updatedBy: req.admin.adminId,
-      imageUrl: result.secure_url,
-      cloudinaryPublicId: result.public_id,
-    });
+  foodId,
+  name: value.name,
+  description: value.description,
+  price: value.price,
+  isAvailable: value.isAvailable === 'on' ? true : false, // Ensure it's a boolean
+  categoryId: value.categoryId,
+  createdBy: req.admin.adminId,
+  updatedBy: req.admin.adminId,
+  imageUrl: result.secure_url,
+  cloudinaryPublicId: result.public_id,
+});
+
 
     res.locals.success = "✅ Food created successfully";
     res.render('admin/food/create-food', { categories, title: 'Food List' });
