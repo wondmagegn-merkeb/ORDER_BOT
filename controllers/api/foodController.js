@@ -2,21 +2,26 @@ const sharp = require("sharp");
 const cloudinary = require("../../config/cloudinary");
 const { Food } = require("../../models/index");
 const { foodSchema } = require("../../validators/foodValidation");
-
+const {
+  getAllCategories,
+  
+} = require('./categoryController');
 exports.createFood = async (req, res) => {
   try {
+    const categories = await getAllCategories();
+    
     // Validate input
     const { error, value } = foodSchema.validate(req.body, { abortEarly: false });
     if (error) {
       
       res.locals.error = error.details[0].message;
-      res.render('admin/food/create-food', { title: 'Add Food' });
+      res.render('admin/food/create-food', { categories,title:'Food List' });
     }
       
     if (!req.file) {
       
       res.locals.error = '📸 Image file is required.';
-      res.render('admin/food/create-food', { title: 'Add Food' });
+      res.render('admin/food/create-food', { categories,title:'Food List' });
     }
 
     // Optimize image
@@ -47,7 +52,7 @@ exports.createFood = async (req, res) => {
       cloudinaryPublicId: result.public_id,
     });
 res.locals.success = "✅ Food created successfully";
-    return res.render('admin/food/create-food', { title: 'Add Food', food });
+res.render('admin/food/create-food', { categories,title:'Food List' });
     
   } catch (err) {
     console.error(err);
