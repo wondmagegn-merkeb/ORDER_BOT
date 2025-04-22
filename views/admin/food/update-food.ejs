@@ -1,0 +1,89 @@
+<style>
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+  }
+</style>
+
+<div class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md animate-fade-in-up">
+  <h2 class="text-3xl font-extrabold mb-6 text-gray-800 text-center flex items-center justify-center gap-2 transition duration-500">
+    <i class="fas fa-edit text-green-600"></i>
+    Update Food
+  </h2>
+
+  <form action="/api/food/<%= food.id %>?_method=PUT" method="POST" enctype="multipart/form-data" class="space-y-5">
+
+    <div class="transition duration-300 transform hover:scale-[1.01]">
+      <label class="block mb-1 text-gray-700 font-medium">Food Name</label>
+      <div class="flex items-center border border-gray-300 p-2 rounded focus-within:ring-2 focus-within:ring-yellow-400">
+        <i class="fas fa-utensils text-gray-400 mr-2"></i>
+        <input type="text" name="name" class="w-full focus:outline-none" value="<%= food.name %>" required>
+      </div>
+    </div>
+
+    <div class="transition duration-300 transform hover:scale-[1.01]">
+      <label class="block mb-1 text-gray-700 font-medium">Description</label>
+      <div class="flex items-center border border-gray-300 p-2 rounded focus-within:ring-2 focus-within:ring-yellow-400">
+        <i class="fas fa-align-left text-gray-400 mt-1 mr-2"></i>
+        <textarea name="description" rows="3" class="w-full p-2 rounded focus:outline-none focus:ring-2 focus:ring-yellow-400 resize-none"><%= food.description %></textarea>
+      </div>
+    </div>
+
+    <div class="transition duration-300 transform hover:scale-[1.01]">
+      <label class="block mb-1 text-gray-700 font-medium">Price</label>
+      <div class="flex items-center border border-gray-300 p-2 rounded focus-within:ring-2 focus-within:ring-yellow-400">
+        <i class="text-gray-400 mr-2">ETB</i>
+        <input type="number" name="price" step="0.01" value="<%= food.price %>" class="w-full focus:outline-none" required>
+      </div>
+    </div>
+
+    <div class="transition duration-300 transform hover:scale-[1.01]">
+      <label class="block mb-1 text-gray-700 font-medium">Category</label>
+      <div class="flex items-center border border-gray-300 p-2 rounded focus-within:ring-2 focus-within:ring-yellow-400">
+        <i class="fas fa-tags text-gray-400 mr-2"></i>
+        <select name="categoryId" class="w-full bg-white focus:outline-none" required>
+          <% categories.forEach(category => { %>
+            <option value="<%= category.categoryId %>" <%= category.categoryId === food.categoryId ? 'selected' : '' %>>
+              <%= category.categoryName %>
+            </option>
+          <% }) %>
+        </select>
+      </div>
+    </div>
+
+    <div class="transition duration-300 transform hover:scale-[1.01]">
+      <label class="block mb-1 text-gray-700 font-medium">Image</label>
+      <% if (food.image) { %>
+        <img src="<%= food.image %>" alt="Current Image" class="w-24 h-24 object-cover rounded mb-2 shadow">
+      <% } %>
+      <input type="file" name="image" accept="image/*" class="block w-full border border-gray-300 p-2 rounded">
+    </div>
+
+    <div class="flex items-center gap-2">
+      <input type="checkbox" name="isAvailable" id="isAvailable" class="accent-yellow-600" <%= food.isAvailable ? 'checked' : '' %>>
+      <label for="isAvailable" class="text-gray-700">Available</label>
+    </div>
+
+    <div class="pt-6 flex justify-between items-center">
+      <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded flex items-center gap-2 hover:bg-green-700 active:scale-95 transition font-semibold">
+        <i class="fas fa-save"></i>
+        Update Food
+      </button>
+
+      <a href="/food" class="text-gray-600 hover:text-red-500 transition flex items-center gap-2 font-medium">
+        <i class="fas fa-times-circle text-red-500"></i>
+        Cancel
+      </a>
+    </div>
+  </form>
+</div>
