@@ -147,7 +147,7 @@ exports.deleteFood = async (req, res) => {
     if (food.cloudinaryPublicId) {
       await cloudinary.uploader.destroy(food.cloudinaryPublicId);
     }
-    food.updatedBy: req.admin.adminId,
+    food.updatedBy= req.admin.adminId,
     await food.destroy();
     res.locals.success = "🗑️ Food deleted successfully";
     res.render('admin/food/list-food', { title: 'Add List' });
