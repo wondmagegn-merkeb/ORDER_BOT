@@ -1,6 +1,6 @@
 <div class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
   <h2 class="text-3xl font-extrabold mb-6 text-gray-800 text-center flex items-center justify-center gap-2">
-    <i class="fas fa-user-edit text-blue-600"></i>
+    <i class="fas fa-user-edit text-green-600"></i>
     Update User
   </h2>
 
@@ -14,25 +14,6 @@
       </div>
     </div>
 
-    <!-- Email (read-only) -->
-    <div>
-      <label class="block mb-1 text-gray-700 font-medium">Email</label>
-      <div class="flex items-center border border-gray-300 p-2 rounded">
-        <i class="fas fa-envelope text-gray-400 mr-2"></i>
-        <input type="email" name="email" value="<%= user.email %>" class="w-full focus:outline-none bg-gray-100 cursor-not-allowed" readonly>
-      </div>
-    </div>
-
-    <!-- Password (optional change) -->
-    <div>
-      <label class="block mb-1 text-gray-700 font-medium">Password</label>
-      <div class="flex items-center border border-gray-300 p-2 rounded">
-        <i class="fas fa-lock text-gray-400 mr-2"></i>
-        <input type="password" name="password" class="w-full focus:outline-none" placeholder="Enter new password (optional)">
-      </div>
-      <p class="text-xs text-gray-500 mt-1">Leave blank if you don’t want to change the password.</p>
-    </div>
-
     <!-- Telegram ID (read-only) -->
     <div>
       <label class="block mb-1 text-gray-700 font-medium">Telegram ID</label>
@@ -42,34 +23,31 @@
       </div>
     </div>
 
-    <!-- Role Selection (can be updated) -->
+    <!-- User Type Selection -->
     <div>
-      <label class="block mb-1 text-gray-700 font-medium">Role</label>
+      <label class="block mb-1 text-gray-700 font-medium">User Type</label>
       <div class="flex items-center border border-gray-300 p-2 rounded">
         <i class="fas fa-user-tag text-gray-400 mr-2"></i>
-        <select name="role" class="w-full bg-white focus:outline-none">
-          <option value="admin" <%= user.role === 'admin' ? 'selected' : '' %>>Admin (Owner)</option>
-          <option value="manager" <%= user.role === 'manager' ? 'selected' : '' %>>Manager</option>
-          <option value="delivery" <%= user.role === 'delivery' ? 'selected' : '' %>>Delivery Boy/Girl</option>
+        <select name="userType" class="w-full bg-white focus:outline-none">
+          <option value="guest" <%= user.userType === 'guest' ? 'selected' : '' %>>Guest</option>
+          <option value="vip" <%= user.userType === 'vip' ? 'selected' : '' %>>VIP</option>
+          <option value="customer" <%= user.userType === 'customer' ? 'selected' : '' %>>Customer</option>
         </select>
       </div>
     </div>
 
-    <!-- State (Active/Inactive) Selection (can be updated) -->
+    <!-- State (Single Active Checkbox) -->
     <div>
       <label class="block mb-1 text-gray-700 font-medium">State</label>
-      <div class="flex items-center border border-gray-300 p-2 rounded">
-        <i class="fas fa-toggle-on text-gray-400 mr-2"></i>
-        <select name="states" class="w-full bg-white focus:outline-none">
-          <option value="active" <%= user.states === 'active' ? 'selected' : '' %>>Active</option>
-          <option value="inactive" <%= user.states === 'inactive' ? 'selected' : '' %>>Inactive</option>
-        </select>
-      </div>
+      <label class="inline-flex items-center">
+        <input type="checkbox" name="states" value="active" <%= user.states === 'active' ? 'checked' : '' %> class="form-checkbox text-green-600">
+        <span class="ml-2 text-gray-700">Active</span>
+      </label>
     </div>
 
     <!-- Submit and Cancel Buttons -->
     <div class="pt-6 flex justify-between items-center">
-      <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded flex items-center gap-2 hover:bg-blue-700 transition font-semibold">
+      <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded flex items-center gap-2 hover:bg-green-700 transition font-semibold">
         <i class="fas fa-save"></i>
         Update User
       </button>
