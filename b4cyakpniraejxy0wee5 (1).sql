@@ -10,3 +10,12 @@ INSERT INTO `admin_audit_logs` (`id`, `action`, `performedBy`, `oldData`, `newDa
 (1, 'CREATE', 'ADM001', NULL, '{\"role\": \"admin\", \"email\": \"wondmagegnmerkebbeleka@gmail.com\", \"states\": \"active\", \"adminId\": \"ADM001\", \"password\": \"$2b$10$JXpmMwhy.XebA1K8ZbSa3eeAuD5OT5lGhjACCuAWwvsJ148u/y1.W\", \"username\": \"admin_1745243153278\", \"createdAt\": \"2025-04-21T13:45:53.822Z\", \"createdBy\": \"ADM001\", \"updatedAt\": \"2025-04-21T13:45:53.822Z\", \"telegramId\": \"7816314577\", \"mustChangeCredentials\": true}', '2025-04-21 13:45:53', '2025-04-21 13:45:53'),
 (2, 'CREATE', 'ADM001', NULL, '{\"role\": \"admin\", \"email\": \"eyukk@gmail.com\", \"states\": \"active\", \"adminId\": \"ADM002\", \"password\": \"$2b$10$hTVHKfedbGWWC08dxuCS0uJFQfX4eUOX5dJz.6X0Kr5Vz7tFQAjaS\", \"username\": \"admin_1745248703779\", \"createdAt\": \"2025-04-21T15:18:24.366Z\", \"createdBy\": \"ADM001\", \"updatedAt\": \"2025-04-21T15:18:24.366Z\", \"telegramId\": \"7816314578\", \"mustChangeCredentials\": true}', '2025-04-21 15:18:24', '2025-04-21 15:18:24');
 
+INSERT INTO `food_categories` (`categoryId`, `categoryName`, `description`, `createdBy`, `updatedBy`, `createdAt`, `updatedAt`, `deletedAt`) VALUES
+('CAT001', 'Beverages', '', 'ADM001', 'ADM001', '2025-04-22 13:26:14', '2025-04-22 13:26:14', NULL);
+
+INSERT INTO `food_category_update_logs` (`id`, `categoryId`, `oldValue`, `newValue`, `performedBy`, `action`, `createdAt`, `updatedAt`) VALUES
+(1, 'CAT001', NULL, '{\"createdAt\": \"2025-04-22T13:26:14.480Z\", \"createdBy\": \"ADM001\", \"updatedAt\": \"2025-04-22T13:26:14.480Z\", \"updatedBy\": \"ADM001\", \"categoryId\": \"CAT001\", \"description\": \"\", \"categoryName\": \"Beverages\"}', 'ADM001', 'CREATE', '2025-04-22 13:26:14', '2025-04-22 13:26:14');
+
+INSERT INTO `users` (`userId`, `telegramId`, `username`, `status`, `userType`, `updatedBy`, `createdAt`, `updatedAt`, `deletedAt`) VALUES
+('USR001', '7816314576', NULL, 'active', 'customer', NULL, '2025-04-22 13:42:01', '2025-04-22 13:42:01', NULL);
+
