@@ -1,49 +1,113 @@
 const { Telegraf, Markup } = require('telegraf');
 const path = require('path');
 const fs = require('fs');
-
-const { Order, User } = require('../models/index');
+const { Order, User, Admin } = require('../models/index');
 
 const botAdmin = new Telegraf(process.env.ADMIN_BOT_TOKEN);
-// ===== Allowed admin IDs =====
-const ADMIN_IDS = ['800439459']; // Replace with real admin Telegram IDs
 
-// ===== Admin authentication middleware =====
-botAdmin.use((ctx, next) => {
-    if (!ADMIN_IDS.includes(String(ctx.from.id))) {
+// ===== Fetch Admin Role =====
+const getAdminRole = async (telegramId) => {
+    try {
+        const admin = await Admin.findOne({ where: { telegram_id: telegramId } });
+        return admin ? admin.role : null;
+    } catch (err) {
+        console.error('Error fetching admin role:', err);
+        return null;
+    }
+};
+
+// ===== Middleware: Authorization =====
+botAdmin.use(async (ctx, next) => {
+    if (!ctx.from) return;
+    const role = await getAdminRole(ctx.from.id);
+    if (!role) {
         return ctx.reply('❌ You are not authorized to use this bot.');
     }
+    ctx.state.role = role;
     return next();
 });
 
-const tempStates = {}; // Temporary in-memory state tracking
-
-// ===== /start command with dashboard stats =====
+// ===== /start Command with Role-based Menu =====
 botAdmin.start(async (ctx) => {
     const firstName = ctx.from.first_name || 'Admin';
-    
+    const role = ctx.state.role;
+
+    const imagePath = path.join(path.resolve(__dirname, '../../public'), 'welcome.png');
+
+    const fullKeyboard = Markup.keyboard([
+        ['📦 Orders in Progress', '⏳ Orders Pending', '✅ Completed Orders'],
+        ['🗑️ Cancelled Orders', '📬 Delivered Orders'],
+        ['📊 Stats', '⚙️ Settings']
+    ]).resize();
+
+    const deliveryKeyboard = Markup.keyboard([
+        ['✅ Completed Orders', '📬 Delivered Orders']
+    ]).resize();
+
     try {
-        const imagePath = path.join(path.resolve(__dirname, '../../public'), 'welcome.png');
         await ctx.replyWithPhoto({ source: fs.createReadStream(imagePath) }, {
             caption:
-                `👋 Hello *${firstName}*,\n\n` +
-                `Welcome to the *Admin Dashboard* of our Telegram Order Bot! 🛠️\n\n` +
-                `Here, you can:\n` +
-                `📦 View, update, and manage all customer orders\n` +
-                `📊 Monitor order statuses in real time\n\n` +
-                `Use the menu or type a command to get started.\n\n` +
-                `Thanks for managing our orders like a pro! 🚀`,
+                `👋 *Hello ${firstName}*,\n\n` +
+                `Welcome to the *Admin Dashboard* of our Telegram Order Bot! 🚀\n\n` +
+                `Use the menu below or type a command to get started.`,
             parse_mode: 'Markdown',
-            ...Markup.keyboard([
-                ['start','orders in progress', 'orders in pending']
-            ]).resize()
+            ...(role === 'delivery' ? deliveryKeyboard : fullKeyboard)
         });
-
-        
     } catch (err) {
-        console.error('Error handling admin start:', err);
-        await ctx.reply('Something went wrong. Please try again later.'+err);
+        console.error('Error sending welcome message:', err);
+        await ctx.reply('Something went wrong. Please try again later.');
     }
 });
+
+// ===== Order Handlers Based on Role and Status =====
+
+botAdmin.hears('📦 Orders in Progress', async (ctx) => {
+    if (ctx.state.role === 'delivery') return ctx.reply('❌ You are not allowed to access this section.');
+    const orders = await Order.findAll({ where: { status: 'in_progress' } });
+    if (!orders.length) return ctx.reply('📦 No orders in progress.');
+    ctx.reply(formatOrders(orders, 'In Progress Orders'));
+});
+
+botAdmin.hears('⏳ Orders Pending', async (ctx) => {
+    if (ctx.state.role === 'delivery') return ctx.reply('❌ You are not allowed to access this section.');
+    const orders = await Order.findAll({ where: { status: 'pending' } });
+    if (!orders.length) return ctx.reply('⏳ No pending orders.');
+    ctx.reply(formatOrders(orders, 'Pending Orders'));
+});
+
+botAdmin.hears('✅ Completed Orders', async (ctx) => {
+    const orders = await Order.findAll({ where: { status: 'completed' } });
+    if (!orders.length) return ctx.reply('✅ No completed orders.');
+    ctx.reply(formatOrders(orders, 'Completed Orders'));
+});
+
+botAdmin.hears('🗑️ Cancelled Orders', async (ctx) => {
+    if (ctx.state.role === 'delivery') return ctx.reply('❌ You are not allowed to access this section.');
+    const orders = await Order.findAll({ where: { status: 'cancelled' } });
+    if (!orders.length) return ctx.reply('🗑️ No cancelled orders.');
+    ctx.reply(formatOrders(orders, 'Cancelled Orders'));
+});
+
+botAdmin.hears('📬 Delivered Orders', async (ctx) => {
+    const orders = await Order.findAll({ where: { status: 'delivered' } });
+    if (!orders.length) return ctx.reply('📬 No delivered orders.');
+    ctx.reply(formatOrders(orders, 'Delivered Orders'));
+});
+
+botAdmin.hears('📊 Stats', async (ctx) => {
+    ctx.reply('📊 Stats feature coming soon!');
+});
+
+botAdmin.hears('⚙️ Settings', async (ctx) => {
+    ctx.reply('⚙️ Settings feature coming soon!');
+});
+
+// ===== Helper to Format Orders =====
+function formatOrders(orders, title) {
+    const text = orders.map(order =>
+        `🆔 ID: ${order.id}\n📦 Status: ${order.status}\n👤 Customer: ${order.customer_name || 'N/A'}\n---`
+    ).join('\n');
+    return `*${title}:*\n\n${text}`;
+}
 
 module.exports = { botAdmin };
