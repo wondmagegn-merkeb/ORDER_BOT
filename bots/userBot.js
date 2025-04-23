@@ -4,6 +4,11 @@ const path = require('path');
 const fs = require('fs');
 const { User, Order } = require('../models/index'); // Assuming User and Order models are defined in your Sequelize setup
 const { getMenu } = require('./userHandlers/menuHandler');
+const {
+  placeOrder,
+  
+} = require('./userHandlers/orderHandler');
+
 const userBot = new Telegraf(process.env.USER_BOT_TOKEN);
 
 // Session support
@@ -57,6 +62,36 @@ userBot.start(async (ctx) => {
 
 // /view menu command
 userBot.hears('view menu', (ctx) => getMenu(ctx));
+
+// Handle callback queries
+bot.on('callback_query', async (ctx) => {
+  const data = ctx.callbackQuery.data;
+
+  try {
+    await ctx.answerCbQuery(); // Acknowledge button click
+
+    // Handle ordering
+    if (data.startsWith('order_now_')) {
+      const foodId = data.split('_')[2];
+      return placeOrder(ctx, foodId);
+    }
+
+    // Handle order confirmation (you can implement this function)
+    if (data.startsWith('confirm_order_now_')) {
+      const foodId = data.split('_')[3];
+      // return confirmOrder(ctx, foodId);
+    }
+
+    // Handle cancellation
+    if (data.startsWith('cancel_order_now_')) {
+      //return cancelOrder(ctx);
+    }
+
+  } catch (err) {
+    console.error('❌ Error handling callback:', err);
+    await ctx.reply('⚠️ <b>Something went wrong while processing your request. Please try again later.</b>', { parse_mode: 'HTML' });
+  }
+});
 
 // /history command
 userBot.hears('history', async (ctx) => {
