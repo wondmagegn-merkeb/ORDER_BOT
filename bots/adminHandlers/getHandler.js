@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs');
-const user = require('../userBot'); // Use the correct bot instance
+const user = require('../userBot'); // Make sure userBot is exported correctly
 const { Admin } = require('../../models/index');
 
 async function placeOrder(ctx) {
@@ -11,10 +11,9 @@ async function placeOrder(ctx) {
 
     const admins = await Admin.findAll();
     const adminTelegramIds = admins.map(admin => admin.telegramId);
-    
+
     for (const telegramId of adminTelegramIds) {
         try {
-        
             if (imageExists) {
                 await user.userBot.telegram.sendPhoto(
                     telegramId,
@@ -48,8 +47,22 @@ async function placeOrder(ctx) {
                 );
             }
         } catch (err) {
-            console.error(`❌ Failed to send to user ${user}:${err}:}`);
-            await ctx.reply(`❌ Failed to send to user id: ${telegramId}: error: ${err} userBot:${user}:`);
+            console.error(`❌ Failed to send to admin ID: ${telegramId}. Error:`, err);
+
+            let userString = '';
+            try {
+                userString = JSON.stringify(user, null, 2);
+                if (userString.length > 3500) {
+                    userString = userString.substring(0, 3500) + '...\n[truncated]';
+                }
+            } catch (jsonErr) {
+                userString = 'Unable to stringify user object (possibly due to circular references)';
+            }
+
+            await ctx.reply(
+                `❌ Failed to notify admin ${telegramId}.\nError: ${err.message}\n\nUser Object:\n\`\`\`\n${userString}\n\`\`\``,
+                { parse_mode: 'Markdown' }
+            );
         }
     }
 }
