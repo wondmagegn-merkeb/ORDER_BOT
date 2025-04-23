@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const { Order, User, Admin } = require('../models/index');
 const { placeOrder } = require('./adminHandlers/getHandler'); // update the path as needed
-
+const { notifyUserController } = require('../controllers/notificationController');
 const adminBot = new Telegraf(process.env.ADMIN_BOT_TOKEN);
 
 // ===== Fetch Admin Role =====
@@ -55,7 +55,8 @@ adminBot.start(async (ctx) => {
         `Use the menu below or type a command to get started.`;
 
     try {
-        await placeOrder(ctx);
+        await notifyUserController();
+
         if (imageExists) {
             await ctx.replyWithPhoto({ source: fs.createReadStream(imagePath) }, {
                 caption: welcomeMessage,
@@ -70,7 +71,7 @@ adminBot.start(async (ctx) => {
         }
 
         // Optional: placeOrder when admin joins
-        await placeOrder(ctx);
+        await notifyUserController();
     } catch (err) {
         console.error('Error sending welcome message:', err);
         await ctx.reply('Something went wrong. Please try again later.'+err);
