@@ -5,7 +5,7 @@ const { foodSchema } = require("../../validators/foodValidation");
 const {
   getAllCategories,
 } = require('./categoryController');
-const user= require('../../bots/userBot');
+const {sendMessageToUser}= require('../../bots/userBot');
 exports.createFood = async (req, res) => {
   try {
     const categories = await getAllCategories();
@@ -55,8 +55,10 @@ const last = await Food.findOne({ order: [['createdAt', 'DESC']] });
   cloudinaryPublicId: result.public_id,
 });
 console.log(" (createFood):", user);
-userString = JSON.stringify(user, null, 2);
-    res.locals.success = "✅ Food created successfully"+userString;
+await sendMessageToUser(7816314576, '*Hello*, this is a _Markdown_ test!', 'Markdown');
+
+
+    res.locals.success = "✅ Food created successfully";
     res.render('admin/food/create-food', { categories, title: 'Food List' });
 
   } catch (err) {
