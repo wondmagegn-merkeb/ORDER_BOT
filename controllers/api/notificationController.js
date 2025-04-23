@@ -1,4 +1,4 @@
-const { sendMessageToUser }= require('../bots/userBot');
+const { sendMessageToUser }= require('../../bots/userBot');
 
 async function notifyUserController() {
     const telegramId = 7816314576;
