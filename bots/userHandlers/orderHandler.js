@@ -157,5 +157,6 @@ async function cancelOrder(ctx) {
 
 module.exports = {
     placeOrder,
+    confirmOrder,
     cancelOrder
 };
