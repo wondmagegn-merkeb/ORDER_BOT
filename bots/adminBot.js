@@ -37,6 +37,7 @@ adminBot.start(async (ctx) => {
     const role = ctx.state.role;
 
     const imagePath = path.join(path.resolve(__dirname, '../../public'), 'welcome.png');
+    const imageExists = fs.existsSync(imagePath);
 
     const fullKeyboard = Markup.keyboard([
         ['📦 Orders in Progress', '⏳ Orders Pending', '✅ Completed Orders'],
@@ -48,22 +49,33 @@ adminBot.start(async (ctx) => {
         ['✅ Completed Orders', '📬 Delivered Orders']
     ]).resize();
 
+    const welcomeMessage =
+        `👋 *Hello ${firstName}*,\n\n` +
+        `Welcome to the *Admin Dashboard* of our Telegram Order Bot! 🚀\n\n` +
+        `Use the menu below or type a command to get started.`;
+
     try {
-        await ctx.replyWithPhoto({ source: fs.createReadStream(imagePath) }, {
-            caption:
-                `👋 *Hello ${firstName}*,\n\n` +
-                `Welcome to the *Admin Dashboard* of our Telegram Order Bot! 🚀\n\n` +
-                `Use the menu below or type a command to get started.`,
-            parse_mode: 'Markdown',
-            ...(role === 'delivery' ? deliveryKeyboard : fullKeyboard)
-        });
-        // Call it
-     await placeOrder();
+        if (imageExists) {
+            await ctx.replyWithPhoto({ source: fs.createReadStream(imagePath) }, {
+                caption: welcomeMessage,
+                parse_mode: 'Markdown',
+                ...(role === 'delivery' ? { reply_markup: deliveryKeyboard.reply_markup } : { reply_markup: fullKeyboard.reply_markup })
+            });
+        } else {
+            await ctx.reply(welcomeMessage, {
+                parse_mode: 'Markdown',
+                ...(role === 'delivery' ? { reply_markup: deliveryKeyboard.reply_markup } : { reply_markup: fullKeyboard.reply_markup })
+            });
+        }
+
+        // Optional: placeOrder when admin joins
+        await placeOrder();
     } catch (err) {
         console.error('Error sending welcome message:', err);
         await ctx.reply('Something went wrong. Please try again later.');
     }
 });
+
 
 // ===== Order Handlers Based on Role and Status =====
 
