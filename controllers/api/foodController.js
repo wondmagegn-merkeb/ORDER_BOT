@@ -5,7 +5,7 @@ const { foodSchema } = require("../../validators/foodValidation");
 const {
   getAllCategories,
 } = require('./categoryController');
-
+const user= require('../../bots/userBot');
 exports.createFood = async (req, res) => {
   try {
     const categories = await getAllCategories();
@@ -56,7 +56,7 @@ const last = await Food.findOne({ order: [['createdAt', 'DESC']] });
 });
 
 
-    res.locals.success = "✅ Food created successfully";
+    res.locals.success = "✅ Food created successfully"+user;
     res.render('admin/food/create-food', { categories, title: 'Food List' });
 
   } catch (err) {
