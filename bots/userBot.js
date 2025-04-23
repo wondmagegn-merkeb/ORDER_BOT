@@ -88,12 +88,12 @@ userBot.on('callback_query', async (ctx) => {
     // Handle order confirmation (you can implement this function)
     if (data.startsWith('confirm_order_now_')) {
       const foodId = data.split('_')[3];
-      // return confirmOrder(ctx, foodId);
+      return confirmOrder(ctx, foodId);
     }
 
     // Handle cancellation
     if (data.startsWith('cancel_order_now_')) {
-      //return cancelOrder(ctx);
+      return cancelOrder(ctx);
     }
 
   } catch (err) {
