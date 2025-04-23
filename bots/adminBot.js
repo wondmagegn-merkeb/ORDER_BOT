@@ -8,7 +8,7 @@ const adminBot = new Telegraf(process.env.ADMIN_BOT_TOKEN);
 // ===== Fetch Admin Role =====
 const getAdminRole = async (telegramId) => {
     try {
-        const admin = await Admin.findOne({ where: { telegram_id: telegramId } });
+        const admin = await Admin.findOne({ where: { telegramId } });
         return admin ? admin.role : null;
     } catch (err) {
         console.error('Error fetching admin role:', err);
