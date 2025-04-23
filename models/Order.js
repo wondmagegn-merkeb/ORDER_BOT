@@ -14,18 +14,7 @@ const Order = sequelize.define('Order', {
     type: DataTypes.STRING,
     allowNull: false
   },
-  fullName: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  phoneNumber1: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  phoneNumber2: {
-    type: DataTypes.STRING,
-    allowNull: true
-  },
+  
   foodId: {
     type: DataTypes.STRING,
     allowNull: false
