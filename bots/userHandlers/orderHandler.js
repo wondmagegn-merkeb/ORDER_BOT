@@ -62,11 +62,12 @@ async function confirmOrder(ctx, foodId) {
     }
 
     const {
-        food, // Change 'item' to 'food'
+        food,
         telegramId,
         fullName,
         phoneNumberOne,
         phoneNumberTwo,
+        address,
         location,
         quantity,
         specialOrder
@@ -75,7 +76,39 @@ async function confirmOrder(ctx, foodId) {
     const totalPrice = food.price * quantity;
     const isRemoteImage = food.imageUrl?.startsWith('http');
 
+    // Generate Google Maps link
+    const mapLink = `https://www.google.com/maps?q=${location.latitude},${location.longitude}`;
+
     try {
+        const user = await User.findOne({ where: { telegramId } });
+        
+        const lastOrder = await Order.findOne({ order: [['createdAt', 'DESC']] });
+
+        let newIdNumber = 1;
+        if (lastOrder && lastOrder.orderId) {
+            const lastNumber = parseInt(lastOrder.orderId.replace('ORD', ''));
+            newIdNumber = lastNumber + 1;
+        }
+
+        const orderId = 'ORD' + String(newIdNumber).padStart(3, '0');
+        const order = await Order.create({
+            orderId,
+            userId: user.userId,
+            fullName,
+            phoneNumber1: phoneNumberOne,
+            phoneNumber2: phoneNumberTwo,
+            foodId: food.foodId,
+            quantity,
+            specialOrder,
+            totalPrice,
+            newTotalPrice: totalPrice,
+            status: 'pending',
+            createdBy: user.userId,
+            location: address,
+            latitude: location.latitude,
+            longitude: location.longitude
+        });
+
         // ✅ Only select admins who are NOT 'delivery' role
         const admins = await Admin.findAll({
             where: {
@@ -85,15 +118,12 @@ async function confirmOrder(ctx, foodId) {
         });
 
         const adminCaption = `<b>📦 *New Order Received!*</b>\n` +
-            `🍕 <b>Food:</b> ${food.name}\n` +
-            `👤 <b>Name:</b> ${fullName}\n` +
-            `📱 <b>Phone 1:</b> ${phoneNumberOne}\n` +
-            `📱 <b>Phone 2:</b> ${phoneNumberTwo || 'Not Provided'}\n` +
-            `📍 <b>Location:</b> ${location}\n` +
-            `🔢 <b>Quantity:</b> ${quantity}\n` +
-            `💬 <b>Special Request:</b> ${specialOrder || 'None'}\n` +
-            `💰 <b>Total Price:</b> ${totalPrice} birr\n\n` +
-            `<b>📝 Please review this order and confirm! 📋</b>`;
+    `🍕 <b>Food:</b> ${food.name}\n` +
+    `👤 <b>Username:</b> @${user.username || 'Not Available'}\n\n` +
+    `💰 <b>Total Price:</b> ${totalPrice} birr\n` +
+    `📝 <b>Special Order:</b> ${specialOrder || 'None'}\n\n` +  // Added special order for admin
+    `<b>📝 Please review this order! 📋</b>`;
+
 
         // Send to all admins
         for (const admin of admins) {
@@ -102,9 +132,7 @@ async function confirmOrder(ctx, foodId) {
                 parse_mode: 'HTML',
                 reply_markup: {
                     inline_keyboard: [
-                        [{ text: "📋 View Details", callback_data: `view_order_food_${foodId}` }],
-                        [{ text: "✅ Confirm Order", callback_data: `confirm_order_${foodId}` }],
-                        [{ text: "❌ Cancel Order", callback_data: `cancel_order_${foodId}` }]
+                        [{ text: "📋 View Details", callback_data: `view_order_${orderId}` }]
                     ]
                 }
             });
@@ -116,9 +144,10 @@ async function confirmOrder(ctx, foodId) {
             `👤 <b>Full Name:</b> ${fullName}\n` +
             `📱 <b>Phone Number 1:</b> ${phoneNumberOne}\n` +
             `📱 <b>Phone Number 2:</b> ${phoneNumberTwo || 'Not Provided'}\n` +
-            `📍 <b>Location:</b> ${location}\n` +
+            `📍 <b>Address:</b> ${address}\n` +  // Reordered to show address after location
+            `📍 <b>Location:</b> <a href="${mapLink}">View on Map</a>\n` + // Added map link for user
             `🔢 <b>Quantity:</b> ${quantity}\n` +
-            `📝 <b>Special Note:</b> ${specialOrder || 'None'}\n` +
+            `📝 <b>Special Note:</b> ${specialOrder || 'None'}\n` + // Special order for user
             `💰 <b>Total Price:</b> ${totalPrice} birr\n\n` +
             `📦 We'll start processing your order shortly. Thank you for choosing us! 🙏`;
 
@@ -147,9 +176,10 @@ async function confirmOrder(ctx, foodId) {
 
     } catch (error) {
         console.error('❌ Error confirming order:', error);
-        await ctx.reply('⚠️ *Something went wrong while placing your order.* Please try again later.'+error);
+        await ctx.reply('⚠️ *Something went wrong while placing your order.* Please try again later.' + error);
     }
 }
+
 
 async function cancelOrder(ctx) {
     // Clear session order data
