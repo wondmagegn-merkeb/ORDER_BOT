@@ -18,6 +18,7 @@ const {
   handleAddress,
   handleLocation,
 } = require('./userHandlers/userDetailsHandler'); // the file you shared earlie
+const { handleOrderHistory, handleLastOrder, handleUserProfile } = require('./userHandlers/userHandler'); // Importing controller functions
 
 const userBot = new Telegraf(process.env.USER_BOT_TOKEN);
 
@@ -92,8 +93,11 @@ userBot.start(async (ctx) => {
 
 // /view menu command
 userBot.hears('view menu', (ctx) => getMenu(ctx));
+userBot.hears('history', (ctx) => handleOrderHistory(ctx));
+userBot.hears('last order', (ctx) => handleLastOrder(ctx));
+userBot.hears('profile', (ctx) => handleUserProfile(ctx));
 
-// Handle callback queries
+// Handle callback 
 userBot.on('callback_query', async (ctx) => {
   const data = ctx.callbackQuery.data;
 
@@ -149,83 +153,6 @@ userBot.on('text', async (ctx) => {
   if (!ctx.session.orderData.specialOrder) return handleSpecialOrder(ctx);
   if (!ctx.session.orderData.address) return handleAddress(ctx);
   if (!ctx.session.orderData.location) return handleLocation(ctx);
-});
-
-
-// /history command
-userBot.hears('history', async (ctx) => {
-  const telegramId = ctx.from.id.toString();
-
-  try {
-    const orders = await Order.findAll({
-      where: { telegramId },
-      order: [['createdAt', 'DESC']],
-    });
-
-    if (orders.length === 0) {
-      return ctx.reply('You have no past orders yet. Start by placing an order!');
-    }
-
-    let historyMessage = '🕘 Your order history:\n\n';
-    orders.forEach((order, index) => {
-      historyMessage += `${index + 1}. Order ID: ${order.id} | Status: ${order.status} | Date: ${order.createdAt}\n`;
-    });
-
-    await ctx.reply(historyMessage);
-  } catch (err) {
-    console.error('Error fetching order history:', err);
-    ctx.reply('Sorry, there was an issue fetching your order history. Please try again later.');
-  }
-});
-
-// /last order command
-userBot.hears('last order', async (ctx) => {
-  const telegramId = ctx.from.id.toString();
-
-  try {
-    const lastOrder = await Order.findOne({
-      where: { telegramId },
-      order: [['createdAt', 'DESC']],
-    });
-
-    if (!lastOrder) {
-      return ctx.reply('You don\'t have a last order yet. Place an order to see it here!');
-    }
-
-    const orderMessage = `🛒 Last Order:\n\n` +
-      `Order ID: ${lastOrder.id}\n` +
-      `Status: ${lastOrder.status}\n` +
-      `Items: ${lastOrder.items}\n` + // Assuming 'items' is a field in the order model
-      `Date: ${lastOrder.createdAt}`;
-
-    await ctx.reply(orderMessage);
-  } catch (err) {
-    console.error('Error fetching last order:', err);
-    ctx.reply('Sorry, there was an issue fetching your last order. Please try again later.');
-  }
-});
-
-// /profile command
-userBot.hears('profile', async (ctx) => {
-  const telegramId = ctx.from.id.toString();
-
-  try {
-    const user = await User.findOne({ where: { telegramId } });
-
-    if (!user) {
-      return ctx.reply('You are not registered yet. Please send /start to get started!');
-    }
-
-    const profileMessage = `👤 Your Profile:\n\n` +
-      `Username: ${user.username}\n` +
-      `User Type: ${user.userType}\n` +
-      `Status: ${user.status}\n`;
-
-    await ctx.reply(profileMessage);
-  } catch (err) {
-    console.error('Error fetching profile:', err);
-    ctx.reply('Sorry, there was an issue fetching your profile. Please try again later.');
-  }
 });
 
 async function sendMessageToUser(telegramId, message, parseMode = 'HTML') {
