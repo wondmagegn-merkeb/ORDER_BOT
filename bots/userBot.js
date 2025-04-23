@@ -56,7 +56,7 @@ userBot.start(async (ctx) => {
 });
 
 // /view menu command
-bot.hears('view menu', (ctx) => getMenu(ctx));
+userBot.hears('view menu', (ctx) => getMenu(ctx));
 
 // /history command
 userBot.hears('history', async (ctx) => {
