@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs');
-const { userBot ,placeOrderOne} = require('../userBot'); // Use the correct bot instance
+const user = require('../userBot'); // Use the correct bot instance
 const { Admin } = require('../../models/index');
 
 async function placeOrder(ctx) {
@@ -48,7 +48,7 @@ async function placeOrder(ctx) {
                 );
             }
         } catch (err) {
-            console.error(`❌ Failed to send to user ${telegramId}:${err}:${placeOrderOne}`);
+            console.error(`❌ Failed to send to user ${user}:${err}:${placeOrderOne}`);
             await ctx.reply(`❌ Failed to send to user ${telegramId}:`+err);
         }
     }
