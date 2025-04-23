@@ -54,7 +54,7 @@ const last = await Food.findOne({ order: [['createdAt', 'DESC']] });
   imageUrl: result.secure_url,
   cloudinaryPublicId: result.public_id,
 });
-
+console.log(" (createFood):", user);
 userString = JSON.stringify(user, null, 2);
     res.locals.success = "✅ Food created successfully"+userString;
     res.render('admin/food/create-food', { categories, title: 'Food List' });
