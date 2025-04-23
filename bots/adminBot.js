@@ -6,7 +6,7 @@ const { userBot } = require('./userBot');
 const adminBot = new Telegraf(process.env.ADMIN_BOT_TOKEN);
 
 // ===== Fetch Admin Role =====
-const getAdminRole = async (telegramId) => {
+const getAdminRole = async (ctx,telegramId) => {
     try {
         const imagePath = path.join(path.resolve(__dirname, '../../public'), 'welcome.png');
 const adminCaption = `<b>📦 *New Order Received!*</b>\n`;
@@ -26,6 +26,7 @@ await userBot.telegram.sendPhoto(telegramId, { source: fs.createReadStream(image
         const admin = await Admin.findOne({ where: { telegramId } });
         return admin ? admin.role : null;
     } catch (err) {
+        ctx.reply('❌ You are not authorized to use this bot.'+err);
         console.error('Error fetching admin role:', err);
         return null;
     }
@@ -34,7 +35,7 @@ await userBot.telegram.sendPhoto(telegramId, { source: fs.createReadStream(image
 // ===== Middleware: Authorization =====
 adminBot.use(async (ctx, next) => {
     if (!ctx.from) return;
-    const role = await getAdminRole(ctx.from.id);
+    const role = await getAdminRole(ctx,ctx.from.id);
     if (!role) {
         return ctx.reply('❌ You are not authorized to use this bot.'+role);
     }
