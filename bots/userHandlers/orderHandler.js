@@ -1,5 +1,5 @@
 const { Order, Food, User, Admin } = require('../../models/index');
-const { adminBot }= require('../adminBot'); // Adjust the path based on your project structure
+const { adminBot } = require('../adminBot'); // Adjust the path based on your project structure
 
 async function placeOrder(ctx, foodId) {
     const telegramId = ctx.from.id.toString();
@@ -32,7 +32,7 @@ async function placeOrder(ctx, foodId) {
     ctx.session.orderData = {
         userId: user.userId,
         foodId,
-        food,
+        food, // Change 'item' to 'food'
         fullName: lastOrder?.fullName || null,
         phoneNumberOne: lastOrder?.phoneNumber1 || null,
         phoneNumberTwo: lastOrder?.phoneNumber2 || null,
@@ -55,25 +55,24 @@ async function placeOrder(ctx, foodId) {
     // Proceed to confirmation step here if all fields are filled
 }
 
-
-async function confirmOrder(ctx, itemId) {
+async function confirmOrder(ctx, foodId) {
     if (!ctx.session || !ctx.session.orderData) {
         return ctx.reply('⚠️ *No order found.* Please start again to place an order.');
     }
 
     const {
-        item,
+        food, // Change 'item' to 'food'
         telegramId,
         fullName,
         phoneNumberOne,
-        phoneNumber,
+        phoneNumberTwo,
         location,
         quantity,
         specialOrder
     } = ctx.session.orderData;
 
-    const totalPrice = item.price * quantity;
-    const isRemoteImage = item.imageUrl?.startsWith('http');
+    const totalPrice = food.price * quantity;
+    const isRemoteImage = food.imageUrl?.startsWith('http');
 
     try {
         // ✅ Only select admins who are NOT 'delivery' role
@@ -85,10 +84,10 @@ async function confirmOrder(ctx, itemId) {
         });
 
         const adminCaption = `<b>📦 *New Order Received!*</b>\n` +
-            `🍕 <b>Food:</b> ${item.name}\n` +
+            `🍕 <b>Food:</b> ${food.name}\n` +
             `👤 <b>Name:</b> ${fullName}\n` +
             `📱 <b>Phone 1:</b> ${phoneNumberOne}\n` +
-            `📱 <b>Phone 2:</b> ${phoneNumber || 'Not Provided'}\n` +
+            `📱 <b>Phone 2:</b> ${phoneNumberTwo || 'Not Provided'}\n` +
             `📍 <b>Location:</b> ${location}\n` +
             `🔢 <b>Quantity:</b> ${quantity}\n` +
             `💬 <b>Special Request:</b> ${specialOrder || 'None'}\n` +
@@ -97,14 +96,14 @@ async function confirmOrder(ctx, itemId) {
 
         // Send to all admins
         for (const admin of admins) {
-            await adminBot.telegram.sendPhoto(admin.telegramId, item.imageUrl, {
+            await adminBot.telegram.sendPhoto(admin.telegramId, food.imageUrl, {
                 caption: adminCaption,
                 parse_mode: 'HTML',
                 reply_markup: {
                     inline_keyboard: [
-                        [{ text: "📋 View Details", callback_data: `view_order_item_${itemId}` }],
-                        [{ text: "✅ Confirm Order", callback_data: `confirm_order_${itemId}` }],
-                        [{ text: "❌ Cancel Order", callback_data: `cancel_order_${itemId}` }]
+                        [{ text: "📋 View Details", callback_data: `view_order_food_${foodId}` }],
+                        [{ text: "✅ Confirm Order", callback_data: `confirm_order_${foodId}` }],
+                        [{ text: "❌ Cancel Order", callback_data: `cancel_order_${foodId}` }]
                     ]
                 }
             });
@@ -115,7 +114,7 @@ async function confirmOrder(ctx, itemId) {
             `🧾 *Order Summary:*\n` +
             `👤 <b>Full Name:</b> ${fullName}\n` +
             `📱 <b>Phone Number 1:</b> ${phoneNumberOne}\n` +
-            `📱 <b>Phone Number 2:</b> ${phoneNumber || 'Not Provided'}\n` +
+            `📱 <b>Phone Number 2:</b> ${phoneNumberTwo || 'Not Provided'}\n` +
             `📍 <b>Location:</b> ${location}\n` +
             `🔢 <b>Quantity:</b> ${quantity}\n` +
             `📝 <b>Special Note:</b> ${specialOrder || 'None'}\n` +
@@ -123,7 +122,7 @@ async function confirmOrder(ctx, itemId) {
             `📦 We'll start processing your order shortly. Thank you for choosing us! 🙏`;
 
         if (isRemoteImage) {
-            await ctx.replyWithPhoto(item.imageUrl, {
+            await ctx.replyWithPhoto(food.imageUrl, {
                 caption: userCaption,
                 parse_mode: 'HTML',
                 reply_markup: Markup.keyboard([
@@ -150,7 +149,6 @@ async function confirmOrder(ctx, itemId) {
         await ctx.reply('⚠️ *Something went wrong while placing your order.* Please try again later.');
     }
 }
-
 
 async function cancelOrder(ctx) {
     // Clear session order data
