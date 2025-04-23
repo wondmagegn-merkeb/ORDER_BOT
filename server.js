@@ -13,17 +13,16 @@ const { globalErrorHandler, notFoundHandler } = require('./controllers/errorCont
 const viewAdminRoutes = require('./routes/view/adminRoutes');
 const viewLogsRoutes = require('./routes/view/logsRoutes');
 const apiUserRoutes = require('./routes/api/userRoutes');
-const categoryRoutes = require('./routes/view/categoryRoutes'); // Adjust the path as needed
+const categoryRoutes = require('./routes/view/categoryRoutes');
 const apiAdminRoutes = require('./routes/api/adminRoutes');
-const apiCategoryRoutes = require('./routes/api/categoryRoutes'); // Adjust the path as needed
+const apiCategoryRoutes = require('./routes/api/categoryRoutes');
 const adminController = require('./controllers/api/adminController');
 const userRoutes = require('./routes/view/userRoutes');
 
-
-const { authenticateAndAuthorize } = require('./middleware/authMiddleware'); 
-const { userBot } = require('./bots/userBot');  // Import the bot from bot.js
-const { adminBot } = require('./bots/adminBot');  // Import the bot from bot.js
-const {sequelize } = require('./config/db');
+const { authenticateAndAuthorize } = require('./middleware/authMiddleware');
+const { userBot } = require('./bots/userBot');
+const { adminBot } = require('./bots/adminBot');
+const { sequelize } = require('./config/db');
 
 const app = express();
 
@@ -76,6 +75,7 @@ app.use((req, res, next) => {
   res.locals.currentPath = req.path;
   next();
 });
+
 // ======= Routes =======
 app.get('/', (req, res) => {
   res.render('home', { title: 'Home Page', layout: false });
@@ -85,16 +85,17 @@ app.use('/admin', viewAdminRoutes);
 app.use('/logs', viewLogsRoutes);
 app.use('/categories', categoryRoutes);
 app.use('/users', userRoutes);
-app.use('/api/admin',authenticateAndAuthorize('admin', 'superadmin'), apiAdminRoutes);
-app.use('/api/categories',authenticateAndAuthorize('admin', 'superadmin'), apiCategoryRoutes);
+app.use('/api/admin', authenticateAndAuthorize('admin', 'superadmin'), apiAdminRoutes);
+app.use('/api/categories', authenticateAndAuthorize('admin', 'superadmin'), apiCategoryRoutes);
 app.use('/api/users', authenticateAndAuthorize('admin', 'superadmin'), apiUserRoutes);
-app.use('/api/food',authenticateAndAuthorize('admin', 'superadmin'), require('./routes/api/foodRoutes'));
+app.use('/api/food', authenticateAndAuthorize('admin', 'superadmin'), require('./routes/api/foodRoutes'));
 app.use('/food', require('./routes/view/foodRoutes'));
+
+// Login / Password Reset
 app.get('/login', (req, res) => {
   res.render('login', { message: null, layout: false });
 });
-
-app.post('/login',adminController.login);
+app.post('/login', adminController.login);
 app.get('/forgot-password', (req, res) => {
   res.render('forgot-password', { message: null, layout: false });
 });
@@ -104,6 +105,7 @@ app.get('/reset-password', (req, res) => {
   res.render('reset-password', { message: null, token, layout: false });
 });
 app.post('/reset-password', adminController.resetPassword);
+
 app.get('/dashboard', (req, res) => {
   const demoData = {
     totalOrders: 250,
@@ -130,17 +132,12 @@ app.get('/dashboard', (req, res) => {
   res.render('admin/dashboard', { title: 'Dashboard', ...demoData });
 });
 
-
-// app.js (or the main file where your routes are defined)
 app.get('/logout', (req, res) => {
-  // Destroy the session to log out the user
   req.session.destroy((err) => {
     if (err) {
       return res.status(500).json({ message: 'Failed to log out' });
     }
-
-    // Redirect to the login page or send a success message
-    res.render('login', { message: null, layout: false });;
+    res.render('login', { message: null, layout: false });
   });
 });
 
@@ -154,24 +151,34 @@ app.use(globalErrorHandler);
     await sequelize.authenticate();
     console.log('✅ Database connected');
 
-    await sequelize.sync({ alter : true }); // Keep schema updated
+    await sequelize.sync({ alter: true });
 
     const PORT = process.env.PORT || 8080;
 
-    // Start the server
     app.listen(PORT, () => {
       console.log(`🚀 Server running at http://localhost:${PORT}`);
     });
-    // Start the bot first
-try {
+
+    try {
       await userBot.launch();
       await adminBot.launch();
       console.log('🤖 Bot started');
     } catch (botError) {
       console.error('❌ Error launching bot:', botError);
     }
+
+    // ======= Graceful Shutdown =======
+    process.once('SIGINT', () => {
+      userBot.stop('SIGINT');
+      adminBot.stop('SIGINT');
+    });
+
+    process.once('SIGTERM', () => {
+      userBot.stop('SIGTERM');
+      adminBot.stop('SIGTERM');
+    });
+
   } catch (error) {
     console.error('❌ DB connection error:', error);
   }
 })();
-
