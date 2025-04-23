@@ -5,7 +5,7 @@ const { foodSchema } = require("../../validators/foodValidation");
 const {
   getAllCategories,
 } = require('./categoryController');
-const { notifyUserController } = require('./controllers/notificationController');
+const { notifyUserController } = require('../controllers/notificationController');
 
 exports.createFood = async (req, res) => {
   try {
