@@ -18,7 +18,7 @@ const apiAdminRoutes = require('./routes/api/adminRoutes');
 const apiCategoryRoutes = require('./routes/api/categoryRoutes');
 const adminController = require('./controllers/api/adminController');
 const userRoutes = require('./routes/view/userRoutes');
-
+const { notificationController } = require('controllers/api/notificationController');
 const { authenticateAndAuthorize } = require('./middleware/authMiddleware');
 const { userBot } = require('./bots/userBot');
 const user= require('./bots/userBot');
@@ -94,6 +94,7 @@ app.use('/food', require('./routes/view/foodRoutes'));
 
 // Login / Password Reset
 app.get('/login', (req, res) => {
+  await notificationController();
   res.render('login', { message: null, layout: false });
 });
 app.post('/login', adminController.login);
