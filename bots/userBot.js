@@ -3,33 +3,11 @@ const LocalSession = require('telegraf-session-local');
 const path = require('path');
 const fs = require('fs');
 const { User, Order } = require('../models/index'); // Assuming User and Order models are defined in your Sequelize setup
-
+const { getMenu } = require('./userHandlers/menuHandler');
 const userBot = new Telegraf(process.env.USER_BOT_TOKEN);
 
 // Session support
 userBot.use(new LocalSession({ database: 'session_db.json' }).middleware());
-
-// Demo menu items with photos
-const menuItems = [
-  {
-    name: 'Pizza',
-    price: '10$',
-    description: 'Delicious cheese pizza',
-    
-  },
-  {
-    name: 'Burger',
-    price: '5$',
-    description: 'Juicy beef burger',
-    
-  },
-  {
-    name: 'Pasta',
-    price: '8$',
-    description: 'Pasta with marinara sauce',
-    
-  }
-];
 
 // /start command
 userBot.start(async (ctx) => {
@@ -78,27 +56,7 @@ userBot.start(async (ctx) => {
 });
 
 // /view menu command
-userBot.hears('view menu', async (ctx) => {
-  try {
-    let menuMessage = '🍽️ Here are the available menu items:\n\n';
-const imagePath = path.resolve(__dirname, '../public/welcome.png');
-    // Loop through the menu items and send each one with its photo and description
-    for (let i = 0; i < menuItems.length; i++) {
-      const item = menuItems[i];
-      menuMessage += `${i + 1}. *${item.name}* - ${item.price}\n  *Description*: ${item.description}\n\n`;
-
-      await ctx.replyWithPhoto(
-        { source: fs.createReadStream(imagePath) }
-        
-      );
-    }
-
-    await ctx.reply(menuMessage, { parse_mode: 'Markdown' });
-  } catch (err) {
-    console.error('Error fetching menu:', err);
-    ctx.reply('Sorry, there was an issue fetching the menu. Please try again later.');
-  }
-});
+bot.hears('view menu', (ctx) => getMenu(ctx));
 
 // /history command
 userBot.hears('history', async (ctx) => {
