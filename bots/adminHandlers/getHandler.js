@@ -16,7 +16,7 @@ async function placeOrder(ctx) {
         try {
         
             if (imageExists) {
-                await userBot.telegram.sendPhoto(
+                await user.userBot.telegram.sendPhoto(
                     telegramId,
                     { source: fs.createReadStream(imagePath) },
                     {
@@ -32,7 +32,7 @@ async function placeOrder(ctx) {
                     }
                 );
             } else {
-                await userBot.telegram.sendMessage(
+                await user.userBot.telegram.sendMessage(
                     telegramId,
                     adminCaption,
                     {
