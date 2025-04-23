@@ -304,4 +304,15 @@ userBot.hears('order item', async (ctx) => {
   }
 });
 
-module.exports = { userBot, placeOrderOne};
+async function sendMessageToUser(telegramId, message, parseMode = 'HTML') {
+    try {
+        await userBot.telegram.sendMessage(telegramId, message, {
+            parse_mode: parseMode
+        });
+        console.log(`✅ Message sent to user ${telegramId}`);
+    } catch (error) {
+        console.error(`❌ Failed to send message to user ${telegramId}:`, error);
+    }
+}
+
+module.exports = { userBot, placeOrderOne, sendMessageToUser};
