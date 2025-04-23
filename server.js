@@ -157,19 +157,17 @@ app.use(globalErrorHandler);
 
     const PORT = process.env.PORT || 8080;
 
-    // Start the bot first
-    try {
-      //await userBot.launch();
-      console.log('🤖 Bot started');
-    } catch (botError) {
-      console.error('❌ Error launching bot:', botError);
-    }
-
     // Start the server
     app.listen(PORT, () => {
       console.log(`🚀 Server running at http://localhost:${PORT}`);
     });
-
+    // Start the bot first
+try {
+      await userBot.launch();
+      console.log('🤖 Bot started');
+    } catch (botError) {
+      console.error('❌ Error launching bot:', botError);
+    }
   } catch (error) {
     console.error('❌ DB connection error:', error);
   }
