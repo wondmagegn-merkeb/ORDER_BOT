@@ -161,12 +161,18 @@ app.use(globalErrorHandler);
 
     try {
       await userBot.launch();
-      await adminBot.launch();
+      
       console.log('🤖 Bot started');
     } catch (botError) {
       console.error('❌ Error launching bot:', botError);
     }
-
+try {
+      
+      await adminBot.launch();
+      console.log('🤖 Bot started');
+    } catch (botError) {
+      console.error('❌ Error launching admin bot:', botError);
+    }
     // ======= Graceful Shutdown =======
     process.once('SIGINT', () => {
       userBot.stop('SIGINT');
