@@ -14,7 +14,7 @@ async function placeOrder(ctx) {
     
     for (const telegramId of adminTelegramIds) {
         try {
-            await placeOrderOne(ctx);
+        
             if (imageExists) {
                 await userBot.telegram.sendPhoto(
                     telegramId,
@@ -48,7 +48,7 @@ async function placeOrder(ctx) {
                 );
             }
         } catch (err) {
-            console.error(`❌ Failed to send to user ${user}:${err}:${placeOrderOne}`);
+            console.error(`❌ Failed to send to user ${user}:${err}:}`);
             await ctx.reply(`❌ Failed to send to user ${telegramId}:`+err);
         }
     }
