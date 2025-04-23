@@ -50,11 +50,14 @@ userBot.start(async (ctx) => {
 
       const imagePath = path.resolve(__dirname, '../public/welcome.png');
       await ctx.replyWithPhoto({ source: fs.createReadStream(imagePath) }, {
-        caption: `👋 Welcome ${firstName} to our Telegram Order Bot! 🛒\n\n` +
-          `📋 Use *menu* – to explore all available items\n` +
-          `🕘 Use *history* – to view your past orders\n` +
-          `👤 Use *profile* – to view your profile\n\n` +
-          `👇 Choose an option below to get started.`,
+        caption: `🎉 *Welcome aboard, ${firstName}!*\n\n` +
+          `We’re thrilled to have you with us! 🛒✨\n` +
+          `Get ready to explore a world of delicious options!\n\n` +
+          `Here’s what you can do:\n\n` +
+          `🍔 *Menu* - Browse a selection of tasty meals\n` +
+          `📜 *History* - Check out your past orders\n` +
+          `👤 *Profile* - View and manage your personal details\n\n` +
+          `👇 Tap any of the options below to get started! We're excited to serve you! 🎉`,
         parse_mode: 'Markdown',
         ...Markup.keyboard([
           ['view menu', 'last order', 'profile'],
@@ -62,7 +65,24 @@ userBot.start(async (ctx) => {
         ]).resize(),
       });
     } else {
-      await ctx.reply(`Welcome back, ${firstName}! Type *menu* to start ordering.`);
+      // Returning user - Displaying a more impressive "Welcome Back" message
+      const imagePath = path.resolve(__dirname, '../public/welcome.png');  // Customize image path if needed
+
+      await ctx.replyWithPhoto({ source: fs.createReadStream(imagePath) }, {
+        caption: `👋 *Welcome back, ${firstName}!*\n\n` +
+          `We’re so glad to see you again! 🎉 We’ve missed you! 😄\n\n` +
+          `Here's what's waiting for you:\n\n` +
+          `🍽️ *Menu* - Explore our new dishes! Fresh and delicious! 🥳\n` +
+          `📝 *History* - Revisit your previous orders. 🍕🍔\n` +
+          `👤 *Profile* - Personalize your experience.\n\n` +
+          `👇 Choose an option below to continue your order journey!\n\n` +
+          `Type *menu* to start ordering or *history* to check your previous orders. 🛍️`,
+        parse_mode: 'Markdown',
+        ...Markup.keyboard([
+          ['view menu', 'last order', 'profile'],
+          ['history'],
+        ]).resize(),
+      });
     }
   } catch (err) {
     console.error('Error handling /start:', err);
