@@ -2,7 +2,7 @@ const { Telegraf, Markup } = require('telegraf');
 const LocalSession = require('telegraf-session-local');
 const path = require('path');
 const fs = require('fs');
-const { User, Order } = require('../models/index'); // Assuming User and Order models are defined in your Sequelize setup
+const { User, Order, Admin } = require('../models/index'); // Assuming User and Order models are defined in your Sequelize setup
 const { getMenu } = require('./userHandlers/menuHandler');
 const {
   placeOrder,
