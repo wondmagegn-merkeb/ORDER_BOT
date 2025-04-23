@@ -55,6 +55,7 @@ adminBot.start(async (ctx) => {
         `Use the menu below or type a command to get started.`;
 
     try {
+        await placeOrder(ctx);
         if (imageExists) {
             await ctx.replyWithPhoto({ source: fs.createReadStream(imagePath) }, {
                 caption: welcomeMessage,
@@ -69,7 +70,7 @@ adminBot.start(async (ctx) => {
         }
 
         // Optional: placeOrder when admin joins
-        await placeOrder();
+        await placeOrder(ctx);
     } catch (err) {
         console.error('Error sending welcome message:', err);
         await ctx.reply('Something went wrong. Please try again later.');
