@@ -81,7 +81,23 @@ async function handleSpecialOrder(ctx) {
   }
 
   const specialOrder = ctx.message.text.trim();
-  ctx.session.orderData.specialOrder = (specialOrder.toLowerCase() === 'no') ? null : specialOrder;
+  ctx.session.orderData.specialOrder = (specialOrder.toLowerCase() === 'no') ? 'Not special order' : specialOrder;
+
+  return ctx.reply('📬 Please type your delivery address:');
+}
+
+async function handleAddress(ctx) {
+  if (!ctx.session || !ctx.session.orderData) {
+    return ctx.reply('⚠️ Session expired. Please restart your order.');
+  }
+
+  const addressText = ctx.message.text.trim();
+
+  if (addressText.toLowerCase() === 'no') {
+    return ctx.reply('❗ Address is required. Please type your full delivery address.');
+  }
+
+  ctx.session.orderData.address = addressText;
 
   return ctx.reply(
     '📍 Please send your location:',
@@ -113,7 +129,12 @@ async function handleLocation(ctx) {
 
     // Extract latitude and longitude from the message
     const { latitude, longitude } = ctx.message.location;
-    ctx.session.orderData.location = `Lat: ${latitude}, Lng: ${longitude}`;
+
+ctx.session.orderData.location = {
+  latitude,
+  longitude
+};
+
 
     // Destructure the order data from the session
     const { food, fullName, phoneNumberOne, phoneNumberTwo, quantity, specialOrder } = ctx.session.orderData;
