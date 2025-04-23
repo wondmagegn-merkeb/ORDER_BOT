@@ -19,13 +19,7 @@ async function placeOrder(ctx, foodId) {
             { parse_mode: 'HTML' }
         );
     }
-
-    // Get the user's latest order to prefill data
-    const lastOrder = await Order.findOne({
-        where: { userId: user.userId },
-        order: [['createdAt', 'DESC']],
-    });
-
+    
     // Initialize session if necessary
     if (!ctx.session) ctx.session = {};
 
@@ -34,10 +28,9 @@ async function placeOrder(ctx, foodId) {
         userId: user.userId,
         foodId,
         food, // Change 'item' to 'food'
-        fullName: lastOrder?.fullName || null,
-        phoneNumberOne: lastOrder?.phoneNumber1 || null,
-        phoneNumberTwo: lastOrder?.phoneNumber2 || null,
-        quantity: ctx.session.orderData?.quantity || null,
+        fullName: user?.fullName || null,
+        phoneNumberOne: user?.phoneNumber1 || null,
+        phoneNumberTwo: user?.phoneNumber2 || null,
     };
 
     // Prompt for missing order data
@@ -91,12 +84,17 @@ async function confirmOrder(ctx, foodId) {
         }
 
         const orderId = 'ORD' + String(newIdNumber).padStart(3, '0');
+
+        await user.update({
+  fullName,
+  phoneNumber1: phoneNumberOne,
+  phoneNumber2: phoneNumberTwo,
+});
+
+        
         const order = await Order.create({
             orderId,
             userId: user.userId,
-            fullName,
-            phoneNumber1: phoneNumberOne,
-            phoneNumber2: phoneNumberTwo,
             foodId: food.foodId,
             quantity,
             specialOrder,
