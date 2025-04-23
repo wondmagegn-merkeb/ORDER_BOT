@@ -93,10 +93,11 @@ app.use('/api/food', authenticateAndAuthorize('admin', 'superadmin'), require('.
 app.use('/food', require('./routes/view/foodRoutes'));
 
 // Login / Password Reset
-app.get('/login', (req, res) => {
+app.get('/login', async (req, res) => {
   await notificationController();
   res.render('login', { message: null, layout: false });
 });
+
 app.post('/login', adminController.login);
 app.get('/forgot-password', (req, res) => {
   res.render('forgot-password', { message: null, layout: false });
