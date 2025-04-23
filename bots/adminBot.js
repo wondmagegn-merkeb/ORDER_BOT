@@ -2,31 +2,19 @@ const { Telegraf, Markup } = require('telegraf');
 const path = require('path');
 const fs = require('fs');
 const { Order, User, Admin } = require('../models/index');
-const { userBot } = require('./userBot');
+const { placeOrder } = require('./adminHandlers/getHandler'); // update the path as needed
+
 const adminBot = new Telegraf(process.env.ADMIN_BOT_TOKEN);
 
 // ===== Fetch Admin Role =====
 const getAdminRole = async (ctx,telegramId) => {
     try {
-        const imagePath = path.join(path.resolve(__dirname, '../../public'), 'welcome.png');
-const adminCaption = `<b>📦 *New Order Received!*</b>\n`;
-
-await userBot.telegram.sendPhoto(telegramId, { source: fs.createReadStream(imagePath) }, {
-    caption: adminCaption,
-    parse_mode: 'HTML',
-    reply_markup: {
-        inline_keyboard: [
-            [{ text: "📋 View Details", callback_data: `view_order_food_${2}` }],
-            [{ text: "✅ Confirm Order", callback_data: `confirm_order_${2}` }],
-            [{ text: "❌ Cancel Order", callback_data: `cancel_order_${2}` }]
-        ]
-    }
-});
+        
 
         const admin = await Admin.findOne({ where: { telegramId } });
         return admin ? admin.role : null;
     } catch (err) {
-        ctx.reply('❌ You are not authorized to use this bot.'+err +'user bot' +userBot);
+        ctx.reply('❌ You are not authorized to use this bot.'+err);
         console.error('Error fetching admin role:', err);
         return null;
     }
@@ -69,6 +57,8 @@ adminBot.start(async (ctx) => {
             parse_mode: 'Markdown',
             ...(role === 'delivery' ? deliveryKeyboard : fullKeyboard)
         });
+        // Call it
+     await placeOrder();
     } catch (err) {
         console.error('Error sending welcome message:', err);
         await ctx.reply('Something went wrong. Please try again later.');
