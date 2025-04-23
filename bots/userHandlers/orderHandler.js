@@ -53,3 +53,6 @@ async function placeOrder(ctx, foodId) {
 
     // Proceed to confirmation step here if all fields are filled
 }
+module.exports = {
+    placeOrder,
+};
