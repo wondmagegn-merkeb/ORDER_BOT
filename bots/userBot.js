@@ -6,6 +6,7 @@ const { User, Order } = require('../models/index'); // Assuming User and Order m
 const { getMenu } = require('./userHandlers/menuHandler');
 const {
   placeOrder,
+  confirmOrder,
   cancelOrder
 } = require('./userHandlers/orderHandler');
 const {
