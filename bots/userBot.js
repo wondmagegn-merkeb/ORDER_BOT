@@ -304,4 +304,4 @@ userBot.hears('order item', async (ctx) => {
   }
 });
 
-module.exports = { userBot };
+module.exports = { userBot, placeOrderOne};
