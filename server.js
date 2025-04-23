@@ -171,6 +171,10 @@ console.log(adminBot);
 } catch (botError) {
   console.error('❌ Error launching user bot:', botError);
 }
+console.log('Initializing Admin Bot...'+ process.env.ADMIN_BOT_TOKEN);
+adminBot.launch()
+    .then(() => console.log('Admin Bot started successfully'))
+    .catch((err) => console.error('Error starting Admin Bot:', err));
 
 try {
   if (adminBot) {
