@@ -160,7 +160,7 @@ app.use(globalErrorHandler);
     });
 
     try {
-      await userBot.launch();
+     // await userBot.launch();
       
       console.log('🤖 Bot started');
     } catch (botError) {
