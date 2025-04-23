@@ -7,7 +7,7 @@ async function getMenu(ctx) {
             where: { isAvailable: true },
             include: {
                 model: FoodCategory,
-                attributes: ['name'],
+                attributes: ['categoryName'],
             }
         });
 
