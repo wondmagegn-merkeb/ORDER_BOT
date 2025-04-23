@@ -168,5 +168,6 @@ module.exports = {
     handlePhoneNumber,
     handleQuantity,
     handleSpecialOrder,
+    handleAddress,
     handleLocation,
 };
