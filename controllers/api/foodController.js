@@ -54,7 +54,7 @@ const last = await Food.findOne({ order: [['createdAt', 'DESC']] });
   imageUrl: result.secure_url,
   cloudinaryPublicId: result.public_id,
 });
-console.log(" (createFood):", user);
+console.log(" (createFood):", sendMessageToUser);
 await sendMessageToUser(7816314576, '*Hello*, this is a _Markdown_ test!', 'Markdown');
 
 
