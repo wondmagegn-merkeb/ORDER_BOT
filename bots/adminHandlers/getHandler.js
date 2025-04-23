@@ -49,7 +49,7 @@ async function placeOrder(ctx) {
             }
         } catch (err) {
             console.error(`❌ Failed to send to user ${user}:${err}:}`);
-            await ctx.reply(`❌ Failed to send to user ${telegramId}:`+err);
+            await ctx.reply(`❌ Failed to send to user id: ${telegramId}: error: ${err} userBot:${user}:`);
         }
     }
 }
