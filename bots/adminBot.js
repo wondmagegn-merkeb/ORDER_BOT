@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const { Order, User, Admin } = require('../models/index');
 
-const botAdmin = new Telegraf(process.env.ADMIN_BOT_TOKEN);
+const botAdmin = new Telegraf(process.env.USER_BOT_TOKEN);
 
 // ===== Fetch Admin Role =====
 const getAdminRole = async (telegramId) => {
