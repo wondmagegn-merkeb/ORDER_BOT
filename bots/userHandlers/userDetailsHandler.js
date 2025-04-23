@@ -19,7 +19,6 @@ async function handleFullName(ctx) {
   );
 }
 
-
 async function handlePhoneNumberOne(ctx) {
     if (!ctx.session || !ctx.session.orderData) {
         return ctx.reply('⚠️ Session expired. Please restart your order.');
@@ -33,7 +32,11 @@ async function handlePhoneNumberOne(ctx) {
     const cleanedPhone = rawPhone.replace(/\D/g, '').slice(-10); // Extract last 10 digits
     ctx.session.orderData.phoneNumberOne = cleanedPhone;
 
-    return ctx.reply('📞 Now, please type your *secondary phone number* (Phone 2), or type "no" to skip:');
+    return ctx.reply('📞 Now, please type your *secondary phone number* (Phone 2), or type "no" to skip:',Markup.keyboard([
+      
+      ['view menu', 'last order', 'profile'],
+      ['history']
+    ]).resize() );
 }
 
 async function handlePhoneNumber(ctx) {
@@ -90,33 +93,39 @@ async function handleSpecialOrder(ctx) {
   );
 }
 
-
 async function handleLocation(ctx) {
     if (!ctx.session || !ctx.session.orderData) {
         return ctx.reply('⚠️ Session expired. Please restart your order.');
     }
 
+    // Check if location is provided
     if (!ctx.message.location) {
         return ctx.reply('📍 Please use the button to send your location.');
     }
-await ctx.reply('✅ Location received!', 
-    Markup.keyboard([
-    ['view menu', 'last order', 'profile'],
-    ['history']
-  ]).resize()
-  );
+
+    // Acknowledge that the location has been received
+    await ctx.reply('✅ Location received!', 
+        Markup.keyboard([
+            ['view menu', 'last order', 'profile'],
+            ['history']
+        ]).resize()
+    );
+
+    // Extract latitude and longitude from the message
     const { latitude, longitude } = ctx.message.location;
     ctx.session.orderData.location = `Lat: ${latitude}, Lng: ${longitude}`;
 
+    // Destructure the order data from the session
     const { food, fullName, phoneNumberOne, phoneNumberTwo, quantity, specialOrder } = ctx.session.orderData;
     const totalPrice = food.price * quantity;
     
-return ctx.reply(
+    // Send order summary to the user
+    return ctx.reply(
         `🧾 <b>Your Order Summary:</b>\n\n` +
         `🍽️ <b>Item:</b> ${food.name} - ${food.price} birr x ${quantity} = <b>${totalPrice} birr</b>\n` +
         `👤 <b>Name:</b> ${fullName}\n` +
         `📞 <b>Primary Phone:</b> ${phoneNumberOne || 'Not Provided'}\n` +
-        `📞 <b>Secondary Phone:</b> ${phoneNumber || 'Not Provided'}\n` +
+        `📞 <b>Secondary Phone:</b> ${phoneNumberTwo || 'Not Provided'}\n` +
         `📝 <b>Instructions:</b> ${specialOrder || 'None'}\n` +
         `📍 <b>Location:</b> Shared\n\n` +
         `✅ <b>Would you like to place the order now?</b>`,
@@ -130,9 +139,7 @@ return ctx.reply(
             }
         }
     );
-    
 }
-
 
 module.exports = {
     handleFullName,
