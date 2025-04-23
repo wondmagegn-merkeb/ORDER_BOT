@@ -4,13 +4,20 @@ const fs = require('fs');
 const { Order, User, Admin } = require('../models/index');
 const { placeOrder } = require('./adminHandlers/getHandler'); // update the path as needed
 const { notifyUserController } = require('../controllers/api/notificationController');
+const {
+  viewOrderDetails,
+  showOrdersInPending,
+  showOrdersInProgress,
+  showOrdersInCompleted,
+  showOrdersInCancelled,
+  showOrdersInDelivered
+} = require('./adminHandlers/getHandler');
+
 const adminBot = new Telegraf(process.env.ADMIN_BOT_TOKEN);
 
 // ===== Fetch Admin Role =====
 const getAdminRole = async (ctx,telegramId) => {
     try {
-        
-
         const admin = await Admin.findOne({ where: { telegramId } });
         return admin ? admin.role : null;
     } catch (err) {
@@ -55,7 +62,7 @@ adminBot.start(async (ctx) => {
         `Use the menu below or type a command to get started.`;
 
     try {
-        await notifyUserController();
+        
 
         if (imageExists) {
             await ctx.replyWithPhoto({ source: fs.createReadStream(imagePath) }, {
@@ -70,49 +77,18 @@ adminBot.start(async (ctx) => {
             });
         }
 
-        // Optional: placeOrder when admin joins
-        await notifyUserController();
     } catch (err) {
         console.error('Error sending welcome message:', err);
         await ctx.reply('Something went wrong. Please try again later.'+err);
     }
 });
 
-
 // ===== Order Handlers Based on Role and Status =====
-
-adminBot.hears('📦 Orders in Progress', async (ctx) => {
-    if (ctx.state.role === 'delivery') return ctx.reply('❌ You are not allowed to access this section.');
-    const orders = await Order.findAll({ where: { status: 'in_progress' } });
-    if (!orders.length) return ctx.reply('📦 No orders in progress.');
-    ctx.reply(formatOrders(orders, 'In Progress Orders'));
-});
-
-adminBot.hears('⏳ Orders Pending', async (ctx) => {
-    if (ctx.state.role === 'delivery') return ctx.reply('❌ You are not allowed to access this section.');
-    const orders = await Order.findAll({ where: { status: 'pending' } });
-    if (!orders.length) return ctx.reply('⏳ No pending orders.');
-    ctx.reply(formatOrders(orders, 'Pending Orders'));
-});
-
-adminBot.hears('✅ Completed Orders', async (ctx) => {
-    const orders = await Order.findAll({ where: { status: 'completed' } });
-    if (!orders.length) return ctx.reply('✅ No completed orders.');
-    ctx.reply(formatOrders(orders, 'Completed Orders'));
-});
-
-adminBot.hears('🗑️ Cancelled Orders', async (ctx) => {
-    if (ctx.state.role === 'delivery') return ctx.reply('❌ You are not allowed to access this section.');
-    const orders = await Order.findAll({ where: { status: 'cancelled' } });
-    if (!orders.length) return ctx.reply('🗑️ No cancelled orders.');
-    ctx.reply(formatOrders(orders, 'Cancelled Orders'));
-});
-
-adminBot.hears('📬 Delivered Orders', async (ctx) => {
-    const orders = await Order.findAll({ where: { status: 'delivered' } });
-    if (!orders.length) return ctx.reply('📬 No delivered orders.');
-    ctx.reply(formatOrders(orders, 'Delivered Orders'));
-});
+adminBot.hears('📦 Orders in Progress',  (ctx) => showOrdersInProgress(ctx));
+adminBot.hears('⏳ Orders Pending',  (ctx) => showOrdersInPendingctx(ctx));
+adminBot.hears('✅ Completed Orders',  (ctx) =>showOrdersInCompletedctx(ctx));
+adminBot.hears('🗑️ Cancelled Orders',  (ctx) => showOrdersInCancelled(ctx));
+adminBot.hears('📬 Delivered Orders',  (ctx) => showOrdersInDelivered(ctx));
 
 adminBot.hears('📊 Stats', async (ctx) => {
     ctx.reply('📊 Stats feature coming soon!');
@@ -122,12 +98,33 @@ adminBot.hears('⚙️ Settings', async (ctx) => {
     ctx.reply('⚙️ Settings feature coming soon!');
 });
 
-// ===== Helper to Format Orders =====
-function formatOrders(orders, title) {
-    const text = orders.map(order =>
-        `🆔 ID: ${order.id}\n📦 Status: ${order.status}\n👤 Customer: ${order.customer_name || 'N/A'}\n---`
-    ).join('\n');
-    return `*${title}:*\n\n${text}`;
-}
+adminBot.on('callback_query', async (ctx) => {
+  const data = ctx.callbackQuery.data;
+
+  try {
+    await ctx.answerCbQuery(); // Acknowledge button click
+
+    // Handle ordering
+    if (data.startsWith('view_order_')) {
+      const orderId = data.split('_')[2];
+      return viewOrderDetails(ctx, orderId);
+    }
+
+    // Handle order confirmation (you can implement this function)
+    if (data.startsWith('confirm_order_now_')) {
+      const foodId = data.split('_')[3];
+    //  return confirmOrder(ctx, foodId);
+    }
+
+    // Handle cancellation
+    if (data.startsWith('cancel_order_now_')) {
+     // return cancelOrder(ctx);
+    }
+
+  } catch (err) {
+    console.error('❌ Error handling callback:', err);
+    await ctx.reply('⚠️ <b>Something went wrong while processing your request. Please try again later.</b>', { parse_mode: 'HTML' });
+  }
+});
 
 module.exports = { adminBot };
