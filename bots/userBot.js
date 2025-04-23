@@ -15,8 +15,8 @@ const {
   handlePhoneNumber,
   handleQuantity,
   handleSpecialOrder,
+  handleAddress,
   handleLocation,
-  
 } = require('./userHandlers/userDetailsHandler'); // the file you shared earlie
 
 const userBot = new Telegraf(process.env.USER_BOT_TOKEN);
@@ -140,15 +140,17 @@ userBot.on('location', (ctx) => {
     }
 });
 
-userBot.on('text', (ctx) => {
-    if (!ctx.session.orderData) return;
-    if (!ctx.session.orderData.fullName) return handleFullName(ctx);
-    if (!ctx.session.orderData.phoneNumberOne) return handlePhoneNumberOne(ctx); // Wait for contact
-    if (!ctx.session.orderData.phoneNumberTwo) return handlePhoneNumber(ctx);
-    if (!ctx.session.orderData.quantity) return handleQuantity(ctx);
-    if (!ctx.session.orderData.specialOrder) return handleSpecialOrder(ctx);
-    if (!ctx.session.orderData.location) return handleLocation(ctx);
+userBot.on('text', async (ctx) => {
+  if (!ctx.session.orderData) return;
+  if (!ctx.session.orderData.fullName) return handleFullName(ctx);
+  if (!ctx.session.orderData.phoneNumberOne) return handlePhoneNumberOne(ctx);
+  if (!ctx.session.orderData.phoneNumberTwo) return handlePhoneNumber(ctx);
+  if (!ctx.session.orderData.quantity) return handleQuantity(ctx);
+  if (!ctx.session.orderData.specialOrder) return handleSpecialOrder(ctx);
+  if (!ctx.session.orderData.address) return handleAddress(ctx);
+  if (!ctx.session.orderData.location) return handleLocation(ctx);
 });
+
 
 // /history command
 userBot.hears('history', async (ctx) => {
