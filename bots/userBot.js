@@ -64,7 +64,7 @@ userBot.start(async (ctx) => {
 userBot.hears('view menu', (ctx) => getMenu(ctx));
 
 // Handle callback queries
-bot.on('callback_query', async (ctx) => {
+userBot.on('callback_query', async (ctx) => {
   const data = ctx.callbackQuery.data;
 
   try {
