@@ -19,6 +19,18 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull: true
   },
+  fullName: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  phoneNumber1: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  phoneNumber2: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
   status: {
     type: DataTypes.STRING,
     defaultValue: 'active' // active, blocked, etc.
