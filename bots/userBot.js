@@ -122,10 +122,11 @@ userBot.on('location', (ctx) => {
 userBot.on('text', (ctx) => {
     if (!ctx.session.orderData) return;
     if (!ctx.session.orderData.fullName) return handleFullName(ctx);
-    if (!ctx.session.orderData.phoneNumberOne) return; // Wait for contact
+    if (!ctx.session.orderData.phoneNumberOne) return handlePhoneNumberOne(ctx); // Wait for contact
     if (!ctx.session.orderData.phoneNumberTwo) return handlePhoneNumber(ctx);
     if (!ctx.session.orderData.quantity) return handleQuantity(ctx);
     if (!ctx.session.orderData.specialOrder) return handleSpecialOrder(ctx);
+    if (!ctx.session.orderData.location) return handleLocation(ctx);
 });
 
 // /history command
