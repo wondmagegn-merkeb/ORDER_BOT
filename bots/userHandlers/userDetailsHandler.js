@@ -1,24 +1,24 @@
 const { Markup } = require('telegraf');
 
 async function handleFullName(ctx) {
-    if (!ctx.session || !ctx.session.orderData) {
-        return ctx.reply('⚠️ Session expired. Please restart your order.');
-    }
+  if (!ctx.session || !ctx.session.orderData) {
+    return ctx.reply('⚠️ Session expired. Please restart your order.');
+  }
 
-    const fullName = ctx.message.text.trim();
-    ctx.session.orderData.fullName = fullName;
+  const fullName = ctx.message.text.trim();
+  ctx.session.orderData.fullName = fullName;
 
-    return 
-    ctx.reply(
-'📞 Please share your *primary phone number* (Phone 1):',
-  Markup.keyboard([
-    [Markup.button.contactRequest('📲 Share Phone Number')]
-    ['view menu', 'last order', 'profile'],
-    ['history']
-  ]).resize()
-);
-
+  // Now, proceed with sending the phone number request
+  return ctx.reply(
+    '📞 Please share your *primary phone number* (Phone 1):',
+    Markup.keyboard([
+      [Markup.button.contactRequest('📲 Share Phone Number')],
+      ['view menu', 'last order', 'profile'],
+      ['history']
+    ]).resize()
+  );
 }
+
 
 async function handlePhoneNumberOne(ctx) {
     if (!ctx.session || !ctx.session.orderData) {
@@ -73,23 +73,23 @@ async function handleQuantity(ctx) {
 }
 
 async function handleSpecialOrder(ctx) {
-    if (!ctx.session || !ctx.session.orderData) {
-        return ctx.reply('⚠️ Session expired. Please restart your order.');
-    }
+  if (!ctx.session || !ctx.session.orderData) {
+    return ctx.reply('⚠️ Session expired. Please restart your order.');
+  }
 
-    const specialOrder = ctx.message.text.trim();
-    ctx.session.orderData.specialOrder = (specialOrder.toLowerCase() === 'no') ? null : specialOrder;
+  const specialOrder = ctx.message.text.trim();
+  ctx.session.orderData.specialOrder = (specialOrder.toLowerCase() === 'no') ? null : specialOrder;
 
-    return ctx.reply(
-  '📍 Please send your location:',
-  Markup.keyboard([
-    [Markup.button.locationRequest('📍 Send Location')],
-    ['view menu', 'last order', 'profile'],
-    ['history']
-  ]).resize()
-);
-
+  return ctx.reply(
+    '📍 Please send your location:',
+    Markup.keyboard([
+      [Markup.button.locationRequest('📍 Send Location')],
+      ['view menu', 'last order', 'profile'],
+      ['history']
+    ]).resize()
+  );
 }
+
 
 async function handleLocation(ctx) {
     if (!ctx.session || !ctx.session.orderData) {
