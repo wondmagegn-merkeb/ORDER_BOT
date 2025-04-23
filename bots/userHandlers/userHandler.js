@@ -64,7 +64,7 @@ async function handleLastOrder(ctx) {
   try {
     const user = await User.findOne({ where: { telegramId } });
     const lastOrder = await Order.findOne({
-      where: { userId: user.userId } },
+      where: { userId: user.userId },
       include: [Food],
       order: [['createdAt', 'DESC']],
     });
