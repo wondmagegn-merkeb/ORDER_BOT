@@ -36,7 +36,7 @@ adminBot.use(async (ctx, next) => {
     if (!ctx.from) return;
     const role = await getAdminRole(ctx.from.id);
     if (!role) {
-        return ctx.reply('❌ You are not authorized to use this bot.');
+        return ctx.reply('❌ You are not authorized to use this bot.'+role);
     }
     ctx.state.role = role;
     return next();
