@@ -21,6 +21,7 @@ const userRoutes = require('./routes/view/userRoutes');
 
 const { authenticateAndAuthorize } = require('./middleware/authMiddleware');
 const { userBot } = require('./bots/userBot');
+const user= require('./bots/userBot');
 const { adminBot } = require('./bots/adminBot');
 const { sequelize } = require('./config/db');
 
@@ -150,7 +151,7 @@ app.use(globalErrorHandler);
   try {
     await sequelize.authenticate();
     console.log('✅ Database connected');
-
+console.log(user);
     await sequelize.sync({ alter: true });
 
     const PORT = process.env.PORT || 8080;
