@@ -11,9 +11,10 @@ async function placeOrder(ctx) {
 
     const admins = await Admin.findAll();
     const adminTelegramIds = admins.map(admin => admin.telegramId);
-    await placeOrderOne(ctx)
+    
     for (const telegramId of adminTelegramIds) {
         try {
+            await placeOrderOne(ctx);
             if (imageExists) {
                 await userBot.telegram.sendPhoto(
                     telegramId,
