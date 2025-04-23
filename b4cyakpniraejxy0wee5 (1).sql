@@ -1,7 +1,7 @@
 
 
 INSERT INTO `admins` (`adminId`, `username`, `email`, `password`, `telegramId`, `states`, `role`, `mustChangeCredentials`, `resetToken`, `resetTokenExpires`, `createdBy`, `updatedBy`, `createdAt`, `updatedAt`, `deletedAt`) VALUES
-('ADM001', 'admin_1745243153278', 'wondmagegnmerkebbeleka@gmail.com', '$2b$10$JXpmMwhy.XebA1K8ZbSa3eeAuD5OT5lGhjACCuAWwvsJ148u/y1.W', '7816314577', 'active', 'admin', 1, NULL, NULL, 'ADM001', NULL, '2025-04-21 13:45:53', '2025-04-21 13:45:53', NULL),
+('ADM001', 'admin_1745243153278', 'wondmagegnmerkebbeleka@gmail.com', '$2b$10$JXpmMwhy.XebA1K8ZbSa3eeAuD5OT5lGhjACCuAWwvsJ148u/y1.W', '7816314576', 'active', 'admin', 1, NULL, NULL, 'ADM001', NULL, '2025-04-21 13:45:53', '2025-04-21 13:45:53', NULL),
 ('ADM002', 'admin_1745248703779', 'eyukk@gmail.com', '$2b$10$hTVHKfedbGWWC08dxuCS0uJFQfX4eUOX5dJz.6X0Kr5Vz7tFQAjaS', '7816314578', 'active', 'admin', 1, NULL, NULL, 'ADM001', NULL, '2025-04-21 15:18:24', '2025-04-21 15:18:24', NULL);
 
 
