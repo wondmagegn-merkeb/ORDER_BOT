@@ -53,6 +53,12 @@ async function placeOrder(ctx, foodId) {
 
     // Proceed to confirmation step here if all fields are filled
 }
+
+async function cancelOrder(ctx) {
+    await start(ctx, '❌ Your order has been canceled.');
+}
+
 module.exports = {
     placeOrder,
+    cancelOrder
 };
