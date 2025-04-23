@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const { Order, User, Admin } = require('../models/index');
 
-const botAdmin = new Telegraf(process.env.USER_BOT_TOKEN);
+const adminBot = new Telegraf(process.env.ADMIN_BOT_TOKEN);
 
 // ===== Fetch Admin Role =====
 const getAdminRole = async (telegramId) => {
@@ -17,7 +17,7 @@ const getAdminRole = async (telegramId) => {
 };
 
 // ===== Middleware: Authorization =====
-botAdmin.use(async (ctx, next) => {
+adminBot.use(async (ctx, next) => {
     if (!ctx.from) return;
     const role = await getAdminRole(ctx.from.id);
     if (!role) {
@@ -28,7 +28,7 @@ botAdmin.use(async (ctx, next) => {
 });
 
 // ===== /start Command with Role-based Menu =====
-botAdmin.start(async (ctx) => {
+adminBot.start(async (ctx) => {
     const firstName = ctx.from.first_name || 'Admin';
     const role = ctx.state.role;
 
@@ -61,44 +61,44 @@ botAdmin.start(async (ctx) => {
 
 // ===== Order Handlers Based on Role and Status =====
 
-botAdmin.hears('📦 Orders in Progress', async (ctx) => {
+adminBot.hears('📦 Orders in Progress', async (ctx) => {
     if (ctx.state.role === 'delivery') return ctx.reply('❌ You are not allowed to access this section.');
     const orders = await Order.findAll({ where: { status: 'in_progress' } });
     if (!orders.length) return ctx.reply('📦 No orders in progress.');
     ctx.reply(formatOrders(orders, 'In Progress Orders'));
 });
 
-botAdmin.hears('⏳ Orders Pending', async (ctx) => {
+adminBot.hears('⏳ Orders Pending', async (ctx) => {
     if (ctx.state.role === 'delivery') return ctx.reply('❌ You are not allowed to access this section.');
     const orders = await Order.findAll({ where: { status: 'pending' } });
     if (!orders.length) return ctx.reply('⏳ No pending orders.');
     ctx.reply(formatOrders(orders, 'Pending Orders'));
 });
 
-botAdmin.hears('✅ Completed Orders', async (ctx) => {
+adminBot.hears('✅ Completed Orders', async (ctx) => {
     const orders = await Order.findAll({ where: { status: 'completed' } });
     if (!orders.length) return ctx.reply('✅ No completed orders.');
     ctx.reply(formatOrders(orders, 'Completed Orders'));
 });
 
-botAdmin.hears('🗑️ Cancelled Orders', async (ctx) => {
+adminBot.hears('🗑️ Cancelled Orders', async (ctx) => {
     if (ctx.state.role === 'delivery') return ctx.reply('❌ You are not allowed to access this section.');
     const orders = await Order.findAll({ where: { status: 'cancelled' } });
     if (!orders.length) return ctx.reply('🗑️ No cancelled orders.');
     ctx.reply(formatOrders(orders, 'Cancelled Orders'));
 });
 
-botAdmin.hears('📬 Delivered Orders', async (ctx) => {
+adminBot.hears('📬 Delivered Orders', async (ctx) => {
     const orders = await Order.findAll({ where: { status: 'delivered' } });
     if (!orders.length) return ctx.reply('📬 No delivered orders.');
     ctx.reply(formatOrders(orders, 'Delivered Orders'));
 });
 
-botAdmin.hears('📊 Stats', async (ctx) => {
+adminBot.hears('📊 Stats', async (ctx) => {
     ctx.reply('📊 Stats feature coming soon!');
 });
 
-botAdmin.hears('⚙️ Settings', async (ctx) => {
+adminBot.hears('⚙️ Settings', async (ctx) => {
     ctx.reply('⚙️ Settings feature coming soon!');
 });
 
@@ -110,4 +110,4 @@ function formatOrders(orders, title) {
     return `*${title}:*\n\n${text}`;
 }
 
-module.exports = { botAdmin };
+module.exports = { adminBot };
