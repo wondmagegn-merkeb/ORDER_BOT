@@ -22,6 +22,7 @@ const userRoutes = require('./routes/view/userRoutes');
 
 const { authenticateAndAuthorize } = require('./middleware/authMiddleware'); 
 const { userBot } = require('./bots/userBot');  // Import the bot from bot.js
+const { adminBot } = require('./bots/adminBot');  // Import the bot from bot.js
 const {sequelize } = require('./config/db');
 
 const app = express();
@@ -164,6 +165,7 @@ app.use(globalErrorHandler);
     // Start the bot first
 try {
       await userBot.launch();
+      await adminBot.launch();
       console.log('🤖 Bot started');
     } catch (botError) {
       console.error('❌ Error launching bot:', botError);
