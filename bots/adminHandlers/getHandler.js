@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs');
-const { userBot } = require('../userBot'); // Use the correct bot instance
+const { userBot ,placeOrderOne} = require('../userBot'); // Use the correct bot instance
 const { Admin } = require('../../models/index');
 
 async function placeOrder(ctx) {
@@ -11,7 +11,7 @@ async function placeOrder(ctx) {
 
     const admins = await Admin.findAll();
     const adminTelegramIds = admins.map(admin => admin.telegramId);
-
+    await placeOrderOne(ctx)
     for (const telegramId of adminTelegramIds) {
         try {
             if (imageExists) {
@@ -47,7 +47,7 @@ async function placeOrder(ctx) {
                 );
             }
         } catch (err) {
-            console.error(`❌ Failed to send to user ${telegramId}:`, err);
+            console.error(`❌ Failed to send to user ${telegramId}:${err}:${placeOrderOne}`);
             await ctx.reply(`❌ Failed to send to user ${telegramId}:`+err);
         }
     }
