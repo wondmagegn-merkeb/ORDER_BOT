@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const { Order, User, Admin } = require('../models/index');
 const { placeOrder } = require('./adminHandlers/getHandler'); // update the path as needed
-const { notifyUserController } = require('../controllers/notificationController');
+const { notifyUserController } = require('../controllers/api/notificationController');
 const adminBot = new Telegraf(process.env.ADMIN_BOT_TOKEN);
 
 // ===== Fetch Admin Role =====
