@@ -6,8 +6,17 @@ const { User, Order } = require('../models/index'); // Assuming User and Order m
 const { getMenu } = require('./userHandlers/menuHandler');
 const {
   placeOrder,
-  
+  cancelOrder
 } = require('./userHandlers/orderHandler');
+const {
+  handleFullName,
+  handlePhoneNumberOne,
+  handlePhoneNumber,
+  handleQuantity,
+  handleSpecialOrder,
+  handleLocation,
+  
+} = require('./userHandlers/userDetailsHandler'); // the file you shared earlie
 
 const userBot = new Telegraf(process.env.USER_BOT_TOKEN);
 
@@ -91,6 +100,32 @@ userBot.on('callback_query', async (ctx) => {
     console.error('❌ Error handling callback:', err);
     await ctx.reply('⚠️ <b>Something went wrong while processing your request. Please try again later.</b>', { parse_mode: 'HTML' });
   }
+});
+
+bot.on('contact', (ctx) => {
+    if (!ctx.session || !ctx.session.orderData) {
+        return ctx.reply('Session expired. Please restart your order.');
+    }
+
+    const phoneNumberOne = ctx.message.contact.phone_number;
+    ctx.session.orderData.phoneNumberOne = phoneNumberOne;
+
+    return ctx.reply('✅ Got your first phone number.\n\n📞 If you have a second contact number, please type it now.\nIf not, type "No".');
+});
+
+bot.on('location', (ctx) => {
+    if (ctx.session.orderData && !ctx.session.orderData.location) {
+        return handleLocation(ctx);
+    }
+});
+
+bot.on('text', (ctx) => {
+    if (!ctx.session.orderData) return;
+    if (!ctx.session.orderData.fullName) return handleFullName(ctx);
+    if (!ctx.session.orderData.phoneNumberOne) return handlePhoneNumberOne(ctx); // Wait for contact
+    if (!ctx.session.orderData.phoneNumberTwo) return handlePhoneNumber(ctx);
+    if (!ctx.session.orderData.quantity) return handleQuantity(ctx);
+    if (!ctx.session.orderData.specialOrder) return handleSpecialOrder(ctx);
 });
 
 // /history command
