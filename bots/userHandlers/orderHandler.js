@@ -147,7 +147,7 @@ async function confirmOrder(ctx, foodId) {
 
     } catch (error) {
         console.error('❌ Error confirming order:', error);
-        await ctx.reply('⚠️ *Something went wrong while placing your order.* Please try again later.');
+        await ctx.reply('⚠️ *Something went wrong while placing your order.* Please try again later.'+error);
     }
 }
 
