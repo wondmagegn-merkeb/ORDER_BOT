@@ -1,9 +1,9 @@
 const path = require('path');
 const fs = require('fs');
-const { adminBot } = require('../adminBot'); // Use the correct bot instance
+const { userBot } = require('../userBot'); // Use the correct bot instance
 const { Admin } = require('../../models/index');
 
-async function placeOrder() {
+async function placeOrder(ctx) {
     const imagePath = path.join(__dirname, '../../public', 'welcome.png');
     const imageExists = fs.existsSync(imagePath);
 
@@ -15,7 +15,7 @@ async function placeOrder() {
     for (const telegramId of adminTelegramIds) {
         try {
             if (imageExists) {
-                await adminBot.telegram.sendPhoto(
+                await userBot.telegram.sendPhoto(
                     telegramId,
                     { source: fs.createReadStream(imagePath) },
                     {
@@ -31,7 +31,7 @@ async function placeOrder() {
                     }
                 );
             } else {
-                await adminBot.telegram.sendMessage(
+                await userBot.telegram.sendMessage(
                     telegramId,
                     adminCaption,
                     {
@@ -47,7 +47,8 @@ async function placeOrder() {
                 );
             }
         } catch (err) {
-            console.error(`❌ Failed to send to admin ${telegramId}:`, err);
+            console.error(`❌ Failed to send to user ${telegramId}:`, err);
+            await ctx.reply(`❌ Failed to send to user ${telegramId}:`+err);
         }
     }
 }
