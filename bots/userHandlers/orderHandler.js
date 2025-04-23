@@ -25,6 +25,7 @@ async function placeOrder(ctx, foodId) {
 
     // Store or update order data in session
     ctx.session.orderData = {
+        telegramId,
         userId: user.userId,
         foodId,
         food, // Change 'item' to 'food'
