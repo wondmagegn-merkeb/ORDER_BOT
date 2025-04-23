@@ -1,4 +1,5 @@
 const { Order, Food, User, Admin } = require('../../models/index');
+const { adminBot }= require('../adminBot'); // Adjust the path based on your project structure
 
 async function placeOrder(ctx, foodId) {
     const telegramId = ctx.from.id.toString();
@@ -75,8 +76,13 @@ async function confirmOrder(ctx, itemId) {
     const isRemoteImage = item.imageUrl?.startsWith('http');
 
     try {
-        // Send order to each admin from Admin model
-        const admins = await Admin.findAll({ attributes: ['telegramId'] });
+        // ✅ Only select admins who are NOT 'delivery' role
+        const admins = await Admin.findAll({
+            where: {
+                role: { [Op.ne]: 'delivery' }
+            },
+            attributes: ['telegramId']
+        });
 
         const adminCaption = `<b>📦 *New Order Received!*</b>\n` +
             `🍕 <b>Food:</b> ${item.name}\n` +
@@ -91,7 +97,7 @@ async function confirmOrder(ctx, itemId) {
 
         // Send to all admins
         for (const admin of admins) {
-            await ctx.telegram.sendPhoto(admin.telegramId, item.imageUrl, {
+            await adminBot.telegram.sendPhoto(admin.telegramId, item.imageUrl, {
                 caption: adminCaption,
                 parse_mode: 'HTML',
                 reply_markup: {
