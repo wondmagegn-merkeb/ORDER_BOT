@@ -1,11 +1,12 @@
 const sharp = require("sharp");
 const cloudinary = require("../../config/cloudinary");
-const { Food, FoodCategory } = require("../../models/index");
+const { Food, FoodCategory,Admin } = require("../../models/index");
 const { foodSchema } = require("../../validators/foodValidation");
 const {
   getAllCategories,
 } = require('./categoryController');
 const { notifyUserController } = require('../notificationController');
+const { sendMessageToUser }= require('../../bots/userBot');
 
 exports.createFood = async (req, res) => {
   try {
@@ -57,7 +58,20 @@ const last = await Food.findOne({ order: [['createdAt', 'DESC']] });
 });
 
     await notifyUserController();
+const admins = await Admin.findAll();
+        const adminTelegramIds = admins.map(admin => admin.telegramId);
 
+        const message = `
+🍽️ <b>New Food Item Added!</b>
+
+<b>Name:</b> ${food.name}
+<b>Price:</b> ${food.price} birr 
+<b>Description:</b> ${food.description || 'No description provided.'}
+        `;
+
+        for (const telegramId of adminTelegramIds) {
+            await sendMessageToUser(telegramId, message);
+        }
 
     res.locals.success = "✅ Food created successfully";
     res.render('admin/food/create-food', { categories, title: 'Food List' });
