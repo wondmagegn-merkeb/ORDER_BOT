@@ -2,7 +2,7 @@ const { Telegraf, Markup } = require('telegraf');
 const path = require('path');
 const fs = require('fs');
 const { Order, User, Admin } = require('../models/index');
-const { userBot } = require('../userBot');
+const { userBot } = require('./userBot');
 const adminBot = new Telegraf(process.env.ADMIN_BOT_TOKEN);
 
 // ===== Fetch Admin Role =====
