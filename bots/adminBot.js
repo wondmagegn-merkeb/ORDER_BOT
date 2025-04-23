@@ -26,7 +26,7 @@ await userBot.telegram.sendPhoto(telegramId, { source: fs.createReadStream(image
         const admin = await Admin.findOne({ where: { telegramId } });
         return admin ? admin.role : null;
     } catch (err) {
-        ctx.reply('❌ You are not authorized to use this bot.'+err);
+        ctx.reply('❌ You are not authorized to use this bot.'+err 'user bot' +userBot);
         console.error('Error fetching admin role:', err);
         return null;
     }
