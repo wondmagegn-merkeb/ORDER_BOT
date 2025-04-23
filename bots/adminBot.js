@@ -73,7 +73,7 @@ adminBot.start(async (ctx) => {
         await placeOrder(ctx);
     } catch (err) {
         console.error('Error sending welcome message:', err);
-        await ctx.reply('Something went wrong. Please try again later.');
+        await ctx.reply('Something went wrong. Please try again later.'+err);
     }
 });
 
