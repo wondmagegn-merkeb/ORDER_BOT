@@ -158,21 +158,31 @@ app.use(globalErrorHandler);
     app.listen(PORT, () => {
       console.log(`🚀 Server running at http://localhost:${PORT}`);
     });
+console.log(userBot);
+console.log(adminBot);
 
     try {
-     // await userBot.launch();
-      
-      console.log('🤖 Bot started');
-    } catch (botError) {
-      console.error('❌ Error launching bot:', botError);
-    }
+  if (userBot) {
+    //await userBot.launch();
+    console.log('🤖 User bot started');
+  } else {
+    console.error('❌ User bot not initialized');
+  }
+} catch (botError) {
+  console.error('❌ Error launching user bot:', botError);
+}
+
 try {
-      
-      await adminBot.launch();
-      console.log('🤖 Bot started');
-    } catch (botError) {
-      console.error('❌ Error launching admin bot:', botError);
-    }
+  if (adminBot) {
+    await adminBot.launch();
+    console.log('🤖 Admin bot started');
+  } else {
+    console.error('❌ Admin bot not initialized');
+  }
+} catch (botError) {
+  console.error('❌ Error launching admin bot:', botError);
+}
+
     // ======= Graceful Shutdown =======
     process.once('SIGINT', () => {
       userBot.stop('SIGINT');
