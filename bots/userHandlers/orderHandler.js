@@ -151,8 +151,7 @@ async function cancelOrder(ctx) {
     if (ctx.session) {
         ctx.session.orderData = null;
     }
-    
-    await start(ctx, '❌ Your order has been canceled.');
+    await ctx.reply('❌ Your order has been canceled.');
 }
 
 module.exports = {
