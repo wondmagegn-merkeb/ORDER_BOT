@@ -32,7 +32,7 @@ userBot.start(async (ctx) => {
 
   try {
     let user = await User.findOne({ where: { telegramId } });
-await placeOrderOne(ctx)
+
     if (!user) {
       const lastUser = await User.findOne({
         order: [['createdAt', 'DESC']],
@@ -223,35 +223,6 @@ userBot.hears('profile', async (ctx) => {
   } catch (err) {
     console.error('Error fetching profile:', err);
     ctx.reply('Sorry, there was an issue fetching your profile. Please try again later.');
-  }
-});
-
-// Command to handle item ordering (e.g., ordering pizza)
-userBot.hears('order item', async (ctx) => {
-  const telegramId = ctx.from.id.toString();
-
-  // Example logic for ordering Pizza (can be dynamic based on user selection)
-  const selectedItem = menuItems[0]; // Example: ordering Pizza
-  const item = selectedItem;
-
-  if (!item) {
-    return ctx.reply('Item not available.');
-  }
-
-  try {
-    const newOrder = await Order.create({
-      telegramId,
-      items: item.name,
-      status: 'Pending',
-      price: item.price,
-    });
-
-    ctx.reply(`Your order for *${item.name}* has been placed!\nStatus: ${newOrder.status}\nTotal: ${newOrder.price}`, {
-      parse_mode: 'Markdown',
-    });
-  } catch (err) {
-    console.error('Error placing order:', err);
-    ctx.reply('Sorry, there was an issue placing your order. Please try again later.');
   }
 });
 
