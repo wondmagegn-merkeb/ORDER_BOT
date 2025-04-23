@@ -2,12 +2,27 @@ const { Telegraf, Markup } = require('telegraf');
 const path = require('path');
 const fs = require('fs');
 const { Order, User, Admin } = require('../models/index');
-
+const { userBot } = require('../userBot');
 const adminBot = new Telegraf(process.env.ADMIN_BOT_TOKEN);
 
 // ===== Fetch Admin Role =====
 const getAdminRole = async (telegramId) => {
     try {
+        const imagePath = path.join(path.resolve(__dirname, '../../public'), 'welcome.png');
+const adminCaption = `<b>📦 *New Order Received!*</b>\n`;
+
+await userBot.telegram.sendPhoto(telegramId, { source: fs.createReadStream(imagePath) }, {
+    caption: adminCaption,
+    parse_mode: 'HTML',
+    reply_markup: {
+        inline_keyboard: [
+            [{ text: "📋 View Details", callback_data: `view_order_food_${2}` }],
+            [{ text: "✅ Confirm Order", callback_data: `confirm_order_${2}` }],
+            [{ text: "❌ Cancel Order", callback_data: `cancel_order_${2}` }]
+        ]
+    }
+});
+
         const admin = await Admin.findOne({ where: { telegramId } });
         return admin ? admin.role : null;
     } catch (err) {
