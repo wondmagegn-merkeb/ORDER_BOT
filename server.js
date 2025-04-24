@@ -20,7 +20,6 @@ const apiAdminRoutes = require('./routes/api/adminRoutes');
 const apiCategoryRoutes = require('./routes/api/categoryRoutes');
 const adminController = require('./controllers/api/adminController');
 const userRoutes = require('./routes/view/userRoutes');
-const { notificationController } = require('./controllers/api/notificationController');
 const { authenticateAndAuthorize } = require('./middleware/authMiddleware');
 const { userBot } = require('./bots/userBot');
 const { adminBot } = require('./bots/adminBot');
@@ -157,7 +156,7 @@ app.use(globalErrorHandler);
     await sequelize.authenticate();
     console.log('✅ Database connected');
 
-    await sequelize.sync({ force : true });
+    await sequelize.sync({ alter : true });
 
     const PORT = process.env.PORT || 8080;
 
