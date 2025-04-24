@@ -17,7 +17,7 @@ async function viewOrderDetails(ctx, orderId) {
     const food = order.Food;
     const googleMapsLink = `[📍 View Map](https://www.google.com/maps?q=${order.latitude},${order.longitude})`;
 
-    const caption =
+    let caption =
       `📝 *Order ID:* ${order.orderId}\n` +
       `🧍 *Customer:* ${order.User.fullName}\n` +
       `👤 *Username:* @${order.User?.username || 'N/A'}\n` +
