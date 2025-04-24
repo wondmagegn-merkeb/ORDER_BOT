@@ -87,7 +87,7 @@ app.use('/admin', viewAdminRoutes);
 app.use('/logs', viewLogsRoutes);
 app.use('/categories', categoryRoutes);
 app.use('/users', userRoutes);
-app.use('/orders', orderRoutes);
+app.use('/orders', viewOrderRoutes);
 app.use('/api/admin', authenticateAndAuthorize('admin', 'superadmin'), apiAdminRoutes);
 app.use('/api/categories', authenticateAndAuthorize('admin', 'superadmin'), apiCategoryRoutes);
 app.use('/api/users', authenticateAndAuthorize('admin', 'superadmin'), apiUserRoutes);
