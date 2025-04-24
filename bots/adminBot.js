@@ -247,7 +247,7 @@ adminBot.on('text', async (ctx) => {
       });
     } catch (err) {
       console.error('Error updating order price:', err);
-      return ctx.reply('❌ Failed to update order. Please try again later.');
+      return ctx.reply('❌ Failed to update order. Please try again later.'+err);
     }
   }
 
