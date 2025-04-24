@@ -57,38 +57,48 @@ async function handleOrderHistory(ctx) {
       const feedbackButtons = isDelivered
   ? {
       reply_markup: {
-        inline_keyboard: [[
-          {
-            text: selectedReaction === 'love'
-              ? '❤️ Loved it! Best meal ever! ✔️'
-              : '❤️ Loved it! Best meal ever!',
-            callback_data: `feedback_${order.orderId}_love`
-          },
-          {
-            text: selectedReaction === 'tasty'
-              ? '😋 So tasty! Will order again! ✔️'
-              : '😋 So tasty! Will order again!',
-            callback_data: `feedback_${order.orderId}_tasty`
-          },
-          {
-            text: selectedReaction === 'bad'
-              ? '👎 Not great, needs improvement ✔️'
-              : '👎 Not great, needs improvement',
-            callback_data: `feedback_${order.orderId}_bad`
-          },
-          {
-            text: selectedReaction === 'delicious'
-              ? '🍽️ Delicious! Perfect for my taste ✔️'
-              : '🍽️ Delicious! Perfect for my taste',
-            callback_data: `feedback_${order.orderId}_delicious`
-          },
-          {
-            text: selectedReaction === 'okay'
-              ? '👌 Okay, could be better ✔️'
-              : '👌 Okay, could be better',
-            callback_data: `feedback_${order.orderId}_okay`
-          }
-        ]]
+        inline_keyboard: [
+          [
+            {
+              text: selectedReaction === 'love' 
+                ? '❤️ Loved it! Best meal ever! ✔️' 
+                : '❤️ Loved it! Best meal ever!',
+              callback_data: `feedback_${order.orderId}_love`
+            }
+          ],
+          [
+            {
+              text: selectedReaction === 'tasty'
+                ? '😋 So tasty! Will order again! ✔️' 
+                : '😋 So tasty! Will order again!',
+              callback_data: `feedback_${order.orderId}_tasty`
+            }
+          ],
+          [
+            {
+              text: selectedReaction === 'bad'
+                ? '👎 Not great, needs improvement ✔️'
+                : '👎 Not great, needs improvement',
+              callback_data: `feedback_${order.orderId}_bad`
+            }
+          ],
+          [
+            {
+              text: selectedReaction === 'delicious'
+                ? '🍽️ Delicious! Perfect for my taste ✔️'
+                : '🍽️ Delicious! Perfect for my taste',
+              callback_data: `feedback_${order.orderId}_delicious`
+            }
+          ],
+          [
+            {
+              text: selectedReaction === 'okay'
+                ? '👌 Okay, could be better ✔️' 
+                : '👌 Okay, could be better',
+              callback_data: `feedback_${order.orderId}_okay`
+            }
+          ]
+        ]
       }
     }
   : undefined;
@@ -156,38 +166,48 @@ async function handleLastOrder(ctx) {
       const feedbackButtons = isDelivered
   ? {
       reply_markup: {
-        inline_keyboard: [[
-          {
-            text: selectedReaction === 'love'
-              ? '❤️ Loved it! Best meal ever! ✔️'
-              : '❤️ Loved it! Best meal ever!',
-            callback_data: `feedback_${order.orderId}_love`
-          },
-          {
-            text: selectedReaction === 'tasty'
-              ? '😋 So tasty! Will order again! ✔️'
-              : '😋 So tasty! Will order again!',
-            callback_data: `feedback_${order.orderId}_tasty`
-          },
-          {
-            text: selectedReaction === 'bad'
-              ? '👎 Not great, needs improvement ✔️'
-              : '👎 Not great, needs improvement',
-            callback_data: `feedback_${order.orderId}_bad`
-          },
-          {
-            text: selectedReaction === 'delicious'
-              ? '🍽️ Delicious! Perfect for my taste ✔️'
-              : '🍽️ Delicious! Perfect for my taste',
-            callback_data: `feedback_${order.orderId}_delicious`
-          },
-          {
-            text: selectedReaction === 'okay'
-              ? '👌 Okay, could be better ✔️'
-              : '👌 Okay, could be better',
-            callback_data: `feedback_${order.orderId}_okay`
-          }
-        ]]
+        inline_keyboard: [
+          [
+            {
+              text: selectedReaction === 'love' 
+                ? '❤️ Loved it! Best meal ever! ✔️' 
+                : '❤️ Loved it! Best meal ever!',
+              callback_data: `feedback_${order.orderId}_love`
+            }
+          ],
+          [
+            {
+              text: selectedReaction === 'tasty'
+                ? '😋 So tasty! Will order again! ✔️' 
+                : '😋 So tasty! Will order again!',
+              callback_data: `feedback_${order.orderId}_tasty`
+            }
+          ],
+          [
+            {
+              text: selectedReaction === 'bad'
+                ? '👎 Not great, needs improvement ✔️'
+                : '👎 Not great, needs improvement',
+              callback_data: `feedback_${order.orderId}_bad`
+            }
+          ],
+          [
+            {
+              text: selectedReaction === 'delicious'
+                ? '🍽️ Delicious! Perfect for my taste ✔️'
+                : '🍽️ Delicious! Perfect for my taste',
+              callback_data: `feedback_${order.orderId}_delicious`
+            }
+          ],
+          [
+            {
+              text: selectedReaction === 'okay'
+                ? '👌 Okay, could be better ✔️' 
+                : '👌 Okay, could be better',
+              callback_data: `feedback_${order.orderId}_okay`
+            }
+          ]
+        ]
       }
     }
   : undefined;
