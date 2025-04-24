@@ -81,11 +81,23 @@ async function showOrdersByStatus(ctx, status, label) {
         `💰 *Price (new):* ${order.newTotalPrice} birr\n` +
         `📞 *Phone 1:* ${user.phoneNumber1}\n` +
         `📞 *Phone 2:* ${user.phoneNumber2}\n` +
-        `🚚 *Status:* ${order.status}\n` +
-        `${googleMapsLink}`;
+        `🚚 *Status:* ${order.status}\n`;
 
       const buttons = [];
+      
+      if (status === 'delivered') {
+        caption += `💬 *Feedback:* ${order.feedback === 'love' ? '❤️ Loved it!' : 
+  order.feedback === 'tasty' ? '😋 Tasty!' : 
+  order.feedback === 'bad' ? '👎 Not good' : 
+  order.feedback === 'delicious' ? '🍽️ Delicious!' : 
+order.feedback === '' ? 'no feedback' : 
+  order.feedback === 'Okay' ? '👌 Okay' }\n`+
+`${googleMapsLink}`;
 
+      }else{
+        caption += `${googleMapsLink}`;
+      }
+      
       if (status === 'pending') {
         buttons.push([Markup.button.callback('🚚 Mark In Progress', `mark_inprogress_${order.orderId}`)]);
         buttons.push([Markup.button.callback('❌ Cancel Order', `cancel_order_${order.orderId}`)]);
