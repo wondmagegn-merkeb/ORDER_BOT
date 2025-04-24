@@ -98,7 +98,7 @@ userBot.hears('last order', (ctx) => handleLastOrder(ctx));
 userBot.hears('profile', (ctx) => handleUserProfile(ctx));
 
 // Handle callback 
-bot.on('callback_query', async (ctx) => {
+userBot.on('callback_query', async (ctx) => {
   const data = ctx.callbackQuery.data;
   const message = ctx.callbackQuery.message;
 
