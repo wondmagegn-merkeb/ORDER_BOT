@@ -85,7 +85,7 @@ adminBot.start(async (ctx) => {
 // ===== Order Handlers Based on Role and Status =====
 adminBot.hears('📦 Orders in Progress',  (ctx) => showOrdersInProgress(ctx));
 adminBot.hears('⏳ Orders Pending',  (ctx) => showOrdersInPending(ctx));
-adminBot.hears('✅ Completed Orders',  (ctx) =>showOrdersInCompletedctx(ctx));
+adminBot.hears('✅ Completed Orders',  (ctx) =>showOrdersInCompleted(ctx));
 adminBot.hears('🗑️ Cancelled Orders',  (ctx) => showOrdersInCancelled(ctx));
 adminBot.hears('📬 Delivered Orders',  (ctx) => showOrdersInDelivered(ctx));
 
