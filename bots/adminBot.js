@@ -138,7 +138,7 @@ const status='progress';
     await ctx.reply(`Something went wrong while loading Progressorders.`);
   }
 });
-adminBot.hears('⏳ Orders Pending',  (ctx) => {
+adminBot.hears('⏳ Orders Pending', async (ctx) => {
   try {
     if (ctx.state.role === 'delivery' && (status !== 'completed' && status !== 'in_progress')) {
       return ctx.reply('❌ You are not allowed to access this section.');
