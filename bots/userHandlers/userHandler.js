@@ -175,7 +175,7 @@ const feedbackEmojis = {
   bad: '😞 Not happy'
 };
 
-const userFeedback = feedbackEmojis[order.feedback] || '';
+const userFeedback = feedbackEmojis[lastOrder.feedback] || '';
 
       // Build the caption with order details
       
