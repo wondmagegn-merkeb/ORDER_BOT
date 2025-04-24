@@ -16,16 +16,22 @@ const {
 const adminBot = new Telegraf(process.env.ADMIN_BOT_TOKEN);
 const tempStates = {}; // Temporary in-memory state tracking
 // ===== Fetch Admin Role =====
-const getAdminRole = async (ctx,telegramId) => {
-    try {
-        const admin = await Admin.findOne({ where: { telegramId } });
-      ctx.state.adminId = admin.adminId;
-        return admin ? admin.role : null;
-    } catch (err) {
-        ctx.reply('❌ You are not authorized to use this bot.'+err);
-        console.error('Error fetching admin role:', err);
-        return null;
+const getAdminRole = async (ctx, telegramId) => {
+  try {
+    const admin = await Admin.findOne({ where: { telegramId } });
+
+    if (!admin) {
+      await ctx.reply('❌ You are not authorized to use this bot.');
+      return null;
     }
+
+    ctx.state.adminId = admin.adminId;
+    return admin.role;
+  } catch (err) {
+    console.error('Error fetching admin role:', err);
+    await ctx.reply('❌ An error occurred while checking authorization.');
+    return null;
+  }
 };
 
 // ===== Middleware: Authorization =====
@@ -44,7 +50,7 @@ adminBot.start(async (ctx) => {
     const firstName = ctx.from.first_name || 'Admin';
     const role = ctx.state.role;
 
-    const imagePath = path.join(path.resolve(__dirname, '../../public'), 'welcome.png');
+    const imagePath = path.resolve(__dirname, '../public/welcome.png');
     const imageExists = fs.existsSync(imagePath);
 
     const fullKeyboard = Markup.keyboard([
@@ -89,13 +95,8 @@ adminBot.hears('⏳ Orders Pending',  (ctx) => showOrdersInPending(ctx));
 adminBot.hears('✅ Completed Orders',  (ctx) =>showOrdersInCompleted(ctx));
 adminBot.hears('🗑️ Cancelled Orders',  (ctx) => showOrdersInCancelled(ctx));
 adminBot.hears('📬 Delivered Orders',  (ctx) => showOrdersInDelivered(ctx));
-
 adminBot.hears('📊 Stats', async (ctx) => {
     ctx.reply('📊 Stats feature coming soon!');
-});
-
-adminBot.hears('⚙️ Settings', async (ctx) => {
-    ctx.reply('⚙️ Settings feature coming soon!');
 });
 
 adminBot.on('callback_query', async (ctx) => {
@@ -194,7 +195,12 @@ adminBot.on('callback_query', async (ctx) => {
             ])
         });
     }
-
+   
+    if (data === 'cancel_back') {
+        await ctx.answerCbQuery('Action cancelled');
+        return ctx.reply('✅ Action cancelled. You can continue managing your orders.');
+    }
+    
     // ----- Confirm Cancellation -----
     if (data.startsWith('confirm_cancel_')) {
         const orderId = data.split('_')[2];
@@ -219,7 +225,7 @@ adminBot.on('callback_query', async (ctx) => {
 adminBot.on('text', async (ctx) => {
   const userId = ctx.from.id;
   const state = tempStates[userId];
-
+  const adminId = ctx.state.adminId;
   if (state?.action === 'awaiting_price_input') {
     const newPrice = parseFloat(ctx.message.text);
 
@@ -230,7 +236,7 @@ adminBot.on('text', async (ctx) => {
     try {
       const order = await Order.findByPk(state.orderId);
       if (!order) return ctx.reply('❌ Order not found.');
-
+      order.updatedBy = adminId;
       order.totalPrice = newPrice;
       order.status = 'progress';
       await order.save();
