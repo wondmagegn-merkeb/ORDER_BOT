@@ -36,3 +36,8 @@ INSERT INTO `food_update_logs` (`id`, `foodId`, `field`, `oldValue`, `newValue`,
 (10, 'FOOD002', 'isAvailable', NULL, 'true', 'ADM001', 'create', '2025-04-22 18:27:43', '2025-04-22 18:27:43'),
 (11, 'FOOD002', 'imageUrl', NULL, 'https://res.cloudinary.com/dx6koeeva/image/upload/v1745346462/foods/j6eelrbpqjp87otd5fpp.webp', 'ADM001', 'create', '2025-04-22 18:27:43', '2025-04-22 18:27:43'),
 (12, 'FOOD002', 'categoryId', NULL, 'CAT001', 'ADM001', 'create', '2025-04-22 18:27:43', '2025-04-22 18:27:43');
+
+INSERT INTO `orders` (`orderId`, `userId`, `foodId`, `quantity`, `specialOrder`, `totalPrice`, `newTotalPrice`, `status`, `createdBy`, `updatedBy`, `location`, `latitude`, `longitude`, `createdAt`, `updatedAt`, `deletedAt`) VALUES
+('ORD001', 'USR001', 'FOOD002', 3, '3', 63.00, 63.00, 'pending', 'USR001', NULL, 'N', 7.04949, 38.4884, '2025-04-23 20:47:31', '2025-04-23 20:47:31', NULL),
+('ORD002', 'USR001', 'FOOD002', 2, 'Not special order', 42.00, 42.00, 'progress', 'USR001', NULL, 'Yjkj', 7.0531, 38.4902, '2025-04-23 22:52:03', '2025-04-24 07:51:52', NULL),
+('ORD003', 'USR001', 'FOOD002', 5, 'Not special order', 105.00, 105.00, 'pending', 'USR001', NULL, 'Jj', 7.05313, 38.4911, '2025-04-24 04:29:08', '2025-04-24 04:29:08', NULL);
