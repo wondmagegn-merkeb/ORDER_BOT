@@ -115,59 +115,9 @@ userBot.on('callback_query', async (ctx) => {
             
             order.feedback = reaction;
             await order.save();
-      // Modify the inline keyboard to highlight the selected button
-      const updatedKeyboard = [
-  [
-    { 
-      text: reaction === 'love' 
-        ? '❤️ Loved it! Best meal ever! ✔️' 
-                : '❤️ Loved it! Best meal ever!',
-              callback_data: `feedback_${orderId}_love`
-        
-    }
-  ],
-  [
-    { 
-      text: reaction === 'tasty' ? '😋 So tasty! Will order again! ✔️' 
-                : '😋 So tasty! Will order again!',
-      callback_data: `feedback_${orderId}_tasty` 
-    }
-  ],
-  [
-    { 
-      text: reaction === 'bad' ? '👎 Not great, needs improvement ✔️'
-                : '👎 Not great, needs improvement',
-      callback_data: `feedback_${orderId}_bad` 
-    }
-  ],
-  [
-    { 
-      text: reaction === 'delicious' ? '🍽️ Delicious! Perfect for my taste ✔️'
-                : '🍽️ Delicious! Perfect for my taste', 
-      callback_data: `feedback_${orderId}_delicious` 
-    }
-  ],
-  [
-    { 
-      text: reaction === 'okay' ? '👌 Okay, could be better ✔️' 
-                : '👌 Okay, could be better',
-      callback_data: `feedback_${orderId}_okay` 
-    }
-  ]
-];
-
-
+          
       // Send a reply to acknowledge the feedback submission
       await ctx.answerCbQuery('Thanks for your feedback!');
-      // Update the message text to reflect the selected feedback
-await ctx.editMessageReplyMarkup(
-  {
-    inline_keyboard: updatedKeyboard
-  }
-);
-
-      
-      
     }
 
     // Handle ordering action
