@@ -98,27 +98,80 @@ userBot.hears('last order', (ctx) => handleLastOrder(ctx));
 userBot.hears('profile', (ctx) => handleUserProfile(ctx));
 
 // Handle callback 
-userBot.on('callback_query', async (ctx) => {
+bot.on('callback_query', async (ctx) => {
   const data = ctx.callbackQuery.data;
+  const message = ctx.callbackQuery.message;
 
   try {
-    await ctx.answerCbQuery(); // Acknowledge button click
+    // Handle feedback
+    if (data.startsWith('feedback_')) {
+      // Split the data to extract orderId and reaction
+      const [, orderId, reaction] = data.split('_');
 
-    // Handle ordering
+      // Log the feedback (you can save it to DB here)
+      console.log(`Feedback for order ${orderId}: ${reaction}`);
+
+      // Modify the inline keyboard to highlight the selected button
+      const updatedKeyboard = [
+        [
+          { 
+            text: reaction === 'love' ? '❤️ Loved it ✔️' : '❤️ Loved it', 
+            callback_data: `feedback_${orderId}_love` 
+          },
+          { 
+            text: reaction === 'tasty' ? '😋 Tasty ✔️' : '😋 Tasty', 
+            callback_data: `feedback_${orderId}_tasty` 
+          },
+          { 
+            text: reaction === 'bad' ? '👎 Not good ✔️' : '👎 Not good', 
+            callback_data: `feedback_${orderId}_bad` 
+          },
+          { 
+            text: reaction === 'delicious' ? '🍽️ Delicious ✔️' : '🍽️ Delicious', 
+            callback_data: `feedback_${orderId}_delicious` 
+          },
+          { 
+            text: reaction === 'okay' ? '👌 Okay ✔️' : '👌 Okay', 
+            callback_data: `feedback_${orderId}_okay` 
+          }
+        ]
+      ];
+
+      // Send a reply to acknowledge the feedback submission
+      await ctx.answerCbQuery('Thanks for your feedback!');
+
+      // Update the message text to reflect the selected feedback
+      await ctx.editMessageText(
+        `Feedback for Order ${orderId}: ${
+          reaction === 'love' ? '❤️ Loved it' : 
+          reaction === 'tasty' ? '😋 Tasty' : 
+          reaction === 'bad' ? '👎 Not good' : 
+          reaction === 'delicious' ? '🍽️ Delicious' : 
+          '👌 Okay'
+        } received!`, 
+        {
+          reply_markup: {
+            inline_keyboard: updatedKeyboard,
+          }
+        }
+      );
+    }
+
+    // Handle ordering action
     if (data.startsWith('order_now_')) {
       const foodId = data.split('_')[2];
-      return placeOrder(ctx, foodId);
+      return placeOrder(ctx, foodId); // Ensure `placeOrder` is defined
     }
 
-    // Handle order confirmation (you can implement this function)
+    // Handle order confirmation action
     if (data.startsWith('confirm_order_now_')) {
       const foodId = data.split('_')[3];
-      return confirmOrder(ctx, foodId);
+      return confirmOrder(ctx, foodId); // Ensure `confirmOrder` is defined
     }
 
-    // Handle cancellation
+    // Handle order cancellation
     if (data.startsWith('cancel_order_now_')) {
-      return cancelOrder(ctx);
+      return cancelOrder(ctx); // Ensure `cancelOrder` is defined
     }
 
   } catch (err) {
@@ -126,6 +179,7 @@ userBot.on('callback_query', async (ctx) => {
     await ctx.reply('⚠️ <b>Something went wrong while processing your request. Please try again later.</b>', { parse_mode: 'HTML' });
   }
 });
+
 
 userBot.on('contact', (ctx) => {
     if (!ctx.session || !ctx.session.orderData) {
