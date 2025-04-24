@@ -42,7 +42,7 @@ async function handleOrderHistory(ctx) {
       const isDelivered = order.status.toLowerCase() === 'delivered';
       const deliveryEmoji = isDelivered ? ' ✅🎉🍽️ Enjoy your meal!' : '';
       const selectedReaction = order.feedback; // Assuming you store feedback like 'love', 'bad', etc.
-      const needsFeedback = isDelivered && (!order.feedback || order.feedback === '');
+      const needsFeedback = isDelivered && (!order.feedback || order.feedback === 'noFeedBack');
 const feedbackEmojis = {
   tasty: '😋 So tasty!',
   love: '😍 Loved it!',
@@ -162,10 +162,10 @@ async function handleLastOrder(ctx) {
       ? `\n🗺️ <a href="https://maps.google.com/?q=${lastOrder.latitude},${lastOrder.longitude}">View Location</a>`
       : '';
       // Check if the order has been delivered and add corresponding emojis
-      const isDelivered = order.status.toLowerCase() === 'delivered';
+      const isDelivered = lastOrder.status.toLowerCase() === 'delivered';
       const deliveryEmoji = isDelivered ? ' ✅🎉🍽️ Enjoy your meal!' : '';
-      const selectedReaction = order.feedback; // Assuming you store feedback like 'love', 'bad', etc.
-      const needsFeedback = isDelivered && (!order.feedback || order.feedback === '');
+      const selectedReaction = lastOrder.feedback; // Assuming you store feedback like 'love', 'bad', etc.
+      const needsFeedback = isDelivered && (!lastOrder.feedback || lastOrder.feedback === 'noFeedBack');
 const feedbackEmojis = {
   tasty: '😋 So tasty!',
   love: '😍 Loved it!',
@@ -175,19 +175,17 @@ const feedbackEmojis = {
   bad: '😞 Not happy'
 };
 
-
-
 const userFeedback = feedbackEmojis[order.feedback] || '';
 
       // Build the caption with order details
       
-const caption = `<b>📦 Order ID:</b> ${order.orderId}\n` +
+const caption = `<b>📦 Order ID:</b> ${lastOrder.orderId}\n` +
   `🍔 <b>Food:</b> ${food.name || 'Unknown'}\n` +
-  `📍 <b>Address:</b> ${order.location || 'Not provided'}\n` +
-  `💰 <b>Total Price:</b> ${order.newTotalPrice} birr\n` +
-  `📝 <b>Special Order:</b> ${order.specialOrder || 'None'}\n` +
-  `📅 <b>Date:</b> ${formatDate(order.createdAt)}\n` +
-  `📌 <b>Status:</b> ${order.status}${deliveryEmoji} ${mapLink}` +
+  `📍 <b>Address:</b> ${lastOrder.location || 'Not provided'}\n` +
+  `💰 <b>Total Price:</b> ${lastOrder.newTotalPrice} birr\n` +
+  `📝 <b>Special Order:</b> ${lastOrder.specialOrder || 'None'}\n` +
+  `📅 <b>Date:</b> ${formatDate(lastOrder.createdAt)}\n` +
+  `📌 <b>Status:</b> ${lastOrder.status}${deliveryEmoji} ${mapLink}` +
   (
     needsFeedback
       ? `\n\n<b>How did we do? We value your feedback! 😍</b>\nReact with an emoji to share your thoughts:`
@@ -202,37 +200,37 @@ const feedbackButtons = needsFeedback
           [
             {
               text: '😋 So tasty! Will order again!',
-              callback_data: `feedback_${order.orderId}_tasty`
+              callback_data: `feedback_${lastOrder.orderId}_tasty`
             }
           ],
           [
             {
               text: '❤️ Loved it! Best meal ever!',
-              callback_data: `feedback_${order.orderId}_love`
+              callback_data: `feedback_${lastOrder.orderId}_love`
             }
           ],
           [
             {
               text: '🍽️ Delicious! Perfect for my taste',
-              callback_data: `feedback_${order.orderId}_delicious`
+              callback_data: `feedback_${lastOrder.orderId}_delicious`
             }
           ],
           [
             {
               text: '😊 It was good!',
-              callback_data: `feedback_${order.orderId}_good`
+              callback_data: `feedback_${lastOrder.orderId}_good`
             }
           ],
           [
             {
               text: '👌 Okay, could be better',
-              callback_data: `feedback_${order.orderId}_okay`
+              callback_data: `feedback_${lastOrder.orderId}_okay`
             }
           ],
           [
             {
               text: '👎 Not great, needs improvement',
-              callback_data: `feedback_${order.orderId}_bad`
+              callback_data: `feedback_${lastOrder.orderId}_bad`
             }
           ]
         ]
