@@ -138,7 +138,59 @@ adminBot.hears('📦 Orders in Progress',async  (ctx) =>{
     await ctx.reply(`Something went wrong while loading Progressorders.`);
   }
 });
-adminBot.hears('⏳ Orders Pending',  (ctx) => showOrdersInPendingctx(ctx));
+adminBot.hears('⏳ Orders Pending',  (ctx) => {
+  try {
+    if (ctx.state.role === 'delivery' && (status !== 'completed' && status !== 'in_progress')) {
+      return ctx.reply('❌ You are not allowed to access this section.');
+    }
+const status='pending';
+    const orders = await Order.findAll({
+      where: { status },
+      include: [
+        { model: User, attributes: ['username', 'fullName', 'phoneNumber1', 'phoneNumber2'] },
+        { model: Food, attributes: ['name', 'price', 'imageUrl'] }
+      ]
+    });
+
+    if (!orders.length) {
+      return ctx.reply(`📦 No orders in Progress.`);
+    }
+
+    for (const order of orders) {
+      const food = order.Food;
+      const user = order.User;
+      const googleMapsLink = `[📍 View Map](https://www.google.com/maps?q=${order.latitude},${order.longitude})`;
+
+      const caption =
+        `📝 *Order ID:* ${order.orderId}\n` +
+        `🧍 *Customer:* ${user.fullName}\n` +
+        `👤 *Username:* @${user.username || 'N/A'}\n` +
+        `🛍️ *Food:* ${food.name}\n` +
+        `💵 *Price per Unit:* ${food.price} birr\n` +
+        `🔢 *Quantity:* ${order.quantity}\n` +
+        `💰 *Total:* ${order.newTotalPrice} birr\n` +
+        `📞 *Phone 1:* ${user.phoneNumber1}\n` +
+        `📞 *Phone 2:* ${user.phoneNumber2}\n` +
+        `🚚 *Status:* ${order.status}\n` +
+        `${googleMapsLink}`;
+
+      const buttons = [];
+
+      
+        buttons.push([Markup.button.callback('✅ Mark as Complete', `mark_complete_${order.orderId}`)]);
+      
+
+      await ctx.replyWithPhoto(food.imageUrl, {
+        caption,
+        parse_mode: 'Markdown',
+        ...Markup.inlineKeyboard(buttons)
+      });
+    }
+
+  } catch (err) {
+    console.error(`❌ Error fetching Progress orders:`, err);
+    await ctx.reply(`Something went wrong while loading Progressorders.`);
+  }});
 adminBot.hears('✅ Completed Orders',  (ctx) =>showOrdersInCompletedctx(ctx));
 adminBot.hears('🗑️ Cancelled Orders',  (ctx) => showOrdersInCancelled(ctx));
 adminBot.hears('📬 Delivered Orders',  (ctx) => showOrdersInDelivered(ctx));
