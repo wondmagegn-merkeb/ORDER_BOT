@@ -135,7 +135,7 @@ const status='progress';
 
   } catch (err) {
     console.error(`❌ Error fetching Progress orders:`, err);
-    await ctx.reply(`Something went wrong while loading Progressorders.`);
+    await ctx.reply(`Something went wrong while loading Progress orders.`+err);
   }
 });
 adminBot.hears('⏳ Orders Pending', async (ctx) => {
@@ -189,7 +189,7 @@ const status='pending';
 
   } catch (err) {
     console.error(`❌ Error fetching Progress orders:`, err);
-    await ctx.reply(`Something went wrong while loading Progressorders.`);
+    await ctx.reply(`Something went wrong while loading Progress orders.`+err);
   }});
 adminBot.hears('✅ Completed Orders',  (ctx) =>showOrdersInCompletedctx(ctx));
 adminBot.hears('🗑️ Cancelled Orders',  (ctx) => showOrdersInCancelled(ctx));
