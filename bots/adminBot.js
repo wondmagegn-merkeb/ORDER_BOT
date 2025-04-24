@@ -14,7 +14,7 @@ const {
 } = require('./adminHandlers/getHandler');
 
 const adminBot = new Telegraf(process.env.ADMIN_BOT_TOKEN);
-
+const tempStates = {}; // Temporary in-memory state tracking
 // ===== Fetch Admin Role =====
 const getAdminRole = async (ctx,telegramId) => {
     try {
@@ -63,7 +63,6 @@ adminBot.start(async (ctx) => {
 
     try {
         
-
         if (imageExists) {
             await ctx.replyWithPhoto({ source: fs.createReadStream(imagePath) }, {
                 caption: welcomeMessage,
@@ -84,113 +83,8 @@ adminBot.start(async (ctx) => {
 });
 
 // ===== Order Handlers Based on Role and Status =====
-adminBot.hears('📦 Orders in Progress',async  (ctx) =>{
-  try {
-    if (ctx.state.role === 'delivery' && (status !== 'completed' && status !== 'in_progress')) {
-      return ctx.reply('❌ You are not allowed to access this section.');
-    }
-const status='progress';
-    const orders = await Order.findAll({
-      where: { status },
-      include: [
-        { model: User, attributes: ['username', 'fullName', 'phoneNumber1', 'phoneNumber2'] },
-        { model: Food, attributes: ['name', 'price', 'imageUrl'] }
-      ]
-    });
-
-    if (!orders.length) {
-      return ctx.reply(`📦 No orders in Progress.`);
-    }
-
-    for (const order of orders) {
-      const food = order.Food;
-      const user = order.User;
-      const googleMapsLink = `[📍 View Map](https://www.google.com/maps?q=${order.latitude},${order.longitude})`;
-
-      const caption =
-        `📝 *Order ID:* ${order.orderId}\n` +
-        `🧍 *Customer:* ${user.fullName}\n` +
-        `👤 *Username:* @${user.username || 'N/A'}\n` +
-        `🛍️ *Food:* ${food.name}\n` +
-        `💵 *Price per Unit:* ${food.price} birr\n` +
-        `🔢 *Quantity:* ${order.quantity}\n` +
-        `💰 *Total:* ${order.newTotalPrice} birr\n` +
-        `📞 *Phone 1:* ${user.phoneNumber1}\n` +
-        `📞 *Phone 2:* ${user.phoneNumber2}\n` +
-        `🚚 *Status:* ${order.status}\n` +
-        `${googleMapsLink}`;
-
-      const buttons = [];
-
-      
-        buttons.push([Markup.button.callback('✅ Mark as Complete', `mark_complete_${order.orderId}`)]);
-      
-
-      await ctx.replyWithPhoto(food.imageUrl, {
-        caption,
-        parse_mode: 'Markdown',
-        ...Markup.inlineKeyboard(buttons)
-      });
-    }
-
-  } catch (err) {
-    console.error(`❌ Error fetching Progress orders:`, err);
-    await ctx.reply(`Something went wrong while loading Progress orders.`+err);
-  }
-});
-adminBot.hears('⏳ Orders Pending', async (ctx) => {
-  try {
-    if (ctx.state.role === 'delivery' && (status !== 'completed' && status !== 'in_progress')) {
-      return ctx.reply('❌ You are not allowed to access this section.');
-    }
-const status='pending';
-    const orders = await Order.findAll({
-      where: { status },
-      include: [
-        { model: User, attributes: ['username', 'fullName', 'phoneNumber1', 'phoneNumber2'] },
-        { model: Food, attributes: ['name', 'price', 'imageUrl'] }
-      ]
-    });
-
-    if (!orders.length) {
-      return ctx.reply(`📦 No orders in Progress.`);
-    }
-
-    for (const order of orders) {
-      const food = order.Food;
-      const user = order.User;
-      const googleMapsLink = `[📍 View Map](https://www.google.com/maps?q=${order.latitude},${order.longitude})`;
-
-      const caption =
-        `📝 *Order ID:* ${order.orderId}\n` +
-        `🧍 *Customer:* ${user.fullName}\n` +
-        `👤 *Username:* @${user.username || 'N/A'}\n` +
-        `🛍️ *Food:* ${food.name}\n` +
-        `💵 *Price per Unit:* ${food.price} birr\n` +
-        `🔢 *Quantity:* ${order.quantity}\n` +
-        `💰 *Total:* ${order.newTotalPrice} birr\n` +
-        `📞 *Phone 1:* ${user.phoneNumber1}\n` +
-        `📞 *Phone 2:* ${user.phoneNumber2}\n` +
-        `🚚 *Status:* ${order.status}\n` +
-        `${googleMapsLink}`;
-
-      const buttons = [];
-
-      
-        buttons.push([Markup.button.callback('✅ Mark as Complete', `mark_complete_${order.orderId}`)]);
-      
-
-      await ctx.replyWithPhoto(food.imageUrl, {
-        caption,
-        parse_mode: 'Markdown',
-        ...Markup.inlineKeyboard(buttons)
-      });
-    }
-
-  } catch (err) {
-    console.error(`❌ Error fetching Progress orders:`, err);
-    await ctx.reply(`Something went wrong while loading Progress orders.`+err);
-  }});
+adminBot.hears('📦 Orders in Progress',  (ctx) => showOrdersInProgress(ctx));
+adminBot.hears('⏳ Orders Pending',  (ctx) => showOrdersInPending(ctx));
 adminBot.hears('✅ Completed Orders',  (ctx) =>showOrdersInCompletedctx(ctx));
 adminBot.hears('🗑️ Cancelled Orders',  (ctx) => showOrdersInCancelled(ctx));
 adminBot.hears('📬 Delivered Orders',  (ctx) => showOrdersInDelivered(ctx));
@@ -215,21 +109,123 @@ adminBot.on('callback_query', async (ctx) => {
       return viewOrderDetails(ctx, orderId);
     }
 
-    // Handle order confirmation (you can implement this function)
-    if (data.startsWith('confirm_order_now_')) {
-      const foodId = data.split('_')[3];
-    //  return confirmOrder(ctx, foodId);
+     // ----- Mark Order In Progress (ask for price edit) -----
+    if (data.startsWith('mark_inprogress_')) {
+        const orderId = data.split('_')[2];
+        tempStates[ctx.from.id] = { action: 'confirm_edit_price', orderId };
+        await ctx.answerCbQuery();
+        return ctx.reply('📝 Do you want to edit the price before marking this order as *in progress*?', {
+            parse_mode: 'Markdown',
+            ...Markup.inlineKeyboard([
+                [Markup.button.callback('✅ Yes', `edit_price_yes_${orderId}`)],
+                [Markup.button.callback('❌ No', `edit_price_no_${orderId}`)]
+            ])
+        });
     }
 
-    // Handle cancellation
-    if (data.startsWith('cancel_order_now_')) {
-     // return cancelOrder(ctx);
+    // ----- Admin Chooses to Edit Price -----
+    if (data.startsWith('edit_price_yes_')) {
+        const orderId = data.split('_')[3];
+        tempStates[ctx.from.id] = { action: 'awaiting_price_input', orderId };
+        await ctx.answerCbQuery();
+        return ctx.reply('💰 Please send the *new price* for the order:', { parse_mode: 'Markdown' });
     }
 
+    // ----- Admin Chooses Not to Edit Price -----
+    if (data.startsWith('edit_price_no_')) {
+        const orderId = data.split('_')[3];
+        await ctx.answerCbQuery();
+        try {
+            const order = await Order.findByPk(orderId);
+            if (!order) return ctx.reply('❌ Order not found.');
+            order.status = 'progress';
+            await order.save();
+            return ctx.reply('🚚 Order marked as *In Progress* successfully!', { parse_mode: 'Markdown' });
+        } catch (err) {
+            console.error('❌ Error updating order:', err);
+            return ctx.reply('Something went wrong while updating the order.');
+        }
+    }
+
+    // ----- Mark Order as Completed -----
+    if (data.startsWith('mark_completed_')) {
+        const orderId = data.split('_')[2];
+        await ctx.answerCbQuery();
+        try {
+            const order = await Order.findByPk(orderId);
+            if (!order) return ctx.reply('❌ Order not found.');
+            order.status = 'completed';
+            await order.save();
+            return ctx.reply('✅ Order marked as *Completed* successfully!', { parse_mode: 'Markdown' });
+        } catch (err) {
+            console.error('❌ Error updating order status to completed:', err);
+            return ctx.reply('Something went wrong while marking the order as completed.');
+        }
+    }
+
+    // ----- Cancel Order: Ask for confirmation -----
+    if (data.startsWith('cancel_order_')) {
+        const orderId = data.split('_')[2];
+        await ctx.answerCbQuery();
+        return ctx.reply('❗ Are you sure you want to cancel this order?', {
+            ...Markup.inlineKeyboard([
+                [Markup.button.callback('❌ Yes, Cancel Order', `confirm_cancel_${orderId}`)],
+                [Markup.button.callback('↩️ No, Go Back', 'cancel_back')]
+            ])
+        });
+    }
+
+    // ----- Confirm Cancellation -----
+    if (data.startsWith('confirm_cancel_')) {
+        const orderId = data.split('_')[2];
+        try {
+            const order = await Order.findByPk(orderId);
+            if (!order) return ctx.reply('❌ Order not found.');
+            order.status = 'cancelled';
+            await order.save();
+            return ctx.reply('✅ Order has been successfully cancelled.', { parse_mode: 'Markdown' });
+        } catch (err) {
+            console.error('❌ Error cancelling order:', err);
+            return ctx.reply('Something went wrong while cancelling the order.');
+        }
+    }
   } catch (err) {
     console.error('❌ Error handling callback:', err);
     await ctx.reply('⚠️ <b>Something went wrong while processing your request. Please try again later.</b>', { parse_mode: 'HTML' });
   }
+});
+
+adminBot.on('text', async (ctx) => {
+  const userId = ctx.from.id;
+  const state = tempStates[userId];
+
+  if (state?.action === 'awaiting_price_input') {
+    const newPrice = parseFloat(ctx.message.text);
+
+    if (isNaN(newPrice) || newPrice <= 0) {
+      return ctx.reply('❌ Invalid price. Please enter a valid number greater than 0.');
+    }
+
+    try {
+      const order = await Order.findByPk(state.orderId);
+      if (!order) return ctx.reply('❌ Order not found.');
+
+      order.totalPrice = newPrice;
+      order.status = 'progress';
+      await order.save();
+
+      delete tempStates[userId];
+
+      return ctx.reply(`✅ Order price updated to *${newPrice}* and marked as *In Progress*!`, {
+        parse_mode: 'Markdown'
+      });
+    } catch (err) {
+      console.error('Error updating order price:', err);
+      return ctx.reply('❌ Failed to update order. Please try again later.');
+    }
+  }
+
+  // If no state, let the bot ignore or handle other inputs normally
 });
 
 module.exports = { adminBot };
