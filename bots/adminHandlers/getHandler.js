@@ -116,7 +116,7 @@ async function showOrdersByStatus(ctx, status, label) {
 
   } catch (err) {
     console.error(`❌ Error fetching ${status} orders:`, err);
-    await ctx.reply(`Something went wrong while loading ${label} orders.`);
+    await ctx.reply(`Something went wrong while loading ${label} orders.`+err);
   }
 }
 
