@@ -86,17 +86,17 @@ async function showOrdersByStatus(ctx, status, label) {
       const buttons = [];
       
       if (status === 'delivered') {
-        caption += `💬 *Feedback:* ${order.feedback === 'love' ? '❤️ Loved it!' : 
-  order.feedback === 'tasty' ? '😋 Tasty!' : 
-  order.feedback === 'bad' ? '👎 Not good' : 
-  order.feedback === 'delicious' ? '🍽️ Delicious!' : 
-order.feedback === '' ? 'no feedback' : 
-  order.feedback === 'Okay' ? '👌 Okay' }\n`+
-`${googleMapsLink}`;
+  caption += `💬 *Feedback:* ${order.feedback === 'love' ? '❤️ Loved it!' : 
+    order.feedback === 'tasty' ? '😋 Tasty!' : 
+    order.feedback === 'bad' ? '👎 Not good' : 
+    order.feedback === 'delicious' ? '🍽️ Delicious!' : 
+    order.feedback === 'okay' ? '👌 Okay' : 
+    order.feedback ? order.feedback : 'No feedback'}\n` +
+    `${googleMapsLink}`;
+} else {
+  caption += `${googleMapsLink}`;
+}
 
-      }else{
-        caption += `${googleMapsLink}`;
-      }
       
       if (status === 'pending') {
         buttons.push([Markup.button.callback('🚚 Mark In Progress', `mark_inprogress_${order.orderId}`)]);
