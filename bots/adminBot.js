@@ -235,8 +235,16 @@ adminBot.on('text', async (ctx) => {
     try {
       const order = await Order.findByPk(state.orderId);
       if (!order) return ctx.reply('❌ Order not found.');
+      await ctx.reply('❌updateby order. Please try again later.'+order.updatedBy);
+      await ctx.reply('❌updateby order. Please try again later.'+adminId);
+      
       order.updatedBy = adminId;
-      order.totalPrice = newPrice;
+      await ctx.reply('❌newPrice order. Please try again later.'+newPrice);
+      await ctx.reply('❌newPrice order. Please try again later.'+order.newTotalPrice);
+      
+      order.newTotalPrice = newPrice;
+      await ctx.reply('❌status order. Please try again later.'+order.status);
+      
       order.status = 'progress';
       await order.save();
 
