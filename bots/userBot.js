@@ -110,51 +110,64 @@ userBot.on('callback_query', async (ctx) => {
 
       // Log the feedback (you can save it to DB here)
       console.log(`Feedback for order ${orderId}: ${reaction}`);
-
+      const order = await Order.findByPk(orderId);
+            if (!order) return ctx.reply('❌ Order not found.');
+            
+            order.feedback = reaction;
+            await order.save();
       // Modify the inline keyboard to highlight the selected button
       const updatedKeyboard = [
-        [
-          { 
-            text: reaction === 'love' ? '❤️ Loved it ✔️' : '❤️ Loved it', 
-            callback_data: `feedback_${orderId}_love` 
-          },
-          { 
-            text: reaction === 'tasty' ? '😋 Tasty ✔️' : '😋 Tasty', 
-            callback_data: `feedback_${orderId}_tasty` 
-          },
-          { 
-            text: reaction === 'bad' ? '👎 Not good ✔️' : '👎 Not good', 
-            callback_data: `feedback_${orderId}_bad` 
-          },
-          { 
-            text: reaction === 'delicious' ? '🍽️ Delicious ✔️' : '🍽️ Delicious', 
-            callback_data: `feedback_${orderId}_delicious` 
-          },
-          { 
-            text: reaction === 'okay' ? '👌 Okay ✔️' : '👌 Okay', 
-            callback_data: `feedback_${orderId}_okay` 
-          }
-        ]
-      ];
+  [
+    { 
+      text: reaction === 'love' 
+        ? '❤️ Loved it! Best meal ever! ✔️' 
+                : '❤️ Loved it! Best meal ever!',
+              callback_data: `feedback_${orderId}_love`
+        
+    }
+  ],
+  [
+    { 
+      text: reaction === 'tasty' ? '😋 So tasty! Will order again! ✔️' 
+                : '😋 So tasty! Will order again!',
+      callback_data: `feedback_${orderId}_tasty` 
+    }
+  ],
+  [
+    { 
+      text: reaction === 'bad' ? '👎 Not great, needs improvement ✔️'
+                : '👎 Not great, needs improvement',
+      callback_data: `feedback_${orderId}_bad` 
+    }
+  ],
+  [
+    { 
+      text: reaction === 'delicious' ? '🍽️ Delicious! Perfect for my taste ✔️'
+                : '🍽️ Delicious! Perfect for my taste', 
+      callback_data: `feedback_${orderId}_delicious` 
+    }
+  ],
+  [
+    { 
+      text: reaction === 'okay' ? '👌 Okay, could be better ✔️' 
+                : '👌 Okay, could be better',
+      callback_data: `feedback_${orderId}_okay` 
+    }
+  ]
+];
+
 
       // Send a reply to acknowledge the feedback submission
       await ctx.answerCbQuery('Thanks for your feedback!');
-
       // Update the message text to reflect the selected feedback
-      await ctx.editMessageText(
-        `Feedback for Order ${orderId}: ${
-          reaction === 'love' ? '❤️ Loved it' : 
-          reaction === 'tasty' ? '😋 Tasty' : 
-          reaction === 'bad' ? '👎 Not good' : 
-          reaction === 'delicious' ? '🍽️ Delicious' : 
-          '👌 Okay'
-        } received!`, 
-        {
-          reply_markup: {
-            inline_keyboard: updatedKeyboard,
-          }
-        }
-      );
+await ctx.editMessageReplyMarkup(
+  {
+    inline_keyboard: updatedKeyboard
+  }
+);
+
+      
+      
     }
 
     // Handle ordering action
