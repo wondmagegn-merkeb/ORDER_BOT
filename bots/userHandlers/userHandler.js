@@ -42,7 +42,7 @@ async function handleOrderHistory(ctx) {
       let isDelivered = order.status.toLowerCase() === 'delivered';
       const deliveryEmoji = isDelivered ? ' ✅🎉🍽️ Enjoy your meal!' : '';
       const selectedReaction = order.feedback; // Assuming you store feedback like 'love', 'bad', etc.
-      isDelivered = selectedReaction !== ''
+      isDelivered = isDelivered && selectedReaction === '';
       // Build the caption with order details
       const caption = `<b>📦 Order ID:</b> ${order.orderId}\n` +
         `🍔 <b>Food:</b> ${food.name || 'Unknown'}\n` +
@@ -60,41 +60,31 @@ async function handleOrderHistory(ctx) {
         inline_keyboard: [
           [
             {
-              text: selectedReaction === 'love' 
-                ? '❤️ Loved it! Best meal ever! ✔️' 
-                : '❤️ Loved it! Best meal ever!',
+              text: '❤️ Loved it! Best meal ever!',
               callback_data: `feedback_${order.orderId}_love`
             }
           ],
           [
             {
-              text: selectedReaction === 'tasty'
-                ? '😋 So tasty! Will order again! ✔️' 
-                : '😋 So tasty! Will order again!',
+              text: '😋 So tasty! Will order again!',
               callback_data: `feedback_${order.orderId}_tasty`
             }
           ],
           [
             {
-              text: selectedReaction === 'bad'
-                ? '👎 Not great, needs improvement ✔️'
-                : '👎 Not great, needs improvement',
+              text: '👎 Not great, needs improvement',
               callback_data: `feedback_${order.orderId}_bad`
             }
           ],
           [
             {
-              text: selectedReaction === 'delicious'
-                ? '🍽️ Delicious! Perfect for my taste ✔️'
-                : '🍽️ Delicious! Perfect for my taste',
+              text: '🍽️ Delicious! Perfect for my taste',
               callback_data: `feedback_${order.orderId}_delicious`
             }
           ],
           [
             {
-              text: selectedReaction === 'okay'
-                ? '👌 Okay, could be better ✔️' 
-                : '👌 Okay, could be better',
+              text: '👌 Okay, could be better',
               callback_data: `feedback_${order.orderId}_okay`
             }
           ]
@@ -150,7 +140,7 @@ async function handleLastOrder(ctx) {
       let isDelivered = order.status.toLowerCase() === 'delivered';
       const deliveryEmoji = isDelivered ? ' ✅🎉🍽️ Enjoy your meal!' : '';
       const selectedReaction = order.feedback; // Assuming you store feedback like 'love', 'bad', etc.
-      isDelivered = selectedReaction !== ''
+      isDelivered = isDelivered && selectedReaction === '';
     // Build the caption with order details
     const caption = `<b>🧾 Your Last Order</b>\n\n` +
       `📦 <b>Order ID:</b> ${lastOrder.orderId}\n` +
@@ -169,41 +159,31 @@ async function handleLastOrder(ctx) {
         inline_keyboard: [
           [
             {
-              text: selectedReaction === 'love' 
-                ? '❤️ Loved it! Best meal ever! ✔️' 
-                : '❤️ Loved it! Best meal ever!',
+              text: '❤️ Loved it! Best meal ever!',
               callback_data: `feedback_${order.orderId}_love`
             }
           ],
           [
             {
-              text: selectedReaction === 'tasty'
-                ? '😋 So tasty! Will order again! ✔️' 
-                : '😋 So tasty! Will order again!',
+              text: '😋 So tasty! Will order again!',
               callback_data: `feedback_${order.orderId}_tasty`
             }
           ],
           [
             {
-              text: selectedReaction === 'bad'
-                ? '👎 Not great, needs improvement ✔️'
-                : '👎 Not great, needs improvement',
+              text: '👎 Not great, needs improvement',
               callback_data: `feedback_${order.orderId}_bad`
             }
           ],
           [
             {
-              text: selectedReaction === 'delicious'
-                ? '🍽️ Delicious! Perfect for my taste ✔️'
-                : '🍽️ Delicious! Perfect for my taste',
+              text: '🍽️ Delicious! Perfect for my taste',
               callback_data: `feedback_${order.orderId}_delicious`
             }
           ],
           [
             {
-              text: selectedReaction === 'okay'
-                ? '👌 Okay, could be better ✔️' 
-                : '👌 Okay, could be better',
+              text: '👌 Okay, could be better',
               callback_data: `feedback_${order.orderId}_okay`
             }
           ]
