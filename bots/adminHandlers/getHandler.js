@@ -49,7 +49,7 @@ async function viewOrderDetails(ctx, orderId) {
 
 async function showOrdersByStatus(ctx, status, label) {
   try {
-    if (ctx.state.role === 'delivery' && (status !== 'completed' && status !== 'in_progress')) {
+    if (ctx.state.role === 'delivery' && (status !== 'completed' && status !== 'progress')) {
       return ctx.reply('❌ You are not allowed to access this section.');
     }
 
@@ -77,7 +77,8 @@ async function showOrdersByStatus(ctx, status, label) {
         `🛍️ *Food:* ${food.name}\n` +
         `💵 *Price per Unit:* ${food.price} birr\n` +
         `🔢 *Quantity:* ${order.quantity}\n` +
-        `💰 *Total:* ${order.newTotalPrice} birr\n` +
+        `💰 *Price (old):* ${order.totalPrice} birr\n` +
+        `💰 *Price (new):* ${order.newTotalPrice} birr\n` +
         `📞 *Phone 1:* ${user.phoneNumber1}\n` +
         `📞 *Phone 2:* ${user.phoneNumber2}\n` +
         `🚚 *Status:* ${order.status}\n` +
@@ -85,10 +86,10 @@ async function showOrdersByStatus(ctx, status, label) {
 
       const buttons = [];
 
-      if (status === 'in_pending') {
+      if (status === 'pending') {
         buttons.push([Markup.button.callback('🚚 Mark In Progress', `mark_inprogress_${order.orderId}`)]);
         buttons.push([Markup.button.callback('❌ Cancel Order', `cancel_order_${order.orderId}`)]);
-      } else if (status === 'in_progress') {
+      } else if (status === 'progress') {
         buttons.push([Markup.button.callback('✅ Mark as Complete', `mark_complete_${order.orderId}`)]);
       }else if (status === 'completed') {
         buttons.push([Markup.button.callback('✅ Mark as Delivered', `mark_delivered_${order.orderId}`)]);
@@ -107,8 +108,8 @@ async function showOrdersByStatus(ctx, status, label) {
   }
 }
 
-const showOrdersInProgress = (ctx) => showOrdersByStatus(ctx, 'in_progress', 'progress');
-const showOrdersInPending = (ctx) => showOrdersByStatus(ctx, 'in_pending', 'pending');
+const showOrdersInProgress = (ctx) => showOrdersByStatus(ctx, 'progress', 'progress');
+const showOrdersInPending = (ctx) => showOrdersByStatus(ctx, 'pending', 'pending');
 const showOrdersInCompleted = (ctx) => showOrdersByStatus(ctx, 'completed', 'completed');
 const showOrdersInCancelled = (ctx) => showOrdersByStatus(ctx, 'cancelled', 'cancelled');
 const showOrdersInDelivered = (ctx) => showOrdersByStatus(ctx, 'delivered', 'delivered');
