@@ -42,7 +42,7 @@ async function handleOrderHistory(ctx) {
       const isDelivered = order.status.toLowerCase() === 'delivered';
       const deliveryEmoji = isDelivered ? ' ✅🎉🍽️ Enjoy your meal!' : '';
       const selectedReaction = order.feedback; // Assuming you store feedback like 'love', 'bad', etc.
-
+      isDelivered = selectedReaction !== ''
       // Build the caption with order details
       const caption = `<b>📦 Order ID:</b> ${order.orderId}\n` +
         `🍔 <b>Food:</b> ${food.name || 'Unknown'}\n` +
