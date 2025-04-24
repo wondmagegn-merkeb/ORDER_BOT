@@ -40,6 +40,10 @@ const Order = sequelize.define('Order', {
     type: DataTypes.STRING,
     defaultValue: 'pending'
   },
+  feedback: {
+    type: DataTypes.STRING,
+    defaultValue: 'noFeedBack'
+  },
   createdBy: {
     type: DataTypes.STRING,
     allowNull: true
