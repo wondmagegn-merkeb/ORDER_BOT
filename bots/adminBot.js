@@ -21,7 +21,6 @@ const getAdminRole = async (ctx, telegramId) => {
     const admin = await Admin.findOne({ where: { telegramId } });
 
     if (!admin) {
-      await ctx.reply('❌ You are not authorized to use this bot.');
       return null;
     }
 
@@ -39,7 +38,7 @@ adminBot.use(async (ctx, next) => {
     if (!ctx.from) return;
     const role = await getAdminRole(ctx,ctx.from.id);
     if (!role) {
-        return ctx.reply('❌ You are not authorized to use this bot.'+role);
+        return ctx.reply('❌ You are not authorized to use this bot.');
     }
     ctx.state.role = role;
     return next();
