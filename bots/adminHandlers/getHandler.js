@@ -17,7 +17,7 @@ async function viewOrderDetails(ctx, orderId) {
     const food = order.Food;
     const googleMapsLink = `[📍 View Map](https://www.google.com/maps?q=${order.latitude},${order.longitude})`;
 
-    let caption =
+    const caption =
       `📝 *Order ID:* ${order.orderId}\n` +
       `🧍 *Customer:* ${order.User.fullName}\n` +
       `👤 *Username:* @${order.User?.username || 'N/A'}\n` +
@@ -70,7 +70,7 @@ async function showOrdersByStatus(ctx, status, label) {
       const user = order.User;
       const googleMapsLink = `[📍 View Map](https://www.google.com/maps?q=${order.latitude},${order.longitude})`;
 
-      const caption =
+      let caption =
         `📝 *Order ID:* ${order.orderId}\n` +
         `🧍 *Customer:* ${user.fullName}\n` +
         `👤 *Username:* @${user.username || 'N/A'}\n` +
@@ -116,7 +116,7 @@ async function showOrdersByStatus(ctx, status, label) {
 
   } catch (err) {
     console.error(`❌ Error fetching ${status} orders:`, err);
-    await ctx.reply(`Something went wrong while loading ${label} orders.`+err);
+    await ctx.reply(`Something went wrong while loading ${label} orders.`);
   }
 }
 
