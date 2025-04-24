@@ -19,6 +19,7 @@ const tempStates = {}; // Temporary in-memory state tracking
 const getAdminRole = async (ctx,telegramId) => {
     try {
         const admin = await Admin.findOne({ where: { telegramId } });
+      ctx.state.adminId = admin.adminId;
         return admin ? admin.role : null;
     } catch (err) {
         ctx.reply('❌ You are not authorized to use this bot.'+err);
@@ -99,7 +100,7 @@ adminBot.hears('⚙️ Settings', async (ctx) => {
 
 adminBot.on('callback_query', async (ctx) => {
   const data = ctx.callbackQuery.data;
-
+  const adminId = ctx.state.adminId;
   try {
     await ctx.answerCbQuery(); // Acknowledge button click
 
@@ -138,6 +139,7 @@ adminBot.on('callback_query', async (ctx) => {
         try {
             const order = await Order.findByPk(orderId);
             if (!order) return ctx.reply('❌ Order not found.');
+            order.updatedBy = adminId;
             order.status = 'progress';
             await order.save();
             return ctx.reply('🚚 Order marked as *In Progress* successfully!', { parse_mode: 'Markdown' });
@@ -154,12 +156,30 @@ adminBot.on('callback_query', async (ctx) => {
         try {
             const order = await Order.findByPk(orderId);
             if (!order) return ctx.reply('❌ Order not found.');
+            order.updatedBy = adminId;
             order.status = 'completed';
             await order.save();
             return ctx.reply('✅ Order marked as *Completed* successfully!', { parse_mode: 'Markdown' });
         } catch (err) {
             console.error('❌ Error updating order status to completed:', err);
             return ctx.reply('Something went wrong while marking the order as completed.');
+        }
+    }
+
+    // ----- Mark Order as Completed -----
+    if (data.startsWith('mark_delivered_')) {
+        const orderId = data.split('_')[2];
+        await ctx.answerCbQuery();
+        try {
+            const order = await Order.findByPk(orderId);
+            if (!order) return ctx.reply('❌ Order not found.');
+            order.updatedBy = adminId;
+            order.status = 'delivered';
+            await order.save();
+            return ctx.reply('✅ Order marked as *Delivered* successfully!', { parse_mode: 'Markdown' });
+        } catch (err) {
+            console.error('❌ Error updating order status to delivered:', err);
+            return ctx.reply('Something went wrong while marking the order as delivered.');
         }
     }
 
@@ -181,6 +201,7 @@ adminBot.on('callback_query', async (ctx) => {
         try {
             const order = await Order.findByPk(orderId);
             if (!order) return ctx.reply('❌ Order not found.');
+            order.updatedBy = adminId;
             order.status = 'cancelled';
             await order.save();
             return ctx.reply('✅ Order has been successfully cancelled.', { parse_mode: 'Markdown' });
