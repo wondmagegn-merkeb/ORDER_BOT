@@ -89,7 +89,7 @@ adminBot.hears('📦 Orders in Progress',async  (ctx) =>{
     if (ctx.state.role === 'delivery' && (status !== 'completed' && status !== 'in_progress')) {
       return ctx.reply('❌ You are not allowed to access this section.');
     }
-
+const status='progress';
     const orders = await Order.findAll({
       where: { status },
       include: [
