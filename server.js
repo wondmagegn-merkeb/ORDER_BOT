@@ -92,8 +92,8 @@ app.use('/api/food', authenticateAndAuthorize('admin', 'superadmin'), require('.
 app.use('/food', require('./routes/view/foodRoutes'));
 
 // Login / Password Reset
-app.get('/login', async (req, res) => {
-  await notificationController();
+app.get('/login', (req, res) => {
+  
   res.render('login', { message: null, layout: false });
 });
 
