@@ -90,7 +90,7 @@ async function showOrdersByStatus(ctx, status, label) {
         buttons.push([Markup.button.callback('🚚 Mark In Progress', `mark_inprogress_${order.orderId}`)]);
         buttons.push([Markup.button.callback('❌ Cancel Order', `cancel_order_${order.orderId}`)]);
       } else if (status === 'progress') {
-        buttons.push([Markup.button.callback('✅ Mark as Complete', `mark_complete_${order.orderId}`)]);
+        buttons.push([Markup.button.callback('✅ Mark as Complete', `mark_completed_${order.orderId}`)]);
       }else if (status === 'completed') {
         buttons.push([Markup.button.callback('✅ Mark as Delivered', `mark_delivered_${order.orderId}`)]);
       }
