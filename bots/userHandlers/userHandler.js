@@ -39,31 +39,43 @@ async function handleOrderHistory(ctx) {
         : '';
 
       // Check if the order has been delivered and add corresponding emojis
-      let isDelivered = order.status.toLowerCase() === 'delivered';
+      const isDelivered = order.status.toLowerCase() === 'delivered';
       const deliveryEmoji = isDelivered ? ' ✅🎉🍽️ Enjoy your meal!' : '';
       const selectedReaction = order.feedback; // Assuming you store feedback like 'love', 'bad', etc.
-      isDelivered = isDelivered && selectedReaction === '';
-      // Build the caption with order details
-      const caption = `<b>📦 Order ID:</b> ${order.orderId}\n` +
-        `🍔 <b>Food:</b> ${food.name || 'Unknown'}\n` +
-        `📍 <b>Address:</b> ${order.location || 'Not provided'}\n` +
-        `💰 <b>Total Price:</b> ${order.newTotalPrice} birr\n` +
-        `📝 <b>Special Order:</b> ${order.specialOrder || 'None'}\n` +
-        `📅 <b>Date:</b> ${formatDate(order.createdAt)}\n` +
-        `📌 <b>Status:</b> ${order.status}${deliveryEmoji} ${mapLink}` +
-        (isDelivered ? `\n\n<b>How did we do? We value your feedback! 😍</b>\nReact with an emoji to share your thoughts:` : '');
+      const needsFeedback = isDelivered && (!order.feedback || order.feedback === '');
+const feedbackEmojis = {
+  tasty: '😋 So tasty!',
+  love: '😍 Loved it!',
+  delicious: '🍽️ Delicious',
+  good: '😊 It was good!',
+  okay: '👌 Okay',
+  bad: '😞 Not happy'
+};
 
+
+
+const userFeedback = feedbackEmojis[order.feedback] || '';
+
+      // Build the caption with order details
+      
+const caption = `<b>📦 Order ID:</b> ${order.orderId}\n` +
+  `🍔 <b>Food:</b> ${food.name || 'Unknown'}\n` +
+  `📍 <b>Address:</b> ${order.location || 'Not provided'}\n` +
+  `💰 <b>Total Price:</b> ${order.newTotalPrice} birr\n` +
+  `📝 <b>Special Order:</b> ${order.specialOrder || 'None'}\n` +
+  `📅 <b>Date:</b> ${formatDate(order.createdAt)}\n` +
+  `📌 <b>Status:</b> ${order.status}${deliveryEmoji} ${mapLink}` +
+  (
+    needsFeedback
+      ? `\n\n<b>How did we do? We value your feedback! 😍</b>\nReact with an emoji to share your thoughts:`
+      : (userFeedback ? `\n\n<b>Your feedback:</b> ${userFeedback}` : '')
+  );
       // Only show feedback options if the order is delivered
-      const feedbackButtons = isDelivered
+      // Only show feedback options if the order is delivered
+const feedbackButtons = needsFeedback
   ? {
       reply_markup: {
         inline_keyboard: [
-          [
-            {
-              text: '❤️ Loved it! Best meal ever!',
-              callback_data: `feedback_${order.orderId}_love`
-            }
-          ],
           [
             {
               text: '😋 So tasty! Will order again!',
@@ -72,8 +84,8 @@ async function handleOrderHistory(ctx) {
           ],
           [
             {
-              text: '👎 Not great, needs improvement',
-              callback_data: `feedback_${order.orderId}_bad`
+              text: '❤️ Loved it! Best meal ever!',
+              callback_data: `feedback_${order.orderId}_love`
             }
           ],
           [
@@ -84,14 +96,27 @@ async function handleOrderHistory(ctx) {
           ],
           [
             {
+              text: '😊 It was good!',
+              callback_data: `feedback_${order.orderId}_good`
+            }
+          ],
+          [
+            {
               text: '👌 Okay, could be better',
               callback_data: `feedback_${order.orderId}_okay`
+            }
+          ],
+          [
+            {
+              text: '👎 Not great, needs improvement',
+              callback_data: `feedback_${order.orderId}_bad`
             }
           ]
         ]
       }
     }
   : undefined;
+
 
       // Send the message with order details and feedback options if applicable
       if (food?.imageUrl) {
@@ -137,32 +162,43 @@ async function handleLastOrder(ctx) {
       ? `\n🗺️ <a href="https://maps.google.com/?q=${lastOrder.latitude},${lastOrder.longitude}">View Location</a>`
       : '';
       // Check if the order has been delivered and add corresponding emojis
-      let isDelivered = order.status.toLowerCase() === 'delivered';
+      const isDelivered = order.status.toLowerCase() === 'delivered';
       const deliveryEmoji = isDelivered ? ' ✅🎉🍽️ Enjoy your meal!' : '';
       const selectedReaction = order.feedback; // Assuming you store feedback like 'love', 'bad', etc.
-      isDelivered = isDelivered && selectedReaction === '';
-    // Build the caption with order details
-    const caption = `<b>🧾 Your Last Order</b>\n\n` +
-      `📦 <b>Order ID:</b> ${lastOrder.orderId}\n` +
-      `🍕 <b>Food:</b> ${food?.name || 'Unknown'}\n` +
-      `📍 <b>Address:</b> ${lastOrder.location || 'Not provided'}\n` +
-      `💰 <b>Total Price:</b> ${lastOrder.newTotalPrice} birr\n` +
-      `📝 <b>Special Order:</b> ${lastOrder.specialOrder || 'None'}\n` +
-      `📅 <b>Date:</b> ${formatDate(lastOrder.createdAt)}\n` +
-      `📌 <b>Status:</b> ${order.status}${deliveryEmoji} ${mapLink}` +
-        (isDelivered ? `\n\n<b>How did we do? We value your feedback! 😍</b>\nReact with an emoji to share your thoughts:` : '');
+      const needsFeedback = isDelivered && (!order.feedback || order.feedback === '');
+const feedbackEmojis = {
+  tasty: '😋 So tasty!',
+  love: '😍 Loved it!',
+  delicious: '🍽️ Delicious',
+  good: '😊 It was good!',
+  okay: '👌 Okay',
+  bad: '😞 Not happy'
+};
 
+
+
+const userFeedback = feedbackEmojis[order.feedback] || '';
+
+      // Build the caption with order details
+      
+const caption = `<b>📦 Order ID:</b> ${order.orderId}\n` +
+  `🍔 <b>Food:</b> ${food.name || 'Unknown'}\n` +
+  `📍 <b>Address:</b> ${order.location || 'Not provided'}\n` +
+  `💰 <b>Total Price:</b> ${order.newTotalPrice} birr\n` +
+  `📝 <b>Special Order:</b> ${order.specialOrder || 'None'}\n` +
+  `📅 <b>Date:</b> ${formatDate(order.createdAt)}\n` +
+  `📌 <b>Status:</b> ${order.status}${deliveryEmoji} ${mapLink}` +
+  (
+    needsFeedback
+      ? `\n\n<b>How did we do? We value your feedback! 😍</b>\nReact with an emoji to share your thoughts:`
+      : (userFeedback ? `\n\n<b>Your feedback:</b> ${userFeedback}` : '')
+  );
       // Only show feedback options if the order is delivered
-      const feedbackButtons = isDelivered
+      // Only show feedback options if the order is delivered
+const feedbackButtons = needsFeedback
   ? {
       reply_markup: {
         inline_keyboard: [
-          [
-            {
-              text: '❤️ Loved it! Best meal ever!',
-              callback_data: `feedback_${order.orderId}_love`
-            }
-          ],
           [
             {
               text: '😋 So tasty! Will order again!',
@@ -171,8 +207,8 @@ async function handleLastOrder(ctx) {
           ],
           [
             {
-              text: '👎 Not great, needs improvement',
-              callback_data: `feedback_${order.orderId}_bad`
+              text: '❤️ Loved it! Best meal ever!',
+              callback_data: `feedback_${order.orderId}_love`
             }
           ],
           [
@@ -183,8 +219,20 @@ async function handleLastOrder(ctx) {
           ],
           [
             {
+              text: '😊 It was good!',
+              callback_data: `feedback_${order.orderId}_good`
+            }
+          ],
+          [
+            {
               text: '👌 Okay, could be better',
               callback_data: `feedback_${order.orderId}_okay`
+            }
+          ],
+          [
+            {
+              text: '👎 Not great, needs improvement',
+              callback_data: `feedback_${order.orderId}_bad`
             }
           ]
         ]
