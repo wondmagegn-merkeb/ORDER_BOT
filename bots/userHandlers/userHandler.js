@@ -39,7 +39,7 @@ async function handleOrderHistory(ctx) {
         : '';
 
       // Check if the order has been delivered and add corresponding emojis
-      const isDelivered = order.status.toLowerCase() === 'delivered';
+      let isDelivered = order.status.toLowerCase() === 'delivered';
       const deliveryEmoji = isDelivered ? ' ✅🎉🍽️ Enjoy your meal!' : '';
       const selectedReaction = order.feedback; // Assuming you store feedback like 'love', 'bad', etc.
       isDelivered = selectedReaction !== ''
@@ -147,10 +147,10 @@ async function handleLastOrder(ctx) {
       ? `\n🗺️ <a href="https://maps.google.com/?q=${lastOrder.latitude},${lastOrder.longitude}">View Location</a>`
       : '';
       // Check if the order has been delivered and add corresponding emojis
-      const isDelivered = order.status.toLowerCase() === 'delivered';
+      let isDelivered = order.status.toLowerCase() === 'delivered';
       const deliveryEmoji = isDelivered ? ' ✅🎉🍽️ Enjoy your meal!' : '';
       const selectedReaction = order.feedback; // Assuming you store feedback like 'love', 'bad', etc.
-
+      isDelivered = selectedReaction !== ''
     // Build the caption with order details
     const caption = `<b>🧾 Your Last Order</b>\n\n` +
       `📦 <b>Order ID:</b> ${lastOrder.orderId}\n` +
@@ -240,12 +240,13 @@ async function handleUserProfile(ctx) {
     }
 
     const caption = `👤 <b>Your Profile</b>\n\n` +
-      `📛 <b>Full Name:</b> ${user.fullName || 'Not set'}\n` +
+      `🔹 <b>Full Name:</b> ${user.fullName || 'Not set'}\n` +
       `📞 <b>Phone 1:</b> ${user.phoneNumber1 || 'Not set'}\n` +
-      `📞 <b>Phone 2:</b> ${user.phoneNumber2 || 'N/A'}\n` +
-      `🆔 <b>Username:</b> @${user.username || 'N/A'}\n` +
-      `👥 <b>User Type:</b> ${user.userType}\n` +
-      `📱 <b>Status:</b> ${user.status}`;
+      `📱 <b>Phone 2:</b> ${user.phoneNumber2 || 'N/A'}\n` +
+      `💬 <b>Username:</b> @${user.username || 'N/A'}\n` +
+      `👥 <b>User Type:</b> ${user.userType || 'Not defined'}\n` +
+      `🌟 <b>Status:</b> ${user.status || 'No status set'}`;
+
 
     await ctx.replyWithHTML(caption);
   } catch (err) {
