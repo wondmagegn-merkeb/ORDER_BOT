@@ -26,7 +26,7 @@ const filters = [
   { id: 'inactive', name: 'Inactive', value: 'inactive', colorClass: 'bg-red-600 hover:bg-red-700' }
 ];
 
-  res.render('admin/user/list-user', { title: 'User List' ,id: 'model.userId' models, modelColumns, filters, modelName: 'User', modelNameLower: 'users',permissions: {
+  res.render('admin/user/list-user', { title: 'User List' ,id: 'model.userId', models, modelColumns, filters, modelName: 'User', modelNameLower: 'users',permissions: {
     canView: false,
     canEdit: true,
     canDelete: false
