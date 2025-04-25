@@ -103,9 +103,9 @@ exports.getAllFoods = async (req, res) => {
 };
 
 
-exports.getFoodById = async (req, res) => {
+exports.getFoodById = async (foodId) => {
   try {
-    const food = await Food.findByPk(req.params.id);
+    const food = await Food.findByPk(foodId);
     if (!food) return res.status(404).json({ message: "❌ Food not found" });
     return food;
   } catch (err) {
