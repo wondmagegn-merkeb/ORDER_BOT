@@ -1,13 +1,30 @@
-<div class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
-  <h2 class="text-3xl font-extrabold mb-6 text-gray-800 text-center flex items-center justify-center gap-2">
+<style>
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+  }
+</style>
+
+<div class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md animate-fade-in-up">
+  <h2 class="text-3xl font-extrabold mb-6 text-gray-800 text-center flex items-center justify-center gap-2 transition duration-500">
     <i class="fas fa-edit text-green-500"></i>
     Update Category
   </h2>
 
   <form action="/api/categories/edit/<%= category.id %>" method="POST" class="space-y-5">
-    <div>
+    <div class="transition duration-300 transform hover:scale-[1.01]">
       <label class="block mb-1 text-gray-700 font-medium">Category Name</label>
-      <div class="flex items-center border border-gray-300 p-2 rounded">
+      <div class="flex items-center border border-gray-300 p-2 rounded focus-within:ring-2 focus-within:ring-green-400">
         <i class="fas fa-tag text-gray-400 mr-2"></i>
         <input 
           type="text" 
@@ -22,7 +39,7 @@
 
     <div>
       <label class="block mb-1 text-gray-700 font-medium">Description</label>
-      <div class="flex items-start border border-gray-300 p-2 rounded">
+     <div class="flex items-center border border-gray-300 p-2 rounded focus-within:ring-2 focus-within:ring-green-400">
         <i class="fas fa-align-left text-gray-400 mt-1 mr-2"></i>
         <textarea 
           name="description" 
