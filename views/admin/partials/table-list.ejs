@@ -18,20 +18,22 @@
     </a>
   </div>
 
-  <!-- Filter (Adjust based on the model) -->
-  <div class="mb-6">
+<div class="mb-6 overflow-x-auto">
+  <div class="flex space-x-2 w-max">
     <% filters.forEach(filter => { %>
-      <button id="<%= filter.id %>FilterBtn" class="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 mr-2">
+      <button id="<%= filter.id %>FilterBtn" class="whitespace-nowrap px-4 py-2 rounded text-white <%= filter.colorClass %>">
         <%= filter.name %>
       </button>
     <% }); %>
   </div>
+</div>
+
+
 
   <!-- Table -->
   <table class="min-w-full bg-white border border-gray-300 rounded-md shadow-md">
     <thead>
       <tr>
-        <!-- Dynamically create table headers -->
         <% modelColumns.forEach(column => { %>
           <th class="p-3 border-b text-left"><%= column.name %></th>
         <% }); %>
