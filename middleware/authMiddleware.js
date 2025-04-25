@@ -8,7 +8,7 @@ exports.authenticateAndAuthorize = (...roles) => {
 
     // If no token is found in session, return an error
     if (!token) {
-      return res.status(401).json({ message: 'No token provided in session' });
+      res.render('login', { message: null, layout: false });
     }
 
     try {
@@ -20,14 +20,14 @@ exports.authenticateAndAuthorize = (...roles) => {
 
       // Check if the authenticated admin's role is included in the allowed roles
       if (!roles.includes(req.admin.role)) {
-        return res.status(403).json({ message: 'Access denied: insufficient permissions' });
+        res.locals.error = 'Access denied: insufficient permissions';
       }
 
       // If token is valid and role is authorized, continue to the next middleware or route handler
       next();
     } catch (err) {
       // Token is invalid or expired
-      res.status(401).json({ message: 'Invalid token in session' });
+      res.render('login', { message: null, layout: false });
     }
   };
 };
