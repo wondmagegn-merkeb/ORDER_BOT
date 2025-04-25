@@ -7,7 +7,7 @@ exports.listAdmins = async (req, res) => {
 const models = admins;
 
 const modelColumns = [
-  { name: 'Admin ID', field: 'adminId', index: 0 },
+  { name: 'Admin ID', field: 'id', index: 0 },
   { name: 'Username', field: 'username', index: 1 },
   { name: 'Email', field: 'email', index: 2 },
   { name: 'Role', field: 'role', index: 3 },
