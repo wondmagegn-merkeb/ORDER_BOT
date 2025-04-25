@@ -1,0 +1,26 @@
+<div id="detailsModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center hidden">
+  <div class="bg-white rounded-lg p-6 max-w-lg w-full">
+    <h2 class="text-2xl font-bold mb-4">Audit Log Details</h2>
+    <div id="modalContent"></div>
+    <div class="mt-4 flex justify-end">
+      <button onclick="closeModal()" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+function viewDetails(log) {
+    modalContent.innerHTML = `
+      <p><strong>Action:</strong> ${log.action}</p>
+      <p><strong>Performed By:</strong> ${log.performedBy}</p>
+      <p><strong>Old Data:</strong> ${JSON.stringify(log.oldData)}</p>
+      <p><strong>New Data:</strong> ${JSON.stringify(log.newData)}</p>
+      <p><strong>Date:</strong> ${log.createdAt}</p>
+    `;
+
+    detailsModal.classList.remove('hidden');
+  }
+    });
+</script>
