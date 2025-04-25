@@ -1,0 +1,207 @@
+<div class="container mx-auto px-4 py-6">
+  <h1 class="text-3xl font-bold text-center mb-8 text-gray-800 flex justify-center items-center">
+    <!-- Icon Added Here -->
+    <i class="fas fa-cogs mr-3 text-blue-600"></i>
+    <%= modelName %> Management
+  </h1>
+
+  <!-- Search and Add -->
+  <div class="flex justify-between items-center mb-6">
+    <div class="relative w-full max-w-md">
+      <input type="text" id="searchInput" placeholder="Search"
+        class="w-full p-2 pl-10 border border-gray-300 rounded">
+      <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+    </div>
+
+    <a href="/<%= modelNameLower %>/add" class="ml-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition inline-flex items-center gap-2">
+      <i class="fas fa-plus"></i> Add
+    </a>
+  </div>
+
+  <!-- Filter (Adjust based on the model) -->
+  <div class="mb-6">
+    <% filters.forEach(filter => { %>
+      <button id="<%= filter.id %>FilterBtn" class="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 mr-2">
+        <%= filter.name %>
+      </button>
+    <% }); %>
+  </div>
+
+  <!-- Table -->
+  <table class="min-w-full bg-white border border-gray-300 rounded-md shadow-md">
+    <thead>
+      <tr>
+        <!-- Dynamically create table headers -->
+        <% modelColumns.forEach(column => { %>
+          <th class="p-3 border-b text-left"><%= column.name %></th>
+        <% }); %>
+        <th class="p-3 border-b text-left">Actions</th>
+      </tr>
+    </thead>
+    <tbody id="<%= modelNameLower %>TableBody">
+      <% models.forEach(model => { %>
+        <tr>
+          <!-- Dynamically create table rows based on model columns -->
+          <% modelColumns.forEach(column => { %>
+            <td class="p-3 border-b"><%= model[column.field] %></td>
+          <% }); %>
+          <td class="p-3 border-b flex space-x-2">
+            <a href="/<%= modelNameLower %>/edit/<%= model.id %>" class="text-yellow-500 hover:text-yellow-600">
+              <i class="fas fa-edit"></i> Update
+            </a>
+            <form method="POST" class="delete-form inline" data-id="<%= model.id %>" data-action="/<%= modelNameLower %>/delete">
+              <button type="button" class="open-delete-modal text-red-500 hover:text-red-600">
+                <i class="fas fa-trash-alt"></i> Delete
+              </button>
+            </form>
+          </td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+
+  <!-- Pagination -->
+  <div class="mt-6 flex justify-center items-center space-x-2" id="paginationContainer">
+    <!-- Pagination buttons will be added by JS -->
+  </div>
+</div>
+
+<script>
+  const searchInput = document.getElementById('searchInput');
+  const tableBody = document.getElementById('<%= modelNameLower %>TableBody');
+  const rows = Array.from(tableBody.getElementsByTagName('tr'));
+  const paginationContainer = document.getElementById('paginationContainer');
+
+  const rowsPerPage = 5;
+  let currentPage = 1;
+
+  // Search functionality
+  searchInput.addEventListener('input', function () {
+    const searchQuery = this.value.toLowerCase();
+    rows.forEach(row => {
+      let matchFound = false;
+      <% modelColumns.forEach(column => { %>
+        const columnValue = row.cells[<%= column.index %>].textContent.toLowerCase();
+        if (columnValue.includes(searchQuery)) {
+          matchFound = true;
+        }
+      <% }); %>
+      row.style.display = matchFound ? '' : 'none';
+    });
+  });
+
+  // Filter by role and status functionality
+  <% filters.forEach(filter => { %>
+    document.getElementById('<%= filter.id %>FilterBtn').addEventListener('click', () => filterModels('<%= filter.value %>'));
+  <% }); %>
+
+  function filterModels(filterValue) {
+    rows.forEach(row => {
+      let matchFound = false;
+      <% modelColumns.forEach(column => { %>
+        const columnValue = row.cells[<%= column.index %>].textContent.toLowerCase();
+        if (columnValue.includes(filterValue)) {
+          matchFound = true;
+        }
+      <% }); %>
+      row.style.display = matchFound ? '' : 'none';
+    });
+  }
+
+  // Pagination rendering
+  function displayPage(page) {
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+
+    rows.forEach((row, index) => {
+      row.style.display = (index >= start && index < end) ? '' : 'none';
+    });
+
+    renderPagination();
+  }
+
+  function renderPagination() {
+    paginationContainer.innerHTML = '';
+    const totalPages = Math.ceil(rows.length / rowsPerPage);
+
+    // First page button
+    const firstPageBtn = document.createElement('button');
+    firstPageBtn.innerHTML = '&laquo;';
+    firstPageBtn.className = `px-4 py-2 rounded-md border text-sm ${
+      currentPage === 1 ? 'bg-gray-300 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-blue-100'
+    }`;
+    firstPageBtn.disabled = currentPage === 1;
+    firstPageBtn.addEventListener('click', () => {
+      if (currentPage !== 1) {
+        currentPage = 1;
+        displayPage(currentPage);
+      }
+    });
+    paginationContainer.appendChild(firstPageBtn);
+
+    // Previous page button
+    const prevPageBtn = document.createElement('button');
+    prevPageBtn.innerHTML = '&lsaquo;';
+    prevPageBtn.className = `px-4 py-2 rounded-md border text-sm ${
+      currentPage === 1 ? 'bg-gray-300 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-blue-100'
+    }`;
+    prevPageBtn.disabled = currentPage === 1;
+    prevPageBtn.addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage--;
+        displayPage(currentPage);
+      }
+    });
+    paginationContainer.appendChild(prevPageBtn);
+
+    // Page number buttons
+    for (let i = 1; i <= totalPages; i++) {
+      const btn = document.createElement('button');
+      btn.textContent = i;
+      btn.className = `px-4 py-2 rounded-md text-sm border ${
+        i === currentPage
+          ? 'bg-blue-500 text-white border-blue-500'
+          : 'bg-white text-gray-700 border-gray-300 hover:bg-blue-100'
+      }`;
+
+      btn.addEventListener('click', () => {
+        currentPage = i;
+        displayPage(currentPage);
+      });
+      paginationContainer.appendChild(btn);
+    }
+
+    // Next page button
+    const nextPageBtn = document.createElement('button');
+    nextPageBtn.innerHTML = '&rsaquo;';
+    nextPageBtn.className = `px-4 py-2 rounded-md border text-sm ${
+      currentPage === totalPages ? 'bg-gray-300 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-blue-100'
+    }`;
+    nextPageBtn.disabled = currentPage === totalPages;
+    nextPageBtn.addEventListener('click', () => {
+      if (currentPage < totalPages) {
+        currentPage++;
+        displayPage(currentPage);
+      }
+    });
+    paginationContainer.appendChild(nextPageBtn);
+
+    // Last page button
+    const lastPageBtn = document.createElement('button');
+    lastPageBtn.innerHTML = '&raquo;';
+    lastPageBtn.className = `px-4 py-2 rounded-md border text-sm ${
+      currentPage === totalPages ? 'bg-gray-300 cursor-not-allowed' : 'bg-white text-gray-700 border-gray-300 hover:bg-blue-100'
+    }`;
+    lastPageBtn.disabled = currentPage === totalPages;
+    lastPageBtn.addEventListener('click', () => {
+      if (currentPage !== totalPages) {
+        currentPage = totalPages;
+        displayPage(currentPage);
+      }
+    });
+    paginationContainer.appendChild(lastPageBtn);
+  }
+
+  // Init
+  displayPage(currentPage);
+</script>
