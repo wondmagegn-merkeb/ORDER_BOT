@@ -151,25 +151,39 @@ exports.updateAdmin = async (req, res, next) => {
 
   try {
     const { adminId } = req.params;
-    const { username, email, password, telegramId, updatedBy, role, states } = req.body;
+    const { username, email, password, telegramId, role, states } = req.body;
 
     const admin = await Admin.findOne({ where: { adminId } });
     if (!admin) return next(new NotFoundError('Admin not found'));
 
     if (username) admin.username = username;
     if (email) admin.email = email;
-    if (password) admin.password = password;  // Using plain password
+    
+    // Only update password if it's not an empty string
+    if (password && password.trim() !== '') {
+      admin.password = password; // Hash here if needed
+    }
+
     if (telegramId) admin.telegramId = telegramId;
     if (states) admin.states = states;
     if (role) admin.role = role;
+    
     admin.updatedBy = req.admin.adminId;
 
     await admin.save();
-    res.redirect(`/admins/${adminId}`);
+    const referer = req.headers.referer || '';
+    if (referer.includes('/admins/edit')) {
+      return res.redirect(`/admins/${adminId}/edit`);
+    } else if (referer.includes('/admins')) {
+      return res.redirect(`/admins/${adminId}`);
+    } else {
+      return res.redirect('/admins');
+    }
   } catch (err) {
     return next(new InternalServerError(err.message));
   }
 };
+
 
 // ✅ Admin login
 exports.login = async (req, res, next) => {
