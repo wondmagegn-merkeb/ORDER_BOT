@@ -56,13 +56,13 @@
             <% } %>
 
             <% if (permissions.canEdit) { %>
-              <a href="/<%= modelNameLower %>/edit/<%= model.id %>" class="text-yellow-500 hover:text-yellow-600">
+              <a href="/<%= modelNameLower %>/edit/<%= id %>" class="text-yellow-500 hover:text-yellow-600">
                 <i class="fas fa-edit"></i> Update
               </a>
             <% } %>
 
             <% if (permissions.canDelete) { %>
-              <form method="POST" class="delete-form inline" data-id="<%= model.id %>" data-action="/<%= modelNameLower %>/delete">
+              <form method="POST" class="delete-form inline" data-id="<%= id %>" data-action="/<%= modelNameLower %>/delete">
                 <button type="button" class="open-delete-modal text-red-500 hover:text-red-600">
                   <i class="fas fa-trash-alt"></i> Delete
                 </button>
