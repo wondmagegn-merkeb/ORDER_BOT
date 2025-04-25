@@ -19,14 +19,16 @@
 
   <!-- Filters -->
   <div class="mb-6 overflow-x-auto">
-    <div class="flex space-x-2 w-max">
-      <% filters.forEach(filter => { %>
-        <button id="<%= filter.id %>FilterBtn" class="whitespace-nowrap px-4 py-2 rounded text-white <%= filter.colorClass %>">
-          <%= filter.name %>
-        </button>
-      <% }); %>
+    <div class="flex space-x-2 w-max"><% filters.forEach(filter => { %>
+  <button id="<%= filter.id %>FilterBtn" 
+          class="filter-btn whitespace-nowrap px-4 py-2 rounded text-white <%= filter.colorClass %>" 
+          data-filter="<%= filter.value.toLowerCase() %>">
+    <%= filter.name %>
+  </button>
+<% }); %>
     </div>
   </div>
+
 
   <!-- Table -->
   <table class="min-w-full bg-white border border-gray-300 rounded-md shadow-md">
@@ -45,10 +47,13 @@
             <td class="p-3 border-b"><%= model[column.field] %></td>
           <% }); %>
 <td class="p-3 border-b flex space-x-2">
-  <% if (permissions.canView) { %>
-    <a href="/<%= modelNameLower %>/view/<%= model.id %>" class="text-blue-500 hover:text-blue-600">
-      <i class="fas fa-eye"></i> View
-    </a>
+  <% if (permissions.canView %>
+    
+           <button 
+              class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600" 
+              onclick="viewDetails(<%= JSON.stringify(model) %>)">
+              <i class="fas fa-eye"></i> View
+            </button>
   <% } %>
 
   <% if (permissions.canEdit) { %>
@@ -73,6 +78,15 @@
   <!-- Pagination -->
   <div class="mt-6 flex justify-center items-center space-x-2" id="paginationContainer"></div>
 </div>
+  <!-- Models -->
+  <% if (permissions.canView && modelName === 'Order') { %>
+    <%- include('./partials/orderDetailModel') %>
+  <% } %>
+
+  <% if (permissions.canView && modelName !== 'Order') { %>
+    <%- include('./partials/logDetailModel') %>
+  <% } %>
+
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
@@ -137,24 +151,29 @@
       currentPage = 1;
       displayPage(currentPage);
     });
-
-    // Filters
-    <% filters.forEach(filter => { %>
-      document.getElementById('<%= filter.id %>FilterBtn').addEventListener('click', () => {
-        const value = '<%= filter.value.toLowerCase() %>';
-        const allRows = tableBody.querySelectorAll('tr');
-
-        allRows.forEach(row => {
-          const match = Array.from(row.cells).some(cell =>
-            cell.textContent.toLowerCase().includes(value)
-          );
-          row.style.display = match ? '' : 'none';
-        });
-
-        currentPage = 1;
-        displayPage(currentPage);
+  // Filter Functionality
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      // Mark active filter
+      document.querySelectorAll('.filter-btn').forEach(b => {
+        b.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
       });
-    <% }); %>
+
+      this.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
+
+      const value = this.dataset.filter;
+const allRows = tableBody.querySelectorAll('tr');
+    allRows.forEach(row => {
+      const match = Array.from(row.cells).some(cell =>
+        cell.textContent.toLowerCase().includes(value)
+      );
+      row.style.display = match ? '' : 'none';
+    });
+      
+      currentPage = 1;
+      displayPage(currentPage, orderTableBody);
+    });
+  });
 
     displayPage(currentPage);
   });
