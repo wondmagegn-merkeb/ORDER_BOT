@@ -11,7 +11,7 @@ exports.listUsers = async (req, res, next) => {
     const models = users;
 
 const modelColumns = [
-  { name: 'User ID', field: 'id', index: 0 },
+  { name: 'User ID', field: 'userId', index: 0 },
   { name: 'Telegram Id', field: 'telegramId', index: 1 },
   { name: 'Username', field: 'username', index: 2 },
   { name: 'Full Name', field: 'fullName', index: 3 },
@@ -26,7 +26,7 @@ const filters = [
   { id: 'inactive', name: 'Inactive', value: 'inactive', colorClass: 'bg-red-600 hover:bg-red-700' }
 ];
 
-  res.render('admin/user/list-user', { title: 'User List' , models, modelColumns, filters, modelName: 'User', modelNameLower: 'user',permissions: {
+  res.render('admin/user/list-user', { title: 'User List' , models, modelColumns, filters, modelName: 'User', modelNameLower: 'users',permissions: {
     canView: false,
     canEdit: true,
     canDelete: false
