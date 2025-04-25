@@ -11,7 +11,7 @@ exports.listUsers = async (req, res, next) => {
     const models = users;
 
 const modelColumns = [
-  { name: 'User ID', field: 'userId', index: 0 },
+  { name: 'User ID', field: 'id', index: 0 },
   { name: 'Telegram Id', field: 'telegramId', index: 1 },
   { name: 'Username', field: 'username', index: 2 },
   { name: 'Full Name', field: 'fullName', index: 3 },
