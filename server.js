@@ -91,7 +91,7 @@ app.use('/api/admin', authenticateAndAuthorize('admin', 'superadmin'), apiAdminR
 app.use('/api/categories', authenticateAndAuthorize('admin', 'superadmin'), apiCategoryRoutes);
 app.use('/api/users', authenticateAndAuthorize('admin', 'superadmin'), apiUserRoutes);
 app.use('/api/orders', authenticateAndAuthorize('admin', 'superadmin'), apiOrderRoutes);
-app.use('/api/food', authenticateAndAuthorize('admin', 'superadmin'), require('./routes/api/foodRoutes'));
+app.use('/api/food', authenticateAndAuthorize('superadmin'), require('./routes/api/foodRoutes'));
 app.use('/food', require('./routes/view/foodRoutes'));
 
 // Login / Password Reset
@@ -156,12 +156,12 @@ app.use(globalErrorHandler);
     await sequelize.authenticate();
     console.log('✅ Database connected');
 
-    await sequelize.sync({ alter : true });
+    await sequelize.sync({ force: true });
 
     const PORT = process.env.PORT || 8080;
 
     app.listen(PORT, () => {
-      console.log(`🚀 Server running at http://localhost:${PORT}`);
+      console.log(`🚀 Server running iion port:${PORT}`);
     });
     
     console.log('Initializing user Bot...');
