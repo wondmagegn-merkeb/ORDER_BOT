@@ -11,7 +11,7 @@ const modelColumns = [
   { name: 'Username', field: 'username', index: 1 },
   { name: 'Email', field: 'email', index: 2 },
   { name: 'Role', field: 'role', index: 3 },
-  { name: 'Status', field: 'status', index: 4 }
+  { name: 'status', field: 'states', index: 4 }
 ];
 
 const filters = [
