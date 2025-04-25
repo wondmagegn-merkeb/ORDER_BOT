@@ -2,7 +2,7 @@ const { getAllAdmins, getAdminById } = require('../api/adminController'); // Adj
 const { InternalServerError } = require('../../utils/customError');
 exports.listAdmins = async (req, res) => {
   try {
-   // const admins = await getAllAdmins();
+   const admins = await getAllAdmins();
     
 const models = [
   { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Admin', status: 'Active' },
@@ -24,7 +24,7 @@ const filters = [
   { id: 'inactive', name: 'Inactive', value: 'Inactive' }
 ];
 
-  res.render('admin/list-admin', {title: 'Admin List', models, modelColumns, filters, modelName: 'Model', modelNameLower: 'model' });
+  res.render('admin/list-admin', {title: 'Admin List',admins, models, modelColumns, filters, modelName: 'Model', modelNameLower: 'model' });
 
   //  res.render('admin/list-admin', { admins, title: 'Admin List' });
   } catch (err) {
