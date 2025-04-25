@@ -111,7 +111,7 @@ app.get('/reset-password', (req, res) => {
 });
 app.post('/reset-password', adminController.resetPassword);
 
-app.get('/dashboard', (req, res) => {
+app.get('/dashboard',authenticateAndAuthorize('admin', 'manager'), (req, res) => {
   const demoData = {
     totalOrders: 250,
     pendingOrders: 50,
