@@ -126,7 +126,11 @@ await sendMail({
 // ✅ Get all admins
 exports.getAllAdmins = async () => {
   try {
-    const admins = await Admin.findAll({ order: [['createdAt', 'DESC']] });
+    const admins = await Admin.findAll({
+  attributes: ['adminId', 'username', 'email', 'role', 'states'],
+  order: [['createdAt', 'DESC']]
+});
+
     return admins;
   } catch (err) {
     throw new InternalServerError(err.message);
