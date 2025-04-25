@@ -32,3 +32,22 @@ exports.showEditForm = async (req, res) => {
     res.status(500).send('Error loading admin.');
   }
 };
+
+exports.showProfileForm = async (req, res) => {
+  try {
+    const adminId = req.admin.adminId; // or req.query.adminId if passed as query param
+    const admin = await getAdminById(adminId);
+
+    if (!admin) {
+      return res.status(404).send('Admin not found.');
+    }
+
+    res.render('admin/profile-admin', {
+      admin,
+      title: 'Admin Profile'
+    });
+  } catch (err) {
+    console.error('Error loading admin:', err.message);
+    res.status(500).send('Error loading admin.');
+  }
+};                             
