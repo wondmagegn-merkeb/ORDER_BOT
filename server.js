@@ -82,17 +82,17 @@ app.get('/', (req, res) => {
   res.render('home', { title: 'Home Page', layout: false });
 });
 
-app.use('/admin', viewAdminRoutes);
-app.use('/logs', viewLogsRoutes);
-app.use('/categories', categoryRoutes);
-app.use('/users', userRoutes);
-app.use('/orders', viewOrderRoutes);
+app.use('/admin',authenticateAndAuthorize('admin', 'superadmin'), viewAdminRoutes);
+app.use('/logs',authenticateAndAuthorize('admin', 'superadmin'), viewLogsRoutes);
+app.use('/categories',authenticateAndAuthorize('admin', 'superadmin'), categoryRoutes);
+app.use('/users', authenticateAndAuthorize('admin', 'superadmin'), userRoutes);
+app.use('/orders',authenticateAndAuthorize('admin', 'superadmin'), viewOrderRoutes);
 app.use('/api/admin', authenticateAndAuthorize('admin', 'superadmin'), apiAdminRoutes);
 app.use('/api/categories', authenticateAndAuthorize('admin', 'superadmin'), apiCategoryRoutes);
 app.use('/api/users', authenticateAndAuthorize('admin', 'superadmin'), apiUserRoutes);
 app.use('/api/orders', authenticateAndAuthorize('admin', 'superadmin'), apiOrderRoutes);
 app.use('/api/food', authenticateAndAuthorize('superadmin'), require('./routes/api/foodRoutes'));
-app.use('/food', require('./routes/view/foodRoutes'));
+app.use('/food',authenticateAndAuthorize('admin', 'superadmin'), require('./routes/view/foodRoutes'));
 
 // Login / Password Reset
 app.get('/login', (req, res) => {
