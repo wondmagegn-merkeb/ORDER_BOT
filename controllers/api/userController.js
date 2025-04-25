@@ -7,7 +7,7 @@ exports.getAllUsers = async (req, res, next) => {
   try {
     const users = await User.findAll({
   attributes: [
-    ['userid', 'id'] 
+    ['userId', 'id'] 
   ]
 });
 
