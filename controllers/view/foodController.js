@@ -3,13 +3,14 @@ const {
   getAllCategories,
   getFoodById
 } = require('../api/categoryController');
+const { InternalServerError } = require('../../utils/customError');
 
 exports.renderFoodList = async (req, res) => {
   try {
     const foods = await getAllFoods(); // Will return JSON from API controller
     res.render('admin/food/list-food', { foods ,title:'Food List'});
-  } catch (error) {
-    res.status(500).send('Unable to load food items.');
+  } catch (err) {
+    next(new InternalServerError('Error loading food items.', err));
   }
 };
 
@@ -18,7 +19,7 @@ exports.renderCreateForm = async (req, res) => {
     const categories = await getAllCategories();
     res.render('admin/food/create-food', { categories,title:'Food List' });
   } catch (err) {
-    res.status(500).send('Error loading form');
+    next(new InternalServerError('Error loading create form'.', err));
   }
 };
 
@@ -28,7 +29,7 @@ exports.renderUpdateForm = async (req, res) => {
     const categories = await getFoodById(foodId);
     res.render('admin/food/update-food', { categories,title:'Food Update' });
   } catch (err) {
-    res.status(500).send('Error loading form');
+    next(new InternalServerError('Error loading edit form'.', err));
   }
 };
 
