@@ -1,7 +1,7 @@
 const { getAllFoods } = require('../api/foodController');
 const {
   getAllCategories,
-  
+  getFoodById
 } = require('../api/categoryController');
 
 exports.renderFoodList = async (req, res) => {
@@ -22,4 +22,13 @@ exports.renderCreateForm = async (req, res) => {
   }
 };
 
+exports.renderUpdateForm = async (req, res) => {
+  try {
+    const foodId =req.params.id;
+    const categories = await getFoodById(foodId);
+    res.render('admin/food/update-food', { categories,title:'Food Update' });
+  } catch (err) {
+    res.status(500).send('Error loading form');
+  }
+};
 
