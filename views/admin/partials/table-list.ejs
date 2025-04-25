@@ -19,16 +19,16 @@
 
   <!-- Filters -->
   <div class="mb-6 overflow-x-auto">
-    <div class="flex space-x-2 w-max"><% filters.forEach(filter => { %>
-  <button id="<%= filter.id %>FilterBtn" 
-          class="filter-btn whitespace-nowrap px-4 py-2 rounded text-white <%= filter.colorClass %>" 
-          data-filter="<%= filter.value.toLowerCase() %>">
-    <%= filter.name %>
-  </button>
-<% }); %>
+    <div class="flex space-x-2 w-max">
+      <% filters.forEach(filter => { %>
+        <button id="<%= filter.id %>FilterBtn" 
+                class="filter-btn whitespace-nowrap px-4 py-2 rounded text-white <%= filter.colorClass %>" 
+                data-filter="<%= filter.value.toLowerCase() %>">
+          <%= filter.name %>
+        </button>
+      <% }); %>
     </div>
   </div>
-
 
   <!-- Table -->
   <table class="min-w-full bg-white border border-gray-300 rounded-md shadow-md">
@@ -46,30 +46,29 @@
           <% modelColumns.forEach(column => { %>
             <td class="p-3 border-b"><%= model[column.field] %></td>
           <% }); %>
-<td class="p-3 border-b flex space-x-2">
-  <% if (permissions.canView %>
-    
-           <button 
-              class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600" 
-              onclick="viewDetails(<%= JSON.stringify(model) %>)">
-              <i class="fas fa-eye"></i> View
-            </button>
-  <% } %>
+          <td class="p-3 border-b flex space-x-2">
+            <% if (permissions.canView) { %>
+              <button 
+                class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600" 
+                onclick="viewDetails(<%= JSON.stringify(model) %>)">
+                <i class="fas fa-eye"></i> View
+              </button>
+            <% } %>
 
-  <% if (permissions.canEdit) { %>
-    <a href="/<%= modelNameLower %>/edit/<%= model.id %>" class="text-yellow-500 hover:text-yellow-600">
-      <i class="fas fa-edit"></i> Update
-    </a>
-  <% } %>
+            <% if (permissions.canEdit) { %>
+              <a href="/<%= modelNameLower %>/edit/<%= model.id %>" class="text-yellow-500 hover:text-yellow-600">
+                <i class="fas fa-edit"></i> Update
+              </a>
+            <% } %>
 
-  <% if (permissions.canDelete) { %>
-    <form method="POST" class="delete-form inline" data-id="<%= model.id %>" data-action="/<%= modelNameLower %>/delete">
-      <button type="button" class="open-delete-modal text-red-500 hover:text-red-600">
-        <i class="fas fa-trash-alt"></i> Delete
-      </button>
-    </form>
-  <% } %>
-</td>
+            <% if (permissions.canDelete) { %>
+              <form method="POST" class="delete-form inline" data-id="<%= model.id %>" data-action="/<%= modelNameLower %>/delete">
+                <button type="button" class="open-delete-modal text-red-500 hover:text-red-600">
+                  <i class="fas fa-trash-alt"></i> Delete
+                </button>
+              </form>
+            <% } %>
+          </td>
         </tr>
       <% }); %>
     </tbody>
@@ -78,15 +77,15 @@
   <!-- Pagination -->
   <div class="mt-6 flex justify-center items-center space-x-2" id="paginationContainer"></div>
 </div>
-  <!-- Models -->
-  <% if (permissions.canView && modelName === 'Order') { %>
-    <%- include('./partials/orderDetailModel') %>
-  <% } %>
 
-  <% if (permissions.canView && modelName !== 'Order') { %>
-    <%- include('./partials/logDetailModel') %>
-  <% } %>
+<!-- Models -->
+<% if (permissions.canView && modelName === 'Order') { %>
+  <%- include('./partials/orderDetailModel') %>
+<% } %>
 
+<% if (permissions.canView && modelName !== 'Order') { %>
+  <%- include('./partials/logDetailModel') %>
+<% } %>
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
@@ -151,29 +150,30 @@
       currentPage = 1;
       displayPage(currentPage);
     });
-  // Filter Functionality
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', function () {
-      // Mark active filter
-      document.querySelectorAll('.filter-btn').forEach(b => {
-        b.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
+
+    // Filter Functionality
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', function () {
+        // Mark active filter
+        document.querySelectorAll('.filter-btn').forEach(b => {
+          b.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
+        });
+
+        this.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
+
+        const value = this.dataset.filter;
+        const allRows = tableBody.querySelectorAll('tr');
+        allRows.forEach(row => {
+          const match = Array.from(row.cells).some(cell =>
+            cell.textContent.toLowerCase().includes(value)
+          );
+          row.style.display = match ? '' : 'none';
+        });
+        
+        currentPage = 1;
+        displayPage(currentPage);
       });
-
-      this.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
-
-      const value = this.dataset.filter;
-const allRows = tableBody.querySelectorAll('tr');
-    allRows.forEach(row => {
-      const match = Array.from(row.cells).some(cell =>
-        cell.textContent.toLowerCase().includes(value)
-      );
-      row.style.display = match ? '' : 'none';
     });
-      
-      currentPage = 1;
-      displayPage(currentPage, orderTableBody);
-    });
-  });
 
     displayPage(currentPage);
   });
