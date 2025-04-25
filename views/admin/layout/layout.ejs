@@ -6,58 +6,74 @@
     <title><%= title %> | Admin Panel</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
   </head>
 
-  <body class="bg-gray-100 font-sans tracking-normal">
+  <body class="bg-gray-100 text-gray-900 font-sans tracking-normal transition-colors duration-300" id="body">
     <div class="flex">
-
       <!-- Fixed Sidebar -->
-      <div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-lg transform md:translate-x-0 -translate-x-full transition-transform duration-200 ease-in-out z-40">
+      <div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 shadow-lg transform md:translate-x-0 -translate-x-full transition-transform duration-200 ease-in-out z-40">
         <%- include('../partials/sidebar') %>
       </div>
 
       <!-- Main Content -->
       <div class="flex-1 min-h-screen flex flex-col md:ml-64">
 
-        <!-- Fixed Header -->
-        <header class="fixed top-0 left-0 md:left-64 right-0 h-16 bg-white shadow flex items-center justify-between px-6 z-30">
-          <!-- Menu Icon for mobile -->
-          <button onclick="toggleSidebar()" class="md:hidden text-gray-700 focus:outline-none">
-            <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-          <div class="text-gray-800 text-sm md:text-base font-medium">Welcome, Admin</div>
-        </header>
+        <!-- Header Partial -->
+        <%- include('../partials/header') %>
 
         <!-- Scrollable Content -->
-        <main class="mt-16 p-6 flex-1 overflow-auto bg-gray-100">
+        <main class="mt-16 p-6 flex-1 overflow-auto bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
           <%- include('../partials/notification') %>
           <%- include('../partials/deleteModal') %>
           <%- body %>
         </main>
 
         <!-- Footer -->
-        <footer class="bg-white text-center text-gray-500 text-sm border-t">
+        <footer class="bg-white dark:bg-gray-800 text-center text-gray-500 dark:text-gray-400 text-sm border-t border-gray-200 dark:border-gray-700">
           <%- include('../partials/footer') %>
         </footer>
       </div>
     </div>
-<!-- Add inside the <head> or at the bottom of <body> in your HTML -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Eruda for debugging -->
+    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+    <script> eruda.init(); </script>
+
+    <!-- Sidebar and Dark Mode Script -->
     <script>
-      // Toggle sidebar on small screens
+      const body = document.getElementById('body');
+      const icon = document.getElementById('darkModeToggle').querySelector('i');
+
+      if (localStorage.getItem('theme') === 'dark') {
+        body.classList.add('bg-gray-900', 'text-gray-100');
+        body.classList.remove('bg-gray-100', 'text-gray-900');
+        icon.classList.remove('fa-moon');
+        icon.classList.add('fa-sun');
+        document.documentElement.classList.add('dark');
+      }
+
       function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
         sidebar.classList.toggle('translate-x-0');
         sidebar.classList.toggle('-translate-x-full');
       }
-    </script>
-<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-<script>
-    eruda.init();
-</script>
 
+      function toggleDarkMode() {
+        const isDark = body.classList.contains('bg-gray-900');
+        body.classList.toggle('bg-gray-100');
+        body.classList.toggle('bg-gray-900');
+        body.classList.toggle('text-gray-900');
+        body.classList.toggle('text-gray-100');
+        document.documentElement.classList.toggle('dark');
+
+        icon.classList.toggle('fa-moon');
+        icon.classList.toggle('fa-sun');
+
+        localStorage.setItem('theme', isDark ? 'light' : 'dark');
+      }
+    </script>
   </body>
 </html>
