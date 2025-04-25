@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { Admin } = require('../models/index'); // adjust path to your Admin model
+const { Admin } = require('../models/index'); // Adjust the path to your Admin model
 
 exports.authenticateAndAuthorize = (...roles) => {
   return async (req, res, next) => {
@@ -17,24 +17,30 @@ exports.authenticateAndAuthorize = (...roles) => {
       const admin = await Admin.findByPk(req.admin.adminId);
 
       if (!admin) {
-        return res.render('login', { message: 'Admin not found', layout: false });
+        return res.render('login', {
+          message: 'Admin not found',
+          layout: false
+        });
       }
+
+      res.locals.role = admin.role;
 
       // Check mustChangeCredentials
       if (!admin.mustChangeCredentials) {
-        
-          res.locals.error = 'You must change your credentials before continuing.';
-          
-      return  res.render('admin/profile-admin', {
-      admin,
-      title: 'Admin Profile'
-    });
+        res.locals.error = 'You must change your credentials before continuing.';
+        return res.render('admin/profile-admin', {
+          admin,
+          title: 'Admin Profile'
+        });
       }
 
       // Check role permission
       if (!roles.includes(admin.role)) {
         res.locals.error = 'Access denied: insufficient permissions';
-        return res.status(403).render('unauthorized', { error: 'Access denied: insufficient permissions', layout: false });
+        return res.status(403).render('unauthorized', {
+          error: 'Access denied: insufficient permissions',
+          layout: false
+        });
       }
 
       next();
