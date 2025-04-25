@@ -1,11 +1,11 @@
 const { getAllAdmins, getAdminById } = require('../api/adminController'); // Adjust path if needed
-
+const { InternalServerError } = require('../../utils/customError');
 exports.listAdmins = async (req, res) => {
   try {
     const admins = await getAllAdmins();
     res.render('admin/list-admin', { admins, title: 'Admin List' });
   } catch (err) {
-    res.status(500).send('Error loading admins.');
+    next(new InternalServerError('Error loading admins.', err));
   }
 };
 
@@ -28,8 +28,8 @@ exports.showEditForm = async (req, res) => {
       title: 'Edit Admin'
     });
   } catch (err) {
-    console.error('Error loading admin:', err.message);
-    res.status(500).send('Error loading admin.');
+    next(new InternalServerError('Error loading admin.', err));
+    
   }
 };
 
@@ -47,7 +47,6 @@ exports.showProfileForm = async (req, res) => {
       title: 'Admin Profile'
     });
   } catch (err) {
-    console.error('Error loading admin:', err.message);
-    res.status(500).send('Error loading admin.');
+    next(new InternalServerError('Error loading admin.', err));
   }
 };                             
