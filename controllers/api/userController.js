@@ -5,11 +5,7 @@ const userValidationSchema = require('../../validators/userValidation'); // Assu
 // Get all users
 exports.getAllUsers = async (req, res, next) => {
   try {
-    const users = await User.findAll({
-  attributes: [
-    ['userId', 'id'] 
-  ]
-});
+    const users = await User.findAll();
 
     return users;
   } catch (error) {
