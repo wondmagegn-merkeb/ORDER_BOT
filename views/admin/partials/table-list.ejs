@@ -80,11 +80,11 @@
 
 <!-- Models -->
 <% if (permissions.canView && modelName === 'Order') { %>
-  <%- include('./partials/orderDetailModel') %>
+  <%- include('admin/partials/orderDetailModel') %>
 <% } %>
 
 <% if (permissions.canView && modelName !== 'Order') { %>
-  <%- include('./partials/logDetailModel') %>
+  <%- include('admin/partials/logDetailModel') %>
 <% } %>
 
 <script>
