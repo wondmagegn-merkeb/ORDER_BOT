@@ -31,9 +31,12 @@ exports.getOrderById = async (orderId, res, next) => {
 exports.updateOrder = async (req, res, next) => {
   try {
     const { error } = updateOrderSchema.validate(req.body);
+    const { newTotalPrice, status } = req.body;
+    const orderId = req.params.id;
+    const orderData = { status, totalPrice:newTotalPrice, orderId };
     if (error) {
       res.locals.error = error.details[0].message;
-      return res.render('admin/order/update-order', { title: 'Update Order' });
+      return res.render('admin/order/update-order', { title: 'Update Order',order:orderData });
     }
 
     const { newTotalPrice, status } = req.body;
@@ -42,7 +45,7 @@ exports.updateOrder = async (req, res, next) => {
     const order = await Order.findByPk(orderId);
     if (!order) {
       res.locals.error = 'Order not found';
-      return res.render('admin/order/update-order', { title: 'Update Order' });
+      return res.render('admin/order/update-order', { title: 'Update Order',order });
     }
 
     const oldTotalPrice = order.totalPrice;
@@ -73,7 +76,7 @@ exports.updateOrder = async (req, res, next) => {
     }
 
     res.locals.success = 'Order updated successfully!';
-    return res.render('admin/order/update-order', { title: 'Update Order' });
+    return res.render('admin/order/update-order', { title: 'Update Order', order});
   } catch (error) {
     next(new InternalServerError('Failed to update order', error));
   }
