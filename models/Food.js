@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/db');
 const FoodUpdateLog = require('./FoodUpdateLog');
+const { InternalServerError } = require('../utils/customError');
 
 const Food = sequelize.define('Food', {
   foodId: {
@@ -33,7 +34,7 @@ const Food = sequelize.define('Food', {
     type: DataTypes.STRING,
     allowNull: false
   },
-  cloudinaryPublicId:{
+  cloudinaryPublicId: {
     type: DataTypes.STRING,
     allowNull: false
   },
@@ -51,67 +52,51 @@ const Food = sequelize.define('Food', {
   tableName: 'foods'
 });
 
-// 🔁 Auto-generate foodId like FOOD001
-Food.beforeCreate(async (food) => {
-  const last = await Food.findOne({ order: [['createdAt', 'DESC']] });
-  let newIdNumber = 1;
-
-  if (last && last.foodId) {
-    const lastNumber = parseInt(last.foodId.replace('FOOD', ''));
-    newIdNumber = lastNumber + 1;
-  }
-
-  food.foodId = 'FOOD' + String(newIdNumber).padStart(3, '0');
-});
-
 // 📝 Log creation
 Food.afterCreate(async (food) => {
-  const fieldsToLog = ['name', 'description', 'price', 'isAvailable', 'imageUrl', 'categoryId'];
-
-  for (const field of fieldsToLog) {
+  try {
     await FoodUpdateLog.create({
       foodId: food.foodId,
-      field,
-      oldValue: null,
-      newValue: food[field]?.toString(),
-      performedBy: food.createdBy || 'system',
-      action: 'create'
+      newData: food.toJSON(),
+      performedBy: food.createdBy,
+      action: 'CREATE'
     });
+  } catch (err) {
+    console.error('Error in afterCreate hook:', err);
+    throw new InternalServerError('Error during food post-creation tasks (audit log).', err);
   }
 });
 
 // 📝 Log updates
 Food.afterUpdate(async (food) => {
-  const previous = await Food.findOne({ where: { foodId: food.foodId } });
-
-  const fieldsToTrack = ['price', 'isAvailable', 'name', 'description', 'imageUrl', 'categoryId'];
-
-  for (const field of fieldsToTrack) {
-    if (food.changed(field)) {
-      await FoodUpdateLog.create({
-        foodId: food.foodId,
-        field,
-        oldValue: previous[field]?.toString(),
-        newValue: food[field]?.toString(),
-        performedBy: food.updatedBy || 'system',
-        action: 'update'
-      });
-    }
+  try {
+    await FoodUpdateLog.create({
+      foodId: food.foodId,
+      action: 'UPDATE',
+      performedBy: food.updatedBy,
+      oldData: food._previousDataValues,
+      newData: food.toJSON()
+    });
+  } catch (err) {
+    console.error('Error in afterUpdate hook:', err);
+    throw new InternalServerError('Error during food post-update tasks (audit log).', err);
   }
 });
 
 // 🗑️ Log soft-deletion
 Food.afterDestroy(async (food) => {
-  const foodData = await Food.findOne({ where: { foodId: food.foodId }, paranoid: false });
-
-  await FoodUpdateLog.create({
-    foodId: food.foodId,
-    field: 'ALL',
-    oldValue: JSON.stringify(foodData.toJSON()),
-    newValue: null,
-    performedBy: food.updatedBy || 'system',
-    action: 'delete'
-  });
+  try {
+    await FoodUpdateLog.create({
+      foodId: food.foodId,
+      action: 'DELETE',
+      performedBy: food.updatedBy,
+      oldData: food.toJSON(),
+      newData: null
+    });
+  } catch (err) {
+    console.error('Error in afterDestroy hook:', err);
+    throw new InternalServerError('Error during food post-delete tasks (audit log).', err);
+  }
 });
 
 module.exports = Food;
