@@ -24,9 +24,10 @@ const filters = [
 
 
   res.render('admin/list-admin', { title: 'Admin List' , models, modelColumns, filters, modelName: 'Admin', modelNameLower: 'admin',permissions: {
-    canView: true,
-    canEdit: false,
-    canDelete: true
+    canView: false,
+        canAdd: true,
+        canEdit: true,
+        canDelete: true,
   } });
 
 
