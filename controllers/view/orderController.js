@@ -21,12 +21,19 @@ exports.listOrders = async (req, res, next) => {
     ];
 
 const filters = [
-  { id: 'guest', name: 'Guest', value: 'guest', colorClass: 'bg-yellow-500 hover:bg-yellow-600' },
-  { id: 'vip', name: 'VIP', value: 'vip', colorClass: 'bg-purple-600 hover:bg-purple-700' },
-  { id: 'customer', name: 'Customer', value: 'customer', colorClass: 'bg-blue-600 hover:bg-blue-700' },
-  { id: 'active', name: 'Active', value: 'active', colorClass: 'bg-green-600 hover:bg-green-700' },
-  { id: 'inactive', name: 'Inactive', value: 'inactive', colorClass: 'bg-red-600 hover:bg-red-700' },
+  { id: 'pending', name: 'Pending', value: 'pending', colorClass: 'bg-yellow-400 hover:bg-yellow-500' },
+  { id: 'progress', name: 'In Progress', value: 'progress', colorClass: 'bg-blue-400 hover:bg-blue-500' },
+  { id: 'completed', name: 'Completed', value: 'completed', colorClass: 'bg-green-500 hover:bg-green-600' },
+  { id: 'cancelled', name: 'Cancelled', value: 'cancelled', colorClass: 'bg-red-500 hover:bg-red-600' },
+  { id: 'delivered', name: 'Delivered', value: 'delivered', colorClass: 'bg-indigo-500 hover:bg-indigo-600' },
+  { id: 'tasty', name: 'Tasty', value: 'tasty', colorClass: 'bg-pink-400 hover:bg-pink-500' },
+  { id: 'love', name: 'Love', value: 'love', colorClass: 'bg-rose-500 hover:bg-rose-600' },
+  { id: 'delicious', name: 'Delicious', value: 'delicious', colorClass: 'bg-orange-400 hover:bg-orange-500' },
+  { id: 'good', name: 'Good', value: 'good', colorClass: 'bg-green-400 hover:bg-green-500' },
+  { id: 'okay', name: 'Okay', value: 'okay', colorClass: 'bg-gray-400 hover:bg-gray-500' },
+  { id: 'bad', name: 'Bad', value: 'bad', colorClass: 'bg-red-400 hover:bg-red-500' },
 ];
+
 
 
     res.render('admin/order/list-order', {
