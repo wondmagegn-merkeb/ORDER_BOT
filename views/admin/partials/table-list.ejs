@@ -174,32 +174,13 @@ document.addEventListener("DOMContentLoaded", () => {
       modalContent.innerHTML = "";
 
       for (const [key, value] of Object.entries(modelData)) {
-        if (key !== 'image' && key !== 'latitude' && key !== 'longitude' && key !== 'oldData' && key !== 'newData' ) {
+        if (key !== 'image' && key !== 'latitude' && key !== 'longitude') {
           modalContent.innerHTML += `
             <p class="mb-2"><strong class="capitalize">${key}:</strong> ${value ?? ''}</p>
           `;
         }
       }
 
-        // Display oldData if exists
-        if (modelData.oldData) {
-          modalContent.innerHTML += `<h2 class="font-bold text-lg mt-6">Old Data:</h2>`;
-          for (const [key, value] of Object.entries(modelData.oldData)) {
-            modalContent.innerHTML += `
-              <p class="mb-1 ml-4"><strong class="capitalize">${key}:</strong> ${value ?? ''}</p>
-            `;
-          }
-        }
-
-        // Display newData if exists
-        if (modelData.newData) {
-          modalContent.innerHTML += `<h2 class="font-bold text-lg mt-6">New Data:</h2>`;
-          for (const [key, value] of Object.entries(modelData.newData)) {
-            modalContent.innerHTML += `
-              <p class="mb-1 ml-4"><strong class="capitalize">${key}:</strong> ${value ?? ''}</p>
-            `;
-          }
-        }
       if (modelName === "Order") {
         if (modelData.image) {
           modalContent.innerHTML += `
