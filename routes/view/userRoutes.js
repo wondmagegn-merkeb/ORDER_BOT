@@ -6,6 +6,6 @@ const userController = require('../../controllers/view/userController');
 router.get('/', userController.listUsers);
 
 // Route to show the form to edit an existing category
-router.post('/edit/:id', userController.showEditForm);
+router.get('/edit/:id', userController.showEditForm);
 
 module.exports = router;
