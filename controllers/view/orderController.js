@@ -41,8 +41,8 @@ const filters = [
       models,
       modelColumns,
       filters,
-      modelName: 'User',
-      modelNameLower: 'users',
+      modelName: 'Order',
+      modelNameLower: 'orders',
       permissions: {
         canView: true,
         canAdd: false,
