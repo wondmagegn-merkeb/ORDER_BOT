@@ -5,6 +5,7 @@ const User = require('./User');
 const UserUpdateLog = require('./UserUpdateLog');
 const Food = require('./Food');
 const FoodCategory = require('./FoodCategory');
+const FoodCategoryUpdateLog = require('./FoodCategoryUpdateLog')
 const FoodUpdateLog = require('./FoodUpdateLog');
 const Order = require('./Order');
 const OrderUpdateLog = require('./OrderUpdateLog');
@@ -35,6 +36,10 @@ OrderUpdateLog.belongsTo(Order, { foreignKey: 'orderId' });
 User.hasMany(UserUpdateLog, { foreignKey: 'userId' });
 UserUpdateLog.belongsTo(User, { foreignKey: 'userId' });
 
+// User ↔ FoodCategoryUpdateLog
+FoodCategory.hasMany(FoodCategoryUpdateLog, { foreignKey: 'categoryId' });
+FoodCategoryUpdateLog.belongsTo(FoodCategory, { foreignKey: 'categoryId' });
+
 // Food ↔ Order
 Food.hasMany(Order, { foreignKey: 'foodId' });
 Order.belongsTo(Food, { foreignKey: 'foodId' });
@@ -49,8 +54,11 @@ AdminAuditLog.belongsTo(Admin, { foreignKey: 'performedBy' });
 Admin.hasMany(FoodUpdateLog, { foreignKey: 'performedBy' });
 FoodUpdateLog.belongsTo(Admin, { foreignKey: 'performedBy' });
 
-Admin.hasMany(UserUpdateLog, { foreignKey: 'performedBy' });
-UserUpdateLog.belongsTo(Admin, { foreignKey: 'performedBy' });
+//Admin.hasMany(UserUpdateLog, { foreignKey: 'performedBy' });
+//UserUpdateLog.belongsTo(Admin, { foreignKey: 'performedBy' });
+
+Admin.hasMany(FoodCategoryUpdateLog, { foreignKey: 'performedBy' });
+FoodCategoryUpdateLog.belongsTo(Admin, { foreignKey: 'performedBy' });
 
 Admin.hasMany(OrderUpdateLog, { foreignKey: 'performedBy' });
 OrderUpdateLog.belongsTo(Admin, { foreignKey: 'performedBy' });
@@ -74,8 +82,8 @@ Admin.hasMany(FoodCategory, { foreignKey: 'updatedBy' });
 FoodCategory.belongsTo(Admin, { foreignKey: 'updatedBy' });
 
 // User
-Admin.hasMany(User, { foreignKey: 'updatedBy' });
-User.belongsTo(Admin, { foreignKey: 'updatedBy' });
+//Admin.hasMany(User, { foreignKey: 'updatedBy' });
+//User.belongsTo(Admin, { foreignKey: 'updatedBy' });
 
 // Order
 User.hasMany(Order, { foreignKey: 'createdBy' });
@@ -98,6 +106,7 @@ module.exports = {
   UserUpdateLog,
   Food,
   FoodCategory,
+  FoodCategoryUpdateLog,
   FoodUpdateLog,
   Order,
   OrderUpdateLog
