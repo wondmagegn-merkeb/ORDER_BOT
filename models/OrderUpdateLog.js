@@ -13,17 +13,17 @@ const OrderUpdateLog = sequelize.define('OrderUpdateLog', {
     type: DataTypes.STRING,
     allowNull: false
   },
-  field: {
-    type: DataTypes.ENUM('status', 'newTotalPrice'), // Fields that can be updated
+  action: {
+    type: DataTypes.ENUM('CREATE', 'UPDATE', 'DELETE'),
     allowNull: false
   },
-  oldValue: {
-    type: DataTypes.STRING,
-    allowNull: true
+  oldData: {
+    type: DataTypes.JSON,
+    allowNull: true // old data before update
   },
-  newValue: {
-    type: DataTypes.STRING,
-    allowNull: false
+  newData: {
+    type: DataTypes.JSON,
+    allowNull: true // new data after update
   },
   performedBy: {
     type: DataTypes.STRING,
