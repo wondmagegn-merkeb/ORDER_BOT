@@ -46,7 +46,7 @@ const filters = [
       permissions: {
         canView: true,
         canAdd: false,
-        canEdit: false,
+        canEdit: true,
         canDelete: false,
       },
     });
