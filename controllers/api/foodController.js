@@ -4,7 +4,7 @@ const { Food, FoodCategory, Admin } = require("../../models/index");
 const { foodSchema } = require("../../validators/foodValidation");
 const { getAllCategories } = require("./categoryController");
 const { sendMessageToUser } = require("../../bots/userBot");
-const { InternalServerError } = require("../../utils/CustomError");
+const { InternalServerError } = require("../../utils/customError");
 
 exports.createFood = async (req, res) => {
   try {
