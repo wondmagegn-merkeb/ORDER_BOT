@@ -1,4 +1,4 @@
-const { Order, OrderUpdateLog, Admin } = require('../../models');
+const { Order, OrderUpdateLog, User } = require('../../models');
 const { InternalServerError } = require('../../utils/customError');
 const updateOrderSchema = require('../../validators/updateOrderValidation');
 const { sendMessageToUser } = require("../../bots/userBot");
