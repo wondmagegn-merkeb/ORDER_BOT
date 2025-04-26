@@ -25,6 +25,7 @@ exports.getUserById = async (userId) => {
 // Update user
 exports.updateUser = async (req, res, next) => {
   try {
+    req.body.status = req.body.status || 'inactive';
     const { error } = userValidationSchema.validate(req.body);
     const { status, userType } = req.body;
     const userId = req.params.id;
