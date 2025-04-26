@@ -14,6 +14,8 @@ exports.createAdmin = async (req, res, next) => {
   const { error } = createAdminSchema.validate(req.body);
   if (error) {
     return next(new ValidationError(error.details[0].message));
+    res.locals.error = error.details[0].message;
+    return res.render('admin/create-admin', { title: 'Add Admin' });
   }
 
   try {
@@ -24,87 +26,89 @@ exports.createAdmin = async (req, res, next) => {
     let password = '';
 
     if (role === 'admin') {
-  username = `admin_${Date.now()}`;  // Auto-generated username
-  password = `admin_password_${Date.now()}`;  // Unique password for admin
-} else if (role === 'manager') {
-  username = `manager_${Date.now()}`;  // Auto-generated username
-  password = `manager_password_${Date.now()}`;  // Unique password for manager
-} else if (role === 'user') {
-  username = `user_${Date.now()}`;  // Auto-generated username
-  password = `user_password_${Date.now()}`;  // Unique password for user
-} else {
-  // Fallback default values if the role is not specified
-  username = `default_username_${Date.now()}`;
-  password = `default_password_${Date.now()}`;  // Unique password for fallback role
-}
-
-
-    const existing = await Admin.findOne({ where: { email } });
-    if (existing) {
-      return next(new ConflictError('Email already in use'));
+      username = `admin_${Date.now()}`;  // Auto-generated username
+      password = `admin_password_${Date.now()}`;  // Unique password for admin
+    } else if (role === 'manager') {
+      username = `manager_${Date.now()}`;  // Auto-generated username
+      password = `manager_password_${Date.now()}`;  // Unique password for manager
+    } else if (role === 'user') {
+      username = `user_${Date.now()}`;  // Auto-generated username
+      password = `user_password_${Date.now()}`;  // Unique password for user
+    } else {
+      // Fallback default values if the role is not specified
+      username = `default_username_${Date.now()}`;
+      password = `default_password_${Date.now()}`;  // Unique password for fallback role
     }
 
-    const lastAdmin = await Admin.findOne({ order: [['createdAt', 'DESC']] });
+    // Check if the email already exists
+    const existing = await Admin.findOne({ where: { email } });
+    if (existing) {
+      res.locals.error = 'Email already in use';
+      return res.render('admin/create-admin', { title: 'Add Admin' });
+    }
 
+    // Generate a new admin ID
+    const lastAdmin = await Admin.findOne({ order: [['createdAt', 'DESC']] });
     let newIdNumber = 1;
     if (lastAdmin && lastAdmin.adminId) {
       const lastNumber = parseInt(lastAdmin.adminId.replace('ADM', ''));
       newIdNumber = lastNumber + 1;
     }
-
     const adminId = `ADM${newIdNumber.toString().padStart(3, '0')}`;
-    
-await sendMail({
+
+    // Send email to the admin with login details
+    await sendMail({
       to: email,
-      subject: 'Your Admin Account Details',      
-  html: `
-    <html>
-      <head>
-        <title>Admin Account Details</title>
-        <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-        <style>
-          @keyframes fadeInUp {
-            0% { opacity: 0; transform: translateY(20px); }
-            100% { opacity: 1; transform: translateY(0); }
-          }
+      subject: 'Your Admin Account Details',
+      html: `
+        <html>
+          <head>
+            <title>Admin Account Details</title>
+            <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+            <style>
+              @keyframes fadeInUp {
+                0% { opacity: 0; transform: translateY(20px); }
+                100% { opacity: 1; transform: translateY(0); }
+              }
 
-          .animate-fade-in-up {
-            animation: fadeInUp 0.6s ease-out;
-          }
-        </style>
-      </head>
-      <body class="flex items-center justify-center min-h-screen">
-        <div class="bg-white p-10 rounded-2xl shadow-lg text-center max-w-lg w-full animate-fade-in-up">
-          <h1 class="text-4xl font-extrabold text-blue-600 flex items-center justify-center gap-3 mb-3">
-            <i class="fas fa-hand-peace"></i> Welcome 🎉
-          </h1>
-          <p class="text-gray-600 text-lg mb-4">Your admin account has been successfully created. Please find your login details below:</p>
-          <div class="text-left mb-6">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-2">
-              <i class="fas fa-user-cog text-blue-600"></i> Admin Account Details:
-            </h2>
-            <ul class="space-y-2 text-gray-700">
-              <li><strong>Username:</strong> ${username}</li>
-              <li><strong>Password:</strong> ${password} (set by the system)</li>
-            </ul>
-          </div>
-          <p class="text-gray-600 text-lg mb-8">Please change your password after logging in for the first time.</p>
-          <div class="mt-10">
-            <a href="${process.env.ADMIN_LOGIN_URL}" class="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition font-medium">
-              <i class="fas fa-sign-in-alt"></i> Login to Get Started
-            </a>
-          </div>
-          <div class="mt-12 text-gray-500 text-sm">
-            <p>Best regards,</p>
-            <p>Your Team</p>
-          </div>
-        </div>
-      </body>
-    </html>
-  `
-});
+              .animate-fade-in-up {
+                animation: fadeInUp 0.6s ease-out;
+              }
+            </style>
+          </head>
+          <body class="flex items-center justify-center min-h-screen">
+            <div class="bg-white p-10 rounded-2xl shadow-lg text-center max-w-lg w-full animate-fade-in-up">
+              <h1 class="text-4xl font-extrabold text-blue-600 flex items-center justify-center gap-3 mb-3">
+                <i class="fas fa-hand-peace"></i> Welcome 🎉
+              </h1>
+              <p class="text-gray-600 text-lg mb-4">Your admin account has been successfully created. Please find your login details below:</p>
+              <div class="text-left mb-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-2">
+                  <i class="fas fa-user-cog text-blue-600"></i> Admin Account Details:
+                </h2>
+                <ul class="space-y-2 text-gray-700">
+                  <li><strong>Username:</strong> ${username}</li>
+                  <li><strong>Password:</strong> ${password} (set by the system)</li>
+                </ul>
+              </div>
+              <p class="text-gray-600 text-lg mb-8">Please change your password after logging in for the first time.</p>
+              <div class="mt-10">
+                <a href="${process.env.ADMIN_LOGIN_URL}" class="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition font-medium">
+                  <i class="fas fa-sign-in-alt"></i> Login to Get Started
+                </a>
+              </div>
+              <div class="mt-12 text-gray-500 text-sm">
+                <p>Best regards,</p>
+                <p>Your Team</p>
+              </div>
+            </div>
+          </body>
+        </html>
+      `
+    });
 
+    // Create new admin
     const newAdmin = await Admin.create({
       adminId,
       username,
@@ -127,15 +131,16 @@ await sendMail({
 exports.getAllAdmins = async () => {
   try {
     const admins = await Admin.findAll({
-  attributes: ['adminId', 'username', 'email', 'role', 'states'],
-  order: [['createdAt', 'DESC']]
-});
+      attributes: ['adminId', 'username', 'email', 'role', 'states'],
+      order: [['createdAt', 'DESC']],
+    });
 
     return admins;
   } catch (err) {
     throw new InternalServerError(err.message);
   }
 };
+
 
 // ✅ Get Admin by ID
 exports.getAdminById = async (adminId) => {
