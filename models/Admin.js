@@ -45,7 +45,7 @@ const Admin = sequelize.define('Admin', {
   },
   mustChangeCredentials: {
     type: DataTypes.BOOLEAN,
-    defaultValue: true,
+    defaultValue: false,
   },
   resetToken: {
     type: DataTypes.STRING,
