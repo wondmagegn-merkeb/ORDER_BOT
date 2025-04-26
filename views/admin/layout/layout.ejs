@@ -30,9 +30,8 @@
         <%- body %>
 
         <!-- Modal Includes -->
-        <% if (typeof permissions !== 'undefined' && permissions.canView && modelName === 'Order') { %>
-          <%- include('../partials/orderDetailModel') %>
-        <% } %>
+                  <%- include('../partials/orderDetailModel') %>
+        
 
         <% if (typeof permissions !== 'undefined' && permissions.canView && modelName !== 'Order') { %>
 
