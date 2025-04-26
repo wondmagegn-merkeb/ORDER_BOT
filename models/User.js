@@ -1,8 +1,9 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/db');
-const UserUpdateLog = require('./UserUpdateLog'); // Import the log model
+const UserUpdateLog = require('./UserUpdateLog');
+const { InternalServerError } = require('../utils/customError'); // Import custom error
 
-// ✅ User Model
+// ✅ Define User Model
 const User = sequelize.define('User', {
   userId: {
     type: DataTypes.STRING,
@@ -49,46 +50,18 @@ const User = sequelize.define('User', {
   tableName: 'users'
 });
 
-// 🔁 Hook: Before Create – generate custom ID like USR001
-User.beforeCreate(async (user, options) => {
-  const lastUser = await User.findOne({
-    order: [['createdAt', 'DESC']]
-  });
-
-  let newIdNumber = 1;
-
-  if (lastUser && lastUser.userId) {
-    const lastNumber = parseInt(lastUser.userId.replace('USR', ''));
-    newIdNumber = lastNumber + 1;
-  }
-
-  user.userId = 'USR' + String(newIdNumber).padStart(3, '0');
-});
-
-// 🔁 Hook: after Update – log changes to `status` or `userType`
+// 🔁 Hook: afterUpdate – log changes
 User.afterUpdate(async (user, options) => {
-  const previous = await User.findOne({ where: { userId: user.userId } });
-
-  // Check if 'status' changed
-  if (user.changed('status')) {
+  try {
     await UserUpdateLog.create({
       userId: user.userId,
-      field: 'status',
-      oldValue: previous.status,
-      newValue: user.status,
-      performedBy: user.updatedBy || 'system'
+      action: 'UPDATE',
+      performedBy: user.updatedBy || 'system',
+      oldData: user._previousDataValues,
+      newData: user.toJSON(),
     });
-  }
-
-  // Check if 'userType' changed
-  if (user.changed('userType')) {
-    await UserUpdateLog.create({
-      userId: user.userId,
-      field: 'userType',
-      oldValue: previous.userType,
-      newValue: user.userType,
-      performedBy: user.updatedBy || 'system'
-    });
+  } catch (error) {
+    throw new InternalServerError('Failed to log user update', error);
   }
 });
 
