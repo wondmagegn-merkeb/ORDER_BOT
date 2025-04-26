@@ -38,10 +38,7 @@ exports.updateOrder = async (req, res, next) => {
       res.locals.error = error.details[0].message;
       return res.render('admin/order/update-order', { title: 'Update Order',order:orderData });
     }
-
-    const { newTotalPrice, status } = req.body;
-    const orderId = req.params.id;
-
+    
     const order = await Order.findByPk(orderId);
     if (!order) {
       res.locals.error = 'Order not found';
@@ -58,8 +55,7 @@ exports.updateOrder = async (req, res, next) => {
     await order.save();
 
     // Notify all admins via Telegram
-    const admins = await Admin.findAll();
-    const adminTelegramIds = admins.map(admin => admin.telegramId);
+    const user = await User.findAll();
 
     const message = `
 ✅ <b>Order Updated</b>
@@ -71,9 +67,9 @@ exports.updateOrder = async (req, res, next) => {
 <b>Updated By:</b> ${req.admin.username || req.admin.adminId}
     `;
 
-    for (const telegramId of adminTelegramIds) {
-      await sendMessageToUser(telegramId, message);
-    }
+    
+      await sendMessageToUser(user.telegramId, message);
+    
 
     res.locals.success = 'Order updated successfully!';
     return res.render('admin/order/update-order', { title: 'Update Order', order});
