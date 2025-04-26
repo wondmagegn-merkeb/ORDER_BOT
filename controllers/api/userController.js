@@ -6,7 +6,6 @@ const userValidationSchema = require('../../validators/userValidation'); // Assu
 exports.getAllUsers = async (req, res, next) => {
   try {
     const users = await User.findAll();
-
     return users;
   } catch (error) {
     next(new InternalServerError('Failed to fetch users', error));
@@ -16,14 +15,7 @@ exports.getAllUsers = async (req, res, next) => {
 // Get a single user by ID
 exports.getUserById = async (userId) => {
   try {
-    
     const user = await User.findByPk(userId);
-    if (!user) {   
-      
-      res.locals.error =  'User not found';
-      return res.render('admin/user/update-user', { title: 'Update User' }); // Rend
-    }
-    
     return user;
   } catch (error) {
     return next(new InternalServerError('Failed to fetch user', error));
@@ -35,33 +27,44 @@ exports.updateUser = async (req, res, next) => {
   try {
     // Validate input using userValidationSchema
     const { error } = userValidationSchema.validate(req.body);
-    if (error) {
-      // Handle validation error
-      res.locals.error = error.details[0].message;
-      return res.render('admin/user/update-user', { title: 'Update User' }); // Render the update page with error message
-    }
-
-    const { username, status, userType } = req.body;
+    
+    const { status, userType } = req.body;
     const userId = req.params.id;
+    
+    const userData = { status, userType, userId };
+    
+    if (error) {
+      res.locals.error = error.details[0].message;
+      return res.render('admin/user/update-user', {
+        title: 'Update User',
+        user: userData
+      });
+    }
 
     const user = await User.findByPk(userId);
-    if (!user) {   
+    if (!user) {
       res.locals.error = 'User not found';
-      return res.render('admin/user/update-user', { title: 'Update User' });
+      return res.render('admin/user/update-user', {
+        title: 'Update User',
+        user: userData
+      });
     }
 
-    // Update user fields based on input
-    user.username = username || user.username;
-    user.status = status || user.status;
-    user.userType = userType || user.userType;
+    // Update user fields
+    user.status = status;
+    user.userType = userType;
     user.updatedBy = req.admin.adminId;
 
     await user.save();
 
     res.locals.success = 'User updated successfully!';
-    return res.render('admin/user/update-user', { title: 'Update User' });
+    return res.render('admin/user/update-user', {
+      title: 'Update User',
+      user,
+    });
 
   } catch (error) {
     next(new InternalServerError('Failed to update user', error));
   }
 };
+
