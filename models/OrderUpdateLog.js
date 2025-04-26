@@ -14,7 +14,7 @@ const OrderUpdateLog = sequelize.define('OrderUpdateLog', {
     allowNull: false
   },
   action: {
-    type: DataTypes.ENUM('CREATE', 'UPDATE', 'DELETE'),
+    type: DataTypes.ENUM('UPDATE'),
     allowNull: false
   },
   oldData: {
