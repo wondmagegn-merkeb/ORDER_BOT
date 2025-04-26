@@ -22,12 +22,9 @@ exports.listUsers = async (req, res, next) => {
     ];
 
 const filters = [
-  // User type filters
   { id: 'guest', name: 'Guest', value: 'guest', colorClass: 'bg-yellow-500 hover:bg-yellow-600' },
   { id: 'vip', name: 'VIP', value: 'vip', colorClass: 'bg-purple-600 hover:bg-purple-700' },
-  { id: 'customer', name: 'Customer', value: 'customer', colorClass: 'bg-blue-600 hover:bg-blue-700' }
-  
-  // Status filters
+  { id: 'customer', name: 'Customer', value: 'customer', colorClass: 'bg-blue-600 hover:bg-blue-700' },
   { id: 'active', name: 'Active', value: 'active', colorClass: 'bg-green-600 hover:bg-green-700' },
   { id: 'inactive', name: 'Inactive', value: 'inactive', colorClass: 'bg-red-600 hover:bg-red-700' },
 ];
