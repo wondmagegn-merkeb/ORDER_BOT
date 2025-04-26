@@ -1,4 +1,10 @@
-const { AdminAuditLog, OrderAuditLog, UserUpdateLog, FoodAuditLog, CategoryAuditLog } = require('../../models/index');
+const { 
+  AdminAuditLog,
+  UserUpdateLog,
+  FoodCategoryUpdateLog,
+  FoodUpdateLog,
+  OrderUpdateLog
+      } = require('../../models/index');
 const { InternalServerError } = require('../../utils/customError');
 
 const modelColumns = [
@@ -25,8 +31,9 @@ const getAdminLogs = async (req, res, next) => {
       modelName: 'Admin Log',
       modelNameLower: 'adminlogs',
       permissions: {
-        canView: false,
-        canEdit: true,
+        canAdd: false,
+        canView: true,
+        canEdit: false,
         canDelete: false,
       },
     });
@@ -38,10 +45,8 @@ const getAdminLogs = async (req, res, next) => {
 // Fetch order logs
 const getOrderLogs = async (req, res, next) => {
   try {
-    const models = await OrderAuditLog.findAll();
-    const filters = [
-      { id: 'UPDATE', name: 'UPDATE', value: 'UPDATE', colorClass: 'bg-purple-600 hover:bg-purple-700' }
-    ];
+    const models = await OrderUpdateLog.findAll();
+    const filters = [];
 
     res.render('admin/logs/orderLog-list', {
       title: 'Order Logs',
@@ -51,8 +56,9 @@ const getOrderLogs = async (req, res, next) => {
       modelName: 'Order Log',
       modelNameLower: 'orderlogs',
       permissions: {
-        canView: false,
-        canEdit: true,
+        canAdd: false,
+        canView: true,
+        canEdit: false,
         canDelete: false,
       },
     });
@@ -65,9 +71,7 @@ const getOrderLogs = async (req, res, next) => {
 const getUserLogs = async (req, res, next) => {
   try {
     const models = await UserUpdateLog.findAll();
-    const filters = [
-       { id: 'UPDATE', name: 'UPDATE', value: 'UPDATE', colorClass: 'bg-purple-600 hover:bg-purple-700' }
-    ];
+    const filters = [ ];
 
     res.render('admin/logs/userLog-list', {
       title: 'User Logs',
@@ -77,8 +81,9 @@ const getUserLogs = async (req, res, next) => {
       modelName: 'User Log',
       modelNameLower: 'userlogs',
       permissions: {
-        canView: false,
-        canEdit: true,
+        canAdd: false,
+        canView: true,
+        canEdit: false,
         canDelete: false,
       },
     });
@@ -90,7 +95,8 @@ const getUserLogs = async (req, res, next) => {
 // Fetch food logs
 const getFoodLogs = async (req, res, next) => {
   try {
-    const models = await FoodAuditLog.findAll();
+    
+    const models = await FoodUpdateLog.findAll();
     const filters = [
       { id: 'CREATE', name: 'CREATE', value: 'CREATE', colorClass: 'bg-yellow-500 hover:bg-yellow-600' },
       { id: 'UPDATE', name: 'UPDATE', value: 'UPDATE', colorClass: 'bg-purple-600 hover:bg-purple-700' },
@@ -105,8 +111,9 @@ const getFoodLogs = async (req, res, next) => {
       modelName: 'Food Log',
       modelNameLower: 'foodlogs',
       permissions: {
-        canView: false,
-        canEdit: true,
+        canAdd: false,
+        canView: true,
+        canEdit: false,
         canDelete: false,
       },
     });
@@ -118,7 +125,8 @@ const getFoodLogs = async (req, res, next) => {
 // Fetch category logs
 const getCategoryLogs = async (req, res, next) => {
   try {
-    const models = await CategoryAuditLog.findAll();
+    
+    const models = await FoodCategoryUpdateLog.findAll();
     const filters = [
       { id: 'CREATE', name: 'CREATE', value: 'CREATE', colorClass: 'bg-yellow-500 hover:bg-yellow-600' },
       { id: 'UPDATE', name: 'UPDATE', value: 'UPDATE', colorClass: 'bg-purple-600 hover:bg-purple-700' },
@@ -133,8 +141,9 @@ const getCategoryLogs = async (req, res, next) => {
       modelName: 'Category Log',
       modelNameLower: 'categorylogs',
       permissions: {
-        canView: false,
-        canEdit: true,
+        canAdd: false,
+        canView: true,
+        canEdit: false,
         canDelete: false,
       },
     });
