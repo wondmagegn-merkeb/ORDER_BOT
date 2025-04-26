@@ -12,16 +12,16 @@ const UserUpdateLog = sequelize.define('UserUpdateLog', {
     type: DataTypes.STRING,
     allowNull: false // Reference to User.userId
   },
-  field: {
-    type: DataTypes.ENUM('status', 'userType'), // What field changed
-    allowNull: false
+  oldData: {
+    type: DataTypes.JSON,
+    allowNull: true // old data before update
   },
-  oldValue: {
-    type: DataTypes.STRING,
-    allowNull: true
+  newData: {
+    type: DataTypes.JSON,
+    allowNull: true // new data after update
   },
-  newValue: {
-    type: DataTypes.STRING,
+  action: {
+    type: DataTypes.ENUM('UPDATE'),
     allowNull: false
   },
   performedBy: {
