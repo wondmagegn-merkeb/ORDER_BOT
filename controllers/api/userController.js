@@ -1,8 +1,27 @@
-const { User } = require('../../models/index');
+const { User } = require('../../models');
 const { InternalServerError } = require('../../utils/customError');
-const userValidationSchema = require('../../validators/userValidation'); // Assuming you have a validation schema
-const { sendMessageToUser }= require('../../bots/userBot');
-// Get all users
+const userValidationSchema = require('../../validators/userValidation');
+const { sendMessageToUser } = require('../../bots/userBot');
+
+// Helper to generate user update message
+const generateUserUpdateMessage = (user) => {
+  const statusNote = user.status === 'inactive'
+    ? '⚠️ You are now <b>blocked</b> from accessing the system.'
+    : '✅ You are now <b>active</b> and can use the system.';
+
+  return `
+<b>⚙️ User Updated!</b>
+
+<b>👤 Full Name:</b> ${user.fullName || 'Not provided'}
+<b>🆔 Username:</b> ${user.username || 'Not provided'}
+<b>🏷️ User Type:</b> ${user.userType || 'Not provided'}
+<b>📶 Status:</b> ${user.status || 'Not provided'}
+
+${statusNote}
+  `;
+};
+
+// ✅ Get all users
 exports.getAllUsers = async (req, res, next) => {
   try {
     const users = await User.findAll();
@@ -12,24 +31,24 @@ exports.getAllUsers = async (req, res, next) => {
   }
 };
 
-// Get a single user by ID
-exports.getUserById = async (userId) => {
+// ✅ Get a single user by ID
+exports.getUserById = async (userId, res, next) => {
   try {
     const user = await User.findByPk(userId);
     return user;
   } catch (error) {
-    return next(new InternalServerError('Failed to fetch user', error));
+    next(new InternalServerError('Failed to fetch user', error));
   }
 };
 
-// Update user
+// ✅ Update user
 exports.updateUser = async (req, res, next) => {
   try {
     req.body.status = req.body.status || 'inactive';
-    const { error } = userValidationSchema.validate(req.body);
     const { status, userType } = req.body;
     const userId = req.params.id;
 
+    const { error } = userValidationSchema.validate(req.body);
     const userData = { status, userType, userId };
 
     if (error) {
@@ -55,26 +74,12 @@ exports.updateUser = async (req, res, next) => {
     user.status = status;
     user.userType = userType;
     user.updatedBy = req.admin.adminId;
-
     await user.save();
 
+    // Notify user if status changed
     if (statusChanged) {
-        const statusNote = user.status === 'inactive'
-          ? '⚠️ You are now <b>blocked</b> from accessing the system.'
-          : '✅ You are now <b>active</b> and can use the system.';
-
-        return `
-<b>⚙️ User Updated!</b>
-
-<b>👤 Full Name:</b> ${user.fullName || 'Not provided'}
-<b>🆔 Username:</b> ${user.username || 'Not provided'}
-<b>🏷️ User Type:</b> ${user.userType || 'Not provided'}
-<b>📶 Status:</b> ${user.status || 'Not provided'}
-
-${statusNote}
-`;
-
-      await sendMessageToUser(user.telegramId, generateUserUpdateMessage(user));
+      const message = generateUserUpdateMessage(user);
+      await sendMessageToUser(user.telegramId, message);
     }
 
     res.locals.success = 'User updated successfully!';
@@ -87,4 +92,3 @@ ${statusNote}
     next(new InternalServerError('Failed to update user', error));
   }
 };
-
