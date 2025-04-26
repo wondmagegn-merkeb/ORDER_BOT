@@ -6,6 +6,6 @@ const orderController = require('../../controllers/view/orderController');
 router.get('/', orderController.listOrders);
 
 // Route to show the form to edit an existing order
-router.post('/edit/:id', orderController.showEditOrderForm);
+router.get('/edit/:id', orderController.showEditOrderForm);
 
 module.exports = router;
