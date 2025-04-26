@@ -2,19 +2,8 @@ const Joi = require('joi');
 
 // User validation schema
 const userValidationSchema = Joi.object({
-  username: Joi.string()
-    .min(3)
-    .max(30)
-    .required()
-    .messages({
-      'string.base': 'Username must be a string',
-      'string.min': 'Username must be at least 3 characters long',
-      'string.max': 'Username can be at most 30 characters long',
-      'any.required': 'Username is required',
-    }),
-  
   status: Joi.string()
-    .valid('active', 'inactive') // Allow only 'active' or 'inactive'
+    .valid('active', 'inactive')
     .required()
     .messages({
       'string.base': 'Status must be a string',
@@ -23,7 +12,7 @@ const userValidationSchema = Joi.object({
     }),
   
   userType: Joi.string()
-    .valid('customer', 'admin') // Allow only 'customer' or 'admin'
+    .valid('guest', 'vip', 'customer')
     .required()
     .messages({
       'string.base': 'User Type must be a string',
