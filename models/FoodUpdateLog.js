@@ -11,16 +11,12 @@ const FoodUpdateLog = sequelize.define('FoodUpdateLog', {
     type: DataTypes.STRING,
     allowNull: false
   },
-  field: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
   oldValue: {
-    type: DataTypes.STRING,
+    type: DataTypes.JSON,
     allowNull: true
   },
   newValue: {
-    type: DataTypes.STRING,
+    type: DataTypes.JSON,
     allowNull: false
   },
   performedBy: {
@@ -28,7 +24,7 @@ const FoodUpdateLog = sequelize.define('FoodUpdateLog', {
     allowNull: false
   },
   action: {
-    type: DataTypes.STRING, // e.g., 'create', 'update', 'delete'
+    type: DataTypes.ENUM('CREATE', 'UPDATE', 'DELETE'),
     allowNull: false
   }
 }, {
