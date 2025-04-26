@@ -2,7 +2,7 @@ const Joi = require('joi');
 
 // Validation schema for updating the order
 const updateOrderSchema = Joi.object({
-  totalPrice: Joi.number()
+  newTotalPrice: Joi.number()
     .precision(2)
     .positive()
     .optional()  // Make it optional since user can update only one field
