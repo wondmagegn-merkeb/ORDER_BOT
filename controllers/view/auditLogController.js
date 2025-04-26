@@ -1,40 +1,152 @@
+const { AdminAuditLog, OrderAuditLog, UserUpdateLog, FoodAuditLog, CategoryAuditLog } = require('../../models/index');
+const { InternalServerError } = require('../../utils/customError');
 
-const { AdminAuditLog } = require('../../models/index');
+const modelColumns = [
+  { name: 'ID', field: 'id', index: 0 },
+  { name: 'Action', field: 'action', index: 1 },
+  { name: 'Performed By', field: 'performedBy', index: 2 },
+];
 
-// Fetch audit logs with pagination
-const getAuditLogs = async (req, res) => {
+// Fetch admin audit logs
+const getAdminLogs = async (req, res, next) => {
   try {
-    // Pagination parameters
-    const page = req.query.page || 1;
-    const limit = 5;
-    const offset = (page - 1) * limit;
+    const models = await AdminAuditLog.findAll();
+    const filters = [
+      { id: 'CREATE', name: 'CREATE', value: 'CREATE', colorClass: 'bg-yellow-500 hover:bg-yellow-600' },
+      { id: 'UPDATE', name: 'UPDATE', value: 'UPDATE', colorClass: 'bg-purple-600 hover:bg-purple-700' },
+      { id: 'DELETE', name: 'DELETE', value: 'DELETE', colorClass: 'bg-blue-600 hover:bg-blue-700' },
+    ];
 
-    // Fetch audit logs with pagination and sorting by createdAt in descending order
-    const logs = await AdminAuditLog.findAll({
-      limit: limit,
-      offset: offset,
-      order: [['createdAt', 'DESC']],
-    });
-
-    // Get the total number of logs for pagination
-    const totalLogs = await AdminAuditLog.count();
-
-    // Calculate the total number of pages
-    const totalPages = Math.ceil(totalLogs / limit);
-
-    // Send the logs and pagination data to the view
     res.render('admin/logs/adminLog-list', {
-      auditLogs: logs,
-      currentPage: page,
-      totalPages: totalPages,
-      title: 'Admin Logs'
+      title: 'Admin Logs',
+      models,
+      modelColumns,
+      filters,
+      modelName: 'Admin Log',
+      modelNameLower: 'adminlogs',
+      permissions: {
+        canView: false,
+        canEdit: true,
+        canDelete: false,
+      },
     });
   } catch (error) {
-    console.error('Error fetching audit logs:', error);
-    res.status(500).json({ message: 'Error fetching audit logs' });
+    next(new InternalServerError('Failed to fetch admin logs', error)); // Use the custom error handler
+  }
+};
+
+// Fetch order logs
+const getOrderLogs = async (req, res, next) => {
+  try {
+    const models = await OrderAuditLog.findAll();
+    const filters = [
+      { id: 'UPDATE', name: 'UPDATE', value: 'UPDATE', colorClass: 'bg-purple-600 hover:bg-purple-700' }
+    ];
+
+    res.render('admin/logs/orderLog-list', {
+      title: 'Order Logs',
+      models,
+      modelColumns,
+      filters,
+      modelName: 'Order Log',
+      modelNameLower: 'orderlogs',
+      permissions: {
+        canView: false,
+        canEdit: true,
+        canDelete: false,
+      },
+    });
+  } catch (error) {
+    next(new InternalServerError('Failed to fetch order logs', error)); // Use the custom error handler
+  }
+};
+
+// Fetch user logs
+const getUserLogs = async (req, res, next) => {
+  try {
+    const models = await UserUpdateLog.findAll();
+    const filters = [
+       { id: 'UPDATE', name: 'UPDATE', value: 'UPDATE', colorClass: 'bg-purple-600 hover:bg-purple-700' }
+    ];
+
+    res.render('admin/logs/userLog-list', {
+      title: 'User Logs',
+      models,
+      modelColumns,
+      filters,
+      modelName: 'User Log',
+      modelNameLower: 'userlogs',
+      permissions: {
+        canView: false,
+        canEdit: true,
+        canDelete: false,
+      },
+    });
+  } catch (error) {
+    next(new InternalServerError('Failed to fetch user logs', error)); // Use the custom error handler
+  }
+};
+
+// Fetch food logs
+const getFoodLogs = async (req, res, next) => {
+  try {
+    const models = await FoodAuditLog.findAll();
+    const filters = [
+      { id: 'CREATE', name: 'CREATE', value: 'CREATE', colorClass: 'bg-yellow-500 hover:bg-yellow-600' },
+      { id: 'UPDATE', name: 'UPDATE', value: 'UPDATE', colorClass: 'bg-purple-600 hover:bg-purple-700' },
+      { id: 'DELETE', name: 'DELETE', value: 'DELETE', colorClass: 'bg-blue-600 hover:bg-blue-700' },
+    ];
+
+    res.render('admin/logs/foodLog-list', {
+      title: 'Food Logs',
+      models,
+      modelColumns,
+      filters,
+      modelName: 'Food Log',
+      modelNameLower: 'foodlogs',
+      permissions: {
+        canView: false,
+        canEdit: true,
+        canDelete: false,
+      },
+    });
+  } catch (error) {
+    next(new InternalServerError('Failed to fetch food logs', error)); // Use the custom error handler
+  }
+};
+
+// Fetch category logs
+const getCategoryLogs = async (req, res, next) => {
+  try {
+    const models = await CategoryAuditLog.findAll();
+    const filters = [
+      { id: 'CREATE', name: 'CREATE', value: 'CREATE', colorClass: 'bg-yellow-500 hover:bg-yellow-600' },
+      { id: 'UPDATE', name: 'UPDATE', value: 'UPDATE', colorClass: 'bg-purple-600 hover:bg-purple-700' },
+      { id: 'DELETE', name: 'DELETE', value: 'DELETE', colorClass: 'bg-blue-600 hover:bg-blue-700' },
+    ];
+
+    res.render('admin/logs/categoryLog-list', {
+      title: 'Category Logs',
+      models,
+      modelColumns,
+      filters,
+      modelName: 'Category Log',
+      modelNameLower: 'categorylogs',
+      permissions: {
+        canView: false,
+        canEdit: true,
+        canDelete: false,
+      },
+    });
+  } catch (error) {
+    next(new InternalServerError('Failed to fetch category logs', error)); // Use the custom error handler
   }
 };
 
 module.exports = {
-  getAuditLogs,
+  getAdminLogs,
+  getOrderLogs,
+  getUserLogs,
+  getFoodLogs,
+  getCategoryLogs,
 };
