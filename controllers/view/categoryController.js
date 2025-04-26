@@ -23,8 +23,8 @@ const filters = [];
       models,
       modelColumns,
       filters,
-      modelName: 'User',
-      modelNameLower: 'users',
+      modelName: 'Category',
+      modelNameLower: 'categories',
       permissions: {
         canView: false,
         canAdd: true,
