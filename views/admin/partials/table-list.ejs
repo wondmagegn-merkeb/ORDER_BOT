@@ -91,12 +91,13 @@
     <!-- Close Button -->
     <button 
       id="closeViewModal" 
-      class="absolute top-2 right-2 text-red-500 hover:text-red-700 text-3xl font-bold">
+      class="absolute top-4 right-24 text-red-500 hover:text-red-700 text-3xl font-bold">
       &times;
     </button>
-
+    <h2 class="text-2xl font-bold mb-4 text-center text-gray-800">Order Details</h2>
     <!-- Scrollable Content -->
-    <div id="modalContent" class="overflow-y-auto max-h-[75vh] p-2">
+    <div id="modalContent" class="flex-1 max-h-64 overflow-y-auto overflow-x-hidden space-y-6 pr-2">
+
       <!-- Dynamic content will go here -->
     </div>
   </div>
@@ -175,47 +176,81 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeViewModal = document.getElementById('closeViewModal');
 
   document.querySelectorAll('.view-btn').forEach(button => {
-    button.addEventListener('click', function () {
-      const modelData = JSON.parse(this.dataset.model);
-      const modelName = "<%= modelName %>";
+  button.addEventListener('click', function () {
+    const modelData = JSON.parse(this.dataset.model);
+    const modelName = "<%= modelName %>";
 
-      modalContent.innerHTML = "";
+    let modalHTML = `
+      <div class="bg-gray-50 p-4 rounded-lg shadow-md space-y-2">
+        <h3 class="text-xl font-semibold text-gray-800 mb-3">Order Summary</h3>
+        <div class="grid grid-cols-2 gap-4 text-gray-700">
+    `;
 
-      for (const [key, value] of Object.entries(modelData)) {
-        if (key !== 'image' && key !== 'latitude' && key !== 'longitude') {
+    for (const [key, value] of Object.entries(modelData)) {
+      if (key !== 'image' && key !== 'latitude' && key !== 'longitude' && key !== 'oldData' && key !== 'newData') {
+        modalHTML += `
+          <div>
+            <span class="font-semibold text-gray-900">${key}:</span> 
+            <span class="text-blue-600">${value ?? ''}</span>
+          </div>
+        `;
+      }
+    }
 
-      
-          modalContent.innerHTML += `
-            <p class="mb-2"><strong class="capitalize">${key}:</strong> ${value ?? ''}</p>
-          `;
-        }
+    modalHTML += `
+        </div>
+      </div>
+    `;
+
+    if (modelData.oldData) {
+      modalHTML += `
+        <div class="mt-4">
+          <h3 class="text-xl font-bold text-gray-700">Old Data (JSON)</h3>
+          <pre class="bg-gray-100 p-4 rounded-lg text-sm font-mono text-gray-800 whitespace-pre-wrap">
+${JSON.stringify(modelData.oldData, null, 2)}
+          </pre>
+        </div>
+      `;
+    }
+
+    if (modelData.newData) {
+      modalHTML += `
+        <div class="mt-4">
+          <h3 class="text-xl font-bold text-gray-700">New Data (JSON)</h3>
+          <pre class="bg-gray-100 p-4 rounded-lg text-sm font-mono text-gray-800 whitespace-pre-wrap">
+${JSON.stringify(modelData.newData, null, 2)}
+          </pre>
+        </div>
+      `;
+    }
+
+    if (modelName === "Order") {
+      if (modelData.image) {
+        modalHTML += `
+          <div class="mt-4">
+            <h2 class="text-xl font-bold mb-2 text-gray-700">Image</h2>
+            <img src="${modelData.image}" alt="Order Image" class="w-full max-h-60 object-cover rounded-md border" />
+          </div>
+        `;
       }
 
-      if (modelName === "Order") {
-        if (modelData.image) {
-          modalContent.innerHTML += `
-            <div class="my-4">
-              <p class="font-semibold mb-2">Image:</p>
-              <img src="${modelData.image}" alt="Order Image" class="w-full max-h-60 object-cover rounded-md border" />
+      if (modelData.latitude && modelData.longitude) {
+        const mapSrc = `https://www.google.com/maps?q=${modelData.latitude},${modelData.longitude}&hl=es;z=14&output=embed`;
+        modalHTML += `
+          <div class="bg-gray-50 p-4 rounded-lg shadow-md space-y-4 mt-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-3">Delivery Location</h3>
+            <div class="w-full h-64 overflow-hidden rounded-lg border border-gray-300 shadow-sm">
+              <iframe src="${mapSrc}" width="100%" height="100%" class="rounded-md border" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
             </div>
-          `;
-        }
-        if (modelData.latitude && modelData.longitude) {
-          const mapSrc = `https://www.google.com/maps?q=${modelData.latitude},${modelData.longitude}&hl=es;z=14&output=embed`;
-          modalContent.innerHTML += `
-            <div class="my-4">
-              <p class="font-semibold mb-2">Location Map:</p>
-              <div class="w-full h-64">
-                <iframe src="${mapSrc}" width="100%" height="100%" class="rounded-md border" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-              </div>
-            </div>
-          `;
-        }
+          </div>
+        `;
       }
-modalContent.innerHTML += 'Full Data:\n' + JSON.stringify(modelData, null, 2);
-      viewModal.classList.remove('hidden');
-    });
+    }
+
+    modalContent.innerHTML = modalHTML;
+    viewModal.classList.remove('hidden');
   });
+});
 
   closeViewModal.addEventListener('click', () => {
     viewModal.classList.add('hidden');
