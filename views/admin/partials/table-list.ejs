@@ -84,6 +84,443 @@
 </div>
 
 <!-- View Modal -->
+<div id="viewModal" class="hidden absence inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white w-11/12 max-w-2xl p-6 rounded-lg shadow-lg relative overflow-y-auto max-h-[90vh]">
+    <button id="closeViewModal" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<!-- Script -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const searchInput = document.getElementById('searchInput');
+  const tableBody = document.getElementById('tableBody');
+  const paginationContainer = document.getElementById('paginationContainer');
+  const rowsPerPage = 5;
+  let currentPage = 1;
+
+  function getVisibleRows() {
+    return Array.from(tableBody.querySelectorAll('tr')).filter(row => row.style.display !== 'none');
+  }
+
+  function displayPage(page) {
+    const visibleRows = getVisibleRows();
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+
+    visibleRows.forEach((row, index) => {
+      row.style.display = (index >= start && index < end) ? '' : 'none';
+    });
+
+    renderPagination(visibleRows.length);
+  }
+
+  function renderPagination(totalRows) {
+    paginationContainer.innerHTML = '';
+    const totalPages = Math.ceil(totalRows / rowsPerPage);
+
+    function createBtn(html, disabled, onClick, active = false) {
+      const btn = document.createElement('button');
+      btn.innerHTML = html;
+      btn.className = `px-3 py-1 rounded-md text-sm border ${
+        disabled ? 'bg-gray-300 cursor-not-allowed' : 
+        active ? 'bg-blue-500 text-white border-blue-500' : 
+        'bg-white text-gray-700 border-gray-300 hover:bg-blue-100'
+      }`;
+      btn.disabled = disabled;
+      if (!disabled) btn.addEventListener('click', onClick);
+      return btn;
+    }
+
+    if (totalPages > 1) {
+      paginationContainer.appendChild(createBtn('&laquo;', currentPage === 1, () => { currentPage = 1; displayPage(currentPage); }));
+      paginationContainer.appendChild(createBtn('&lsaquo;', currentPage === 1, () => { currentPage--; displayPage(currentPage); }));
+
+      for (let i = 1; i <= totalPages; i++) {
+        paginationContainer.appendChild(createBtn(i, false, () => { currentPage = i; displayPage(currentPage); }, i === currentPage));
+      }
+
+      paginationContainer.appendChild(createBtn('&rsaquo;', currentPage === totalPages, () => { currentPage++; displayPage(currentPage); }));
+      paginationContainer.appendChild(createBtn('&raquo;', currentPage === totalPages, () => { currentPage = totalPages; displayPage(currentPage); }));
+    }
+  }
+
+  // Search
+  searchInput.addEventListener('input', function () {
+    const query = this.value.toLowerCase();
+    const allRows = tableBody.querySelectorAll('tr');
+
+    allRows.forEach(row => {
+      const match = Array.from(row.cells).some(cell => 
+        cell.textContent.toLowerCase().includes(query)
+      );
+      row.style.display = match ? '' : 'none';
+    });
+
+    currentPage = 1;
+    displayPage(currentPage);
+  });
+
+  // View Modal
+  const viewModal = document.getElementById('viewModal');
+  const modalContent = document.getElementById('modalContent');
+  const closeViewModal = document.getElementById('closeViewModal');
+
+  document.querySelectorAll('.view-btn').forEach(button => {
+    button.addEventListener('click', function () {
+      const modelData = JSON.parse(this.dataset.model);
+      const modelName = "<%= modelName %>";
+      modalContent.innerHTML = "";
+
+      for (const [key, value] of Object.entries(modelData)) {
+        if (key !== 'image' && key !== 'latitude' && key !== 'longitude' && key !== 'oldData' && key !== 'newData') {
+          modalContent.innerHTML += `
+            <p class="mb-2"><strong class="capitalize">${key}:</strong> ${value ?? ''}</p>
+          `;
+        }
+      }
+
+You said:
+<div class="container mx-auto px-4 py-4">
+  <h1 class="text-3xl font-bold text-center mb-8 text-gray-800 flex justify-center items-center">
+    <i class="fas fa-cogs mr-3 text-blue-600"></i>
+    <%= modelName %> Management
+  </h1>
+
+  <!-- Search & Add -->
+  <div class="flex justify-between items-center mb-6">
+    <div class="relative w-full max-w-md">
+      <input type="text" id="searchInput" placeholder="Search"
+        class="w-full p-2 pl-10 border border-gray-300 rounded">
+      <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+    </div>
+<% if (permissions.canAdd) { %>
+    <a href="/<%= modelNameLower %>/add" class="ml-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition inline-flex items-center gap-2">
+      <i class="fas fa-plus"></i> Add
+    </a>
+<% } %>
+  </div>
+
+  <!-- Filters -->
+  <div class="mb-6 overflow-x-auto">
+    <div class="flex space-x-2 w-max">
+      <% filters.forEach(filter => { %>
+        <button id="<%= filter.id %>FilterBtn" 
+                class="filter-btn whitespace-nowrap px-4 py-2 rounded text-white <%= filter.colorClass %>" 
+                data-filter="<%= filter.value.toLowerCase() %>">
+          <%= filter.name %>
+        </button>
+      <% }); %>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <table class="min-w-full bg-white border border-gray-300 rounded-md shadow-md">
+    <thead>
+      <tr>
+        <% modelColumns.forEach(column => { %>
+          <th class="p-3 border-b text-left"><%= column.name %></th>
+        <% }); %>
+        <th class="p-3 border-b text-left">Actions</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody">
+      <% models.forEach(model => { %>
+        <% const id = model[modelColumns[0].field]; %>
+        <tr>
+          <% modelColumns.forEach(column => { %>
+            <td class="p-3 border-b"><%= model[column.field] %></td>
+          <% }); %>
+          <td class="p-3 border-b flex space-x-2">
+            <% if (permissions.canView) { %>
+              <button 
+  class="view-btn bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded" 
+  data-model='<%= JSON.stringify(model) %>'>
+  View
+</button>
+
+            <% } %>
+
+            <% if (permissions.canEdit) { %>
+              <a href="/<%= modelNameLower %>/edit/<%= id %>" class="text-yellow-500 hover:text-yellow-600">
+                <i class="fas fa-edit"></i> Update
+              </a>
+            <% } %>
+
+            <% if (permissions.canDelete) { %>
+              <form method="POST" class="delete-form inline" data-id="<%= id %>" data-action="/<%= modelNameLower %>/delete">
+                <button type="button" class="open-delete-modal text-red-500 hover:text-red-600">
+                  <i class="fas fa-trash-alt"></i> Delete
+                </button>
+              </form>
+            <% } %>
+          </td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+
+  <!-- Pagination -->
+  <div class="mt-6 flex justify-center items-center space-x-2" id="paginationContainer"></div>
+</div>
+
+<!-- View Modal -->
+<div id="viewModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white w-11/12 max-w-2xl p-6 rounded-lg shadow-lg relative overflow-y-auto max-h-[90vh]">
+    <button id="closeViewModal" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<!-- Script -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    
+  });
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const searchInput = document.getElementById('searchInput');
+    const tableBody = document.getElementById('tableBody');
+    const paginationContainer = document.getElementById('paginationContainer');
+    const rowsPerPage = 5;
+    let currentPage = 1;
+
+    function getVisibleRows() {
+      return Array.from(tableBody.querySelectorAll('tr')).filter(row => row.style.display !== 'none');
+    }
+
+    function displayPage(page) {
+      const visibleRows = getVisibleRows();
+      const start = (page - 1) * rowsPerPage;
+      const end = start + rowsPerPage;
+
+      visibleRows.forEach((row, index) => {
+        row.style.display = (index >= start && index < end) ? '' : 'none';
+      });
+
+      renderPagination(visibleRows.length);
+    }
+
+    function renderPagination(totalRows) {
+      paginationContainer.innerHTML = '';
+      const totalPages = Math.ceil(totalRows / rowsPerPage);
+
+      function createBtn(html, disabled, onClick, active = false) {
+        const btn = document.createElement('button');
+        btn.innerHTML = html;
+        btn.className = px-4 py-2 rounded-md text-sm border ${disabled ? 'bg-gray-300 cursor-not-allowed' : active ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-gray-700 border-gray-300 hover:bg-blue-100'};
+        btn.disabled = disabled;
+        if (!disabled) btn.addEventListener('click', onClick);
+        return btn;
+      }
+
+      paginationContainer.appendChild(createBtn('&laquo;', currentPage === 1, () => { currentPage = 1; displayPage(currentPage); }));
+      paginationContainer.appendChild(createBtn('&lsaquo;', currentPage === 1, () => { currentPage--; displayPage(currentPage); }));
+
+      for (let i = 1; i <= totalPages; i++) {
+        paginationContainer.appendChild(createBtn(i, false, () => { currentPage = i; displayPage(currentPage); }, i === currentPage));
+      }
+
+      paginationContainer.appendChild(createBtn('&rsaquo;', currentPage === totalPages, () => { currentPage++; displayPage(currentPage); }));
+      paginationContainer.appendChild(createBtn('&raquo;', currentPage === totalPages, () => { currentPage = totalPages; displayPage(currentPage); }));
+    }
+
+    // Search
+    searchInput.addEventListener('input', function () {
+      const query = this.value.toLowerCase();
+      const allRows = tableBody.querySelectorAll('tr');
+
+      allRows.forEach(row => {
+        const match = Array.from(row.cells).some(cell =>
+          cell.textContent.toLowerCase().includes(query)
+        );
+        row.style.display = match ? '' : 'none';
+      });
+
+      currentPage = 1;
+      displayPage(currentPage);
+    });
+
+    const viewModal = document.getElementById('viewModal');
+    const modalContent = document.getElementById('modalContent');
+    const closeViewModal = document.getElementById('closeViewModal');
+
+    document.querySelectorAll('.view-btn').forEach(button => {
+      button.addEventListener('click', function () {
+        const modelData = JSON.parse(this.dataset.model); // model JSON
+        const modelName = "<%= modelName %>"; // EJS variable passed from server
+
+        modalContent.innerHTML = ""; // Clear previous modal content
+
+        // Display normal fields (skip image, latitude, longitude for now)
+        for (const [key, value] of Object.entries(modelData)) {
+          if (key !== 'image' && key !== 'latitude' && key !== 'longitude') {
+            modalContent.innerHTML += 
+              <p class="mb-2"><strong class="capitalize">${key}:</strong> ${value ?? ''}</p>
+            ;
+          }
+        }
+
+        // If model is Order, show image and map
+        if (modelName === "Order") {
+          if (modelData.image) {
+            modalContent.innerHTML += 
+              <div class="my-4">
+                <p class="font-semibold mb-2">Image:</p>
+                <img src="${modelData.image}" alt="Order Image" class="w-full max-h-60 object-cover rounded-md border" />
+              </div>
+            ;
+          }
+
+          if (modelData.latitude && modelData.longitude) {
+            const mapSrc = https://www.google.com/maps?q=${modelData.latitude},${modelData.longitude}&hl=es;z=14&output=embed;
+            modalContent.innerHTML += 
+              <div class="my-4">
+                <p class="font-semibold mb-2">Location Map:</p>
+                <div class="w-full h-64">
+                  <iframe src="${mapSrc}" width="100%" height="100%" class="rounded-md border" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+              </div>
+            ;
+          }
+        }
+
+        viewModal.classList.remove('hidden'); // Open modal
+      });
+    });
+
+    closeViewModal.addEventListener('click', () => {
+      viewModal.classList.add('hidden'); // Close modal
+    });
+
+    // Filter Functionality
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', function () {
+        // Mark active filter
+        document.querySelectorAll('.filter-btn').forEach(b => {
+          b.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
+        });
+
+        this.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
+
+        const value = this.dataset.filter;
+        const allRows = tableBody.querySelectorAll('tr');
+        allRows.forEach(row => {
+          const match = Array.from(row.cells).some(cell =>
+            cell.textContent.toLowerCase().includes(value)
+          );
+          row.style.display = match ? '' : 'none';
+        });
+        
+        currentPage = 1;
+        displayPage(currentPage);
+      });
+    });
+
+    displayPage(currentPage);
+  });
+</script>give full correct  code
+
+
+ChatGPT said:
+Sure!
+The code you posted is actually almost correct — just a little bit clean-up and optimization can make it perfect.
+I'll give you now the full corrected and improved version:
+
+Here’s your final full working EJS + Tailwind CSS UI for management page:
+
+ejs
+Copy
+Edit
+<div class="container mx-auto px-4 py-4">
+  <h1 class="text-3xl font-bold text-center mb-8 text-gray-800 flex justify-center items-center">
+    <i class="fas fa-cogs mr-3 text-blue-600"></i>
+    <%= modelName %> Management
+  </h1>
+
+  <!-- Search & Add -->
+  <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
+    <div class="relative w-full max-w-md">
+      <input type="text" id="searchInput" placeholder="Search"
+        class="w-full p-2 pl-10 border border-gray-300 rounded">
+      <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+    </div>
+    <% if (permissions.canAdd) { %>
+      <a href="/<%= modelNameLower %>/add" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition inline-flex items-center gap-2">
+        <i class="fas fa-plus"></i> Add
+      </a>
+    <% } %>
+  </div>
+
+  <!-- Filters -->
+  <% if (filters.length > 0) { %>
+    <div class="mb-6 overflow-x-auto">
+      <div class="flex space-x-2 w-max">
+        <% filters.forEach(filter => { %>
+          <button id="<%= filter.id %>FilterBtn"
+                  class="filter-btn whitespace-nowrap px-4 py-2 rounded text-white <%= filter.colorClass %>"
+                  data-filter="<%= filter.value.toLowerCase() %>">
+            <%= filter.name %>
+          </button>
+        <% }); %>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Table -->
+  <div class="overflow-x-auto">
+    <table class="min-w-full bg-white border border-gray-300 rounded-md shadow-md">
+      <thead>
+        <tr>
+          <% modelColumns.forEach(column => { %>
+            <th class="p-3 border-b text-left capitalize"><%= column.name %></th>
+          <% }); %>
+          <th class="p-3 border-b text-left">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <% models.forEach(model => { %>
+          <% const id = model[modelColumns[0].field]; %>
+          <tr>
+            <% modelColumns.forEach(column => { %>
+              <td class="p-3 border-b"><%= model[column.field] ?? '' %></td>
+            <% }); %>
+            <td class="p-3 border-b flex space-x-2">
+              <% if (permissions.canView) { %>
+                <button class="view-btn bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded"
+                        data-model='<%= JSON.stringify(model) %>'>
+                  View
+                </button>
+              <% } %>
+
+              <% if (permissions.canEdit) { %>
+                <a href="/<%= modelNameLower %>/edit/<%= id %>" class="text-yellow-500 hover:text-yellow-600">
+                  <i class="fas fa-edit"></i> Update
+                </a>
+              <% } %>
+
+              <% if (permissions.canDelete) { %>
+                <form method="POST" class="delete-form inline" data-id="<%= id %>" data-action="/<%= modelNameLower %>/delete">
+                  <button type="button" class="open-delete-modal text-red-500 hover:text-red-600">
+                    <i class="fas fa-trash-alt"></i> Delete
+                  </button>
+                </form>
+              <% } %>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="mt-6 flex justify-center items-center space-x-2" id="paginationContainer"></div>
+</div>
+
+<!-- View Modal -->
 <div id="viewModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
   <div class="bg-white w-11/12 max-w-2xl p-6 rounded-lg shadow-lg relative overflow-y-auto max-h-[90vh]">
     <button id="closeViewModal" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
@@ -180,6 +617,418 @@ document.addEventListener("DOMContentLoaded", () => {
           `;
         }
       }
+
+      if (modelName === "Order") {
+        if (modelData.image) {
+          modalContent.innerHTML += `
+            <div class="my-4">
+              <p class="font-semibold mb-2">Image:</p>
+              <img src="${modelData.image}" alt="Order Image" class="w-full max-h-60 object-cover rounded-md border" />
+            </div>
+          `;
+        }
+
+        if (modelData.latitude && modelData.longitude) {
+          const mapSrc = `https://www.google.com/maps?q=${modelData.latitude},${modelData.longitude}&hl=es;z=14&output=embed`;
+          modalContent.innerHTML += `
+            <div class="my-4">
+              <p class="font-semibold mb-2">Location Map:</p>
+              <div class="w-full h-64">
+                <iframe src="${mapSrc}" width="100%" height="100%" class="rounded-md border" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+              </div>
+            </div>
+          `;
+        }
+      }
+
+      viewModal.classList.remove('hidden');
+    });
+  });
+
+  closeViewModal.addEventListener('click', () => {
+    viewModal.classList.add('hidden');
+  });
+
+  // Filters
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.filter-btn').forEach(b => {
+        b.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
+      });
+      this.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
+
+      const value = this.dataset.filter;
+      const allRows = tableBody.querySelectorAll('tr');
+
+      allRows.forEach(row => {
+        const match = Array.from(row.cells).some(cell => 
+          cell.textContent.toLowerCase().includes(value)
+        );
+        row.style.display = match ? '' : 'none';
+      });
+
+      currentPage = 1;
+      displayPage(currentPage);
+    });
+  });
+
+  // Initial
+  displayPage(currentPage);
+});
+</script>
+Notes:
+I removed duplicate DOMContentLoaded and made everything inside one event.
+
+I made pagination dynamic based on visible filtered rows.
+
+Search + Filter + Pagination + Modal now work smoothly together.
+
+Corrected minor EJS issues (?? '' for null values).
+
+Fully mobile responsive because of Tailwind CSS.
+
+Also safe if model doesn't have latitude / image.
+
+Would you also like me to give you the Delete confirmation modal code as well? (So when clicking Delete, a nice confirmation box appears before deleting?)
+Let me know!
+Would be very easy to add!
+
+
+
+
+
+
+
+You said:
+And how display json inside 
+
+
+ChatGPT said:
+Got it — you want to display the JSON object inside the modal nicely formatted, right?
+
+Let’s fix and complete everything properly for you.
+
+First, your provided code is already very close!
+But if you want to show full JSON nicely inside the modal (maybe after showing the fields, or separately), you can simply add a JSON.stringify formatted output.
+
+I'll show you how to do both:
+
+Here’s the full corrected version (with JSON display inside the View Modal):
+html
+Copy
+Edit
+<!-- View Modal -->
+<div id="viewModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white w-11/12 max-w-2xl p-6 rounded-lg shadow-lg relative overflow-y-auto max-h-[90vh]">
+    <button id="closeViewModal" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+    <div id="modalContent" class="space-y-4"></div>
+  </div>
+</div>
+
+<!-- Script -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const viewModal = document.getElementById('viewModal');
+    const modalContent = document.getElementById('modalContent');
+    const closeViewModal = document.getElementById('closeViewModal');
+
+    document.querySelectorAll('.view-btn').forEach(button => {
+      button.addEventListener('click', function () {
+        const modelData = JSON.parse(this.dataset.model); // parse JSON
+        const modelName = "<%= modelName %>"; // your modelName from EJS
+
+        modalContent.innerHTML = ""; // clear previous content
+
+        // Display fields nicely
+        for (const [key, value] of Object.entries(modelData)) {
+          if (key !== 'image' && key !== 'latitude' && key !== 'longitude') {
+            modalContent.innerHTML += `
+              <p class="mb-2"><strong class="capitalize">${key}:</strong> ${value ?? ''}</p>
+            `;
+          }
+        }
+
+        // If model is "Order", show image and map
+        if (modelName === "Order") {
+          if (modelData.image) {
+            modalContent.innerHTML += `
+              <div class="my-4">
+                <p class="font-semibold mb-2">Image:</p>
+                <img src="${modelData.image}" alt="Order Image" class="w-full max-h-60 object-cover rounded-md border" />
+              </div>
+            `;
+          }
+          if (modelData.latitude && modelData.longitude) {
+            const mapSrc = `https://www.google.com/maps?q=${modelData.latitude},${modelData.longitude}&hl=es;z=14&output=embed`;
+            modalContent.innerHTML += `
+              <div class="my-4">
+                <p class="font-semibold mb-2">Location Map:</p>
+                <div class="w-full h-64">
+                  <iframe src="${mapSrc}" width="100%" height="100%" class="rounded-md border" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+              </div>
+            `;
+          }
+        }
+
+        // Display full JSON object pretty
+        modalContent.innerHTML += `
+          <div class="bg-gray-100 p-4 rounded mt-6">
+            <h2 class="font-bold mb-2">Full JSON Data:</h2>
+            <pre class="text-xs bg-gray-200 p-2 rounded overflow-x-auto whitespace-pre-wrap">${JSON.stringify(modelData, null, 2)}</pre>
+          </div>
+        `;
+
+        viewModal.classList.remove('hidden'); // show modal
+      });
+    });
+
+    closeViewModal.addEventListener('click', () => {
+      viewModal.classList.add('hidden'); // close modal
+    });
+  });
+</script>
+So now inside the View Modal, you will see:
+Key-value fields like Name, Email, Status, etc.
+
+If the model is Order, it will show:
+
+Image
+
+Map
+
+Then at the bottom, you will see the full JSON nicely inside a <pre> block with proper formatting.
+
+Example how it looks:
+mathematica
+Copy
+Edit
+Name: John Doe
+Status: Active
+
+Image:
+[image here]
+
+Location Map:
+[embedded map here]
+
+Full JSON Data:
+{
+  "id": 123,
+  "name": "John Doe",
+  "status": "Active",
+  "latitude": 9.0345,
+  "longitude": 38.7635
+}
+Would you also like me to show you how to make the JSON collapsible/expandable (like a tree structure)?
+It would look even cooler if you want a professional feel! Want that too? (I can add it if you want!)
+
+
+
+
+
+
+
+You said:
+           
+              <button 
+  class="view-btn bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded" 
+  data-model='{"id":1,"userId":"USR001","oldData":{"status":"active","userId":"USR001","fullName":null,"userType":"customer","username":null,"createdAt":"2025-04-22T13:42:01.000Z","deletedAt":null,"updatedAt":"2025-04-22T13:42:01.000Z","updatedBy":null,"telegramId":"7816314576","phoneNumber1":null,"phoneNumber2":null},"newData":{"status":"active","userId":"USR001","fullName":null,"userType":"vip","username":null,"createdAt":"2025-04-22T13:42:01.000Z","deletedAt":null,"updatedAt":"2025-04-26T14:08:22.537Z","updatedBy":"ADM001","telegramId":"7816314576","phoneNumber1":null,"phoneNumber2":null},"action":"UPDATE","performedBy":"ADM001","createdAt":"2025-04-26T14:08:22.000Z","updatedAt":"2025-04-26T14:08:22.000Z"}'>
+  View
+</button>
+
+
+ChatGPT said:
+Perfect — now I fully see what you want!
+
+You have a complex JSON with nested objects (oldData and newData inside modelData) and you want to display everything properly inside your modal.
+
+Updated Plan:
+When clicking the button, inside the modal:
+
+Display basic fields (id, userId, action, etc.)
+
+Then inside oldData: list all fields
+
+Then inside newData: list all fields
+
+At the bottom, full raw JSON (formatted)
+
+Here’s the correct full working code for your new JSON structure:
+html
+Copy
+Edit
+<!-- View Modal -->
+<div id="viewModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white w-11/12 max-w-3xl p-6 rounded-lg shadow-lg relative overflow-y-auto max-h-[90vh]">
+    <button id="closeViewModal" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+    <div id="modalContent" class="space-y-4"></div>
+  </div>
+</div>
+
+<!-- Script -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const viewModal = document.getElementById('viewModal');
+    const modalContent = document.getElementById('modalContent');
+    const closeViewModal = document.getElementById('closeViewModal');
+
+    document.querySelectorAll('.view-btn').forEach(button => {
+      button.addEventListener('click', function () {
+        const modelData = JSON.parse(this.dataset.model);
+
+        modalContent.innerHTML = ""; // clear previous content
+
+        // Display top-level fields (except oldData and newData)
+        for (const [key, value] of Object.entries(modelData)) {
+          if (key !== 'oldData' && key !== 'newData') {
+            modalContent.innerHTML += `
+              <p class="mb-2"><strong class="capitalize">${key}:</strong> ${value ?? ''}</p>
+            `;
+          }
+        }
+
+        // Display oldData if exists
+        if (modelData.oldData) {
+          modalContent.innerHTML += `<h2 class="font-bold text-lg mt-6">Old Data:</h2>`;
+          for (const [key, value] of Object.entries(modelData.oldData)) {
+            modalContent.innerHTML += `
+              <p class="mb-1 ml-4"><strong class="capitalize">${key}:</strong> ${value ?? ''}</p>
+            `;
+          }
+        }
+
+        // Display newData if exists
+        if (modelData.newData) {
+          modalContent.innerHTML += `<h2 class="font-bold text-lg mt-6">New Data:</h2>`;
+          for (const [key, value] of Object.entries(modelData.newData)) {
+            modalContent.innerHTML += `
+              <p class="mb-1 ml-4"><strong class="capitalize">${key}:</strong> ${value ?? ''}</p>
+            `;
+          }
+        }
+
+        // Display full JSON object pretty
+        modalContent.innerHTML += `
+          <div class="bg-gray-100 p-4 rounded mt-6">
+            <h2 class="font-bold mb-2">Full JSON:</h2>
+            <pre class="text-xs bg-gray-200 p-2 rounded overflow-x-auto whitespace-pre-wrap">${JSON.stringify(modelData, null, 2)}</pre>
+          </div>
+        `;
+
+        viewModal.classList.remove('hidden');
+      });
+    });
+
+    closeViewModal.addEventListener('click', () => {
+      viewModal.classList.add('hidden');
+    });
+  });
+</script>
+What you will get inside the Modal now:
+
+Field	Value
+id	1
+userId	USR001
+action	UPDATE
+performedBy	ADM001
+createdAt	...
+updatedAt	...
+Old Data:
+
+status: active
+
+userType: customer
+
+... (others)
+
+New Data:
+
+status: active
+
+userType: vip
+
+... (others)
+
+Full JSON Data:
+
+{ ... nicely formatted }
+
+Bonus Tip:
+If you want Old Data and New Data inside a separate box (with border or background), just wrap them with <div> inside the loop.
+I can show you that too if you want it more beautiful!
+
+Would you like me to also show a side-by-side comparison (old vs new changes)?
+Like in 2 columns: OldData on left, NewData on right? It would look awesome if you're tracking changes!
+(Just say yes!)
+
+
+
+
+
+
+
+You said:
+Display as json new and old
+
+
+ChatGPT said:
+To display the Old Data and New Data as JSON in the modal, here's how we can modify the code to represent them more clearly. We'll format both sections (oldData and newData) as raw JSON objects.
+
+Updated Code to Display Old and New Data as JSON:
+html
+Copy
+Edit
+<!-- View Modal -->
+<div id="viewModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white w-11/12 max-w-3xl p-6 rounded-lg shadow-lg relative overflow-y-auto max-h-[90vh]">
+    <button id="closeViewModal" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+    <div id="modalContent" class="space-y-4"></div>
+  </div>
+</div>
+
+<!-- Script -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const viewModal = document.getElementById('viewModal');
+    const modalContent = document.getElementById('modalContent');
+    const closeViewModal = document.getElementById('closeViewModal');
+
+    document.querySelectorAll('.view-btn').forEach(button => {
+      button.addEventListener('click', function () {
+        const modelData = JSON.parse(this.dataset.model);
+
+        modalContent.innerHTML = ""; // clear previous content
+
+        // Display top-level fields (except oldData and newData)
+        for (const [key, value] of Object.entries(modelData)) {
+          if (key !== 'oldData' && key !== 'newData') {
+            modalContent.innerHTML += `
+              <p class="mb-2"><strong class="capitalize">${key}:</strong> ${value ?? ''}</p>
+            `;
+          }
+        }
+
+        // Display Old Data as JSON
+        if (modelData.oldData) {
+          modalContent.innerHTML += `<h2 class="font-bold text-lg mt-6">Old Data (JSON):</h2>`;
+          modalContent.innerHTML += `
+            <div class="bg-gray-100 p-4 rounded">
+              <pre class="text-xs bg-gray-200 p-2 rounded overflow-x-auto whitespace-pre-wrap">${JSON.stringify(modelData.oldData, null, 2)}</pre>
+            </div>
+          `;
+        }
+
+        // Display New Data as JSON
+        if (modelData.newData) {
+          modalContent.innerHTML += `<h2 class="font-bold text-lg mt-6">New Data (JSON):</h2>`;
+          modalContent.innerHTML += `
+            <div class="bg-gray-100 p-4 rounded">
+              <pre class="text-xs bg-gray-200 p-2 rounded overflow-x-auto whitespace-pre-wrap">${JSON.stringify(modelData.newData, null, 2)}</pre>
+            </div>
+          `;
+        }
+
 
       if (modelName === "Order") {
         if (modelData.image) {
