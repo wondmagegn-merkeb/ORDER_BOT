@@ -11,13 +11,13 @@ const FoodUpdateLog = sequelize.define('FoodUpdateLog', {
     type: DataTypes.STRING,
     allowNull: false
   },
-  oldValue: {
+  oldData: {
     type: DataTypes.JSON,
-    allowNull: true
+    allowNull: true // old data before update
   },
-  newValue: {
+  newData: {
     type: DataTypes.JSON,
-    allowNull: false
+    allowNull: true // new data after update
   },
   performedBy: {
     type: DataTypes.STRING,
