@@ -39,6 +39,7 @@ const filters = [
       modelNameLower: 'users',
       permissions: {
         canView: false,
+        canAdd: false,
         canEdit: true,
         canDelete: false,
       },
