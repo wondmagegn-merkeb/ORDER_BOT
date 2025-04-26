@@ -21,7 +21,7 @@
     Update Admin
   </h2>
 
-  <form action="/api/admin/<%= admin.adminId %>?_method=PUT" method="POST" class="space-y-5">
+  <form action="/api/admin/<%= admin.adminId %>" method="POST" class="space-y-5">
 
     <!-- Hidden fields -->
     <input type="hidden" name="username" value="<%= admin.username %>">
