@@ -58,7 +58,6 @@ exports.updateUser = async (req, res, next) => {
     await user.save();
 
     if (statusChanged) {
-      const generateUserUpdateMessage = (user) => {
         const statusNote = user.status === 'inactive'
           ? '⚠️ You are now <b>blocked</b> from accessing the system.'
           : '✅ You are now <b>active</b> and can use the system.';
@@ -66,14 +65,13 @@ exports.updateUser = async (req, res, next) => {
         return `
 <b>⚙️ User Updated!</b>
 
-<b>Full Name:</b> ${user.fullName || 'Not provided'}
-<b>Username:</b> ${user.username || 'Not provided'}
-<b>User Type:</b> ${user.userType || 'Not provided'}
-<b>Status:</b> ${user.status || 'Not provided'}
+<b>👤 Full Name:</b> ${user.fullName || 'Not provided'}
+<b>🆔 Username:</b> ${user.username || 'Not provided'}
+<b>🏷️ User Type:</b> ${user.userType || 'Not provided'}
+<b>📶 Status:</b> ${user.status || 'Not provided'}
 
 ${statusNote}
-        `;
-      };
+`;
 
       await sendMessageToUser(user.telegramId, generateUserUpdateMessage(user));
     }
