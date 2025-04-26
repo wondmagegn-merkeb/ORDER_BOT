@@ -19,7 +19,7 @@ const categoryRoutes = require('./routes/view/categoryRoutes');
 const apiAdminRoutes = require('./routes/api/adminRoutes');
 const apiCategoryRoutes = require('./routes/api/categoryRoutes');
 const adminController = require('./controllers/api/adminController');
-const userRoutes = require('./routes/view/userRoutes');
+const viewUserRoutes = require('./routes/view/userRoutes');
 const { authenticateAndAuthorize } = require('./middleware/authMiddleware');
 const { userBot } = require('./bots/userBot');
 const { adminBot } = require('./bots/adminBot');
@@ -85,11 +85,11 @@ app.get('/', (req, res) => {
 app.use('/admin',authenticateAndAuthorize('admin', 'superadmin'), viewAdminRoutes);
 app.use('/logs',authenticateAndAuthorize('admin', 'superadmin'), viewLogsRoutes);
 app.use('/categories',authenticateAndAuthorize('admin', 'superadmin'), categoryRoutes);
-app.use('/users', authenticateAndAuthorize('admin', 'superadmin'), userRoutes);
+app.use('/users', authenticateAndAuthorize('admin', 'manager'), viewUserRoutes);
 app.use('/orders',authenticateAndAuthorize('admin', 'superadmin'), viewOrderRoutes);
 app.use('/api/admin', authenticateAndAuthorize('admin', 'superadmin'), apiAdminRoutes);
 app.use('/api/categories', authenticateAndAuthorize('admin', 'superadmin'), apiCategoryRoutes);
-app.use('/api/users', authenticateAndAuthorize('admin', 'superadmin'), apiUserRoutes);
+app.use('/api/users', authenticateAndAuthorize('admin', 'manager'), apiUserRoutes);
 app.use('/api/orders', authenticateAndAuthorize('admin', 'superadmin'), apiOrderRoutes);
 app.use('/api/food', authenticateAndAuthorize('superadmin'), require('./routes/api/foodRoutes'));
 app.use('/food',authenticateAndAuthorize('admin', 'superadmin'), require('./routes/view/foodRoutes'));
@@ -156,7 +156,7 @@ app.use(globalErrorHandler);
     await sequelize.authenticate();
     console.log('✅ Database connected');
 
-    await sequelize.sync({ force : true });
+    await sequelize.sync({ alter : true });
 
     const PORT = process.env.PORT || 8080;
 
