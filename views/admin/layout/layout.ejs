@@ -29,11 +29,6 @@
         <%- include('../partials/deleteModal') %>
         <%- body %>
 
-        <!-- Modal Includes -->
-        <% if (typeof permissions !== 'undefined' && permissions.canView && modelName !== 'Order') { %>
-
-          <%- include('../partials/logDetailModel') %>
-        <% } %>
       </main>
 
       <!-- Footer -->
