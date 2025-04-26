@@ -198,7 +198,7 @@ exports.login = async (req, res, next) => {
     const { username, password } = req.body;
 
     const admin = await Admin.findOne({ where: { username } });
-    if (!admin) return next(new NotFoundError('Admin not found'));
+    if (!admin) res.render('login', { error: 'Invalid credentials', layout: false });
 
     const isMatch = await bcrypt.compare(password, admin.password);
     if (!isMatch) res.render('login', { error: 'Invalid credentials', layout: false });
