@@ -28,11 +28,12 @@
         <%- body %>
 
         <!-- Modal Includes -->
-        <% if (permissions.canView && modelName === 'Order') { %>
+        <% if (typeof permissions !== 'undefined' && permissions.canView && modelName === 'Order') { %>
           <%- include('admin/partials/orderDetailModel') %>
         <% } %>
 
-        <% if (permissions.canView && modelName !== 'Order') { %>
+        <% if (typeof permissions !== 'undefined' && permissions.canView && modelName !== 'Order') { %>
+
           <%- include('admin/partials/logDetailModel') %>
         <% } %>
       </main>
