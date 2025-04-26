@@ -7,7 +7,32 @@ const { InternalServerError } = require('../../utils/customError');
 exports.listCategories = async (req, res, next) => {
   try {
     const categories = await getAllCategories();
-    res.render('admin/category/list-category', { categories, title: 'Category List' });
+    const models = categories;
+
+    const modelColumns = [
+      { name: 'Category ID', field: 'categoryId', index: 0 },
+      { name: 'Category Name', field: 'categoryName', index: 1 },
+      { name: 'Description', field: 'description', index: 2 }
+    ];
+
+const filters = [];
+
+
+    res.render('admin/category/list-category', {
+      title: 'Category List',
+      models,
+      modelColumns,
+      filters,
+      modelName: 'User',
+      modelNameLower: 'users',
+      permissions: {
+        canView: false,
+        canAdd: true,
+        canEdit: true,
+        canDelete:true
+          }
+    });
+    
   } catch (error) {
     next(new InternalServerError('Failed to list categories', error));
   }
