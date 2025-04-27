@@ -21,6 +21,16 @@ exports.showDashBoard = async (req, res, next) => {
       raw: true
     });
 
+        // Orders status by count
+    const userFeedback = await Order.findAll({
+      attributes: [
+        ['feedback','feedbackText']
+        [literal('COUNT(feedback)'), 'feedbackCount']
+      ],
+      group: 'feedback',
+      raw: true
+    });
+    const safeUserFeedback = userFeedback.length > 0 ? userFeedback : [{ feedbackText: 'No data', feedbackCount: 0 }];
     const safeOrdersStatus = ordersStatus.length > 0 ? ordersStatus : [{ status: 'No data', count: 0 }];
 
     // Fetch min, max, and avg order value
@@ -138,6 +148,7 @@ const newCustomersThisMonth = await User.count({
       totalOrders,
       totalRevenue,
       totalOnlineUsers,
+      userFeedback:safeUserFeedback,
       ordersStatus: safeOrdersStatus,
       topUsers: safeTopUsers,
       minOrderValue,
