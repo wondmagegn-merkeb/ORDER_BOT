@@ -1,4 +1,4 @@
-const { InternalServerError, NotFoundError } = require('../../utils/customError');
+įconst { InternalServerError, NotFoundError } = require('../../utils/customError');
 const { Op, col, fn, literal } = require('sequelize'); // fixed import
 const moment = require('moment');
 const { User, Order } = require('../../models/index');
@@ -32,12 +32,11 @@ exports.showDashBoard = async (req, res, next) => {
     const minOrderValue = await Order.min('totalPrice') || 0;
     const maxOrderValue = await Order.max('totalPrice') || 0;
     const avgOrder = await Order.findAll({
-  attributes: [[literal('AVG(totalPrice)'), 'avgOrderValue']],
-  raw: true,
-});
+       attributes: [[literal('AVG(`totalPrice`)'), 'avgOrderValue']],
+       raw: true,
+     });
 
-const safeAvgOrderValue = avgOrder[0]?.avgOrderValue ? Number(avgOrder[0].avgOrderValue).toFixed(2) : 0;
-
+     const safeAvgOrderValue = avgOrder[0]?.avgOrderValue ? Number(avgOrder[0].avgOrderValue).toFixed(2) : 0;
     
     // Top users by order count
     const topUsers = await User.findAll({
