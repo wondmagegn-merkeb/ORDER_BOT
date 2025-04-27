@@ -1,10 +1,10 @@
 const sharp = require("sharp");
 const cloudinary = require("../../config/cloudinary");
-const { Food, FoodCategory, Admin } = require("../../models/index");
+const { Food, FoodCategory, Admin, User } = require("../../models/index");
 const { foodSchema } = require("../../validators/foodValidation");
 const { getAllCategories } = require("./categoryController");
 const { sendMessageToUser } = require("../../bots/userBot");
-const { InternalServerError } = require("../../utils/customError");
+const { InternalServerError, NotFoundError } = require("../../utils/customError"); // Import NotFoundError
 
 exports.createFood = async (req, res) => {
   try {
@@ -17,7 +17,7 @@ exports.createFood = async (req, res) => {
     }
 
     if (!req.file) {
-      res.locals.error = '📸 Image file is required.';
+      res.locals.error = 'Image file is required.';
       return res.render('admin/food/create-food', { categories, title: 'Food List' });
     }
 
@@ -47,25 +47,24 @@ exports.createFood = async (req, res) => {
       cloudinaryPublicId: result.public_id,
     });
 
-    await notifyUserController();
 
-    const admins = await Admin.findAll();
-    const adminTelegramIds = admins.map(admin => admin.telegramId);
+    const users = await User.findAll();
+    const userTelegramIds = users.map(user => user.telegramId);
 
     const message = `
-🍽️ <b>New Food Item Added to the Menu!</b>
+New Food Item Added to the Menu!
     `;
 
-    for (const telegramId of adminTelegramIds) {
+    for (const telegramId of userTelegramIds) {
       await sendMessageToUser(telegramId, message);
     }
 
-    res.locals.success = "✅ Food created successfully";
+    res.locals.success = "Food created successfully";
     return res.render('admin/food/create-food', { categories, title: 'Food List' });
 
   } catch (err) {
-    console.error("❌ Error in createFood:", err);
-    throw new InternalServerError("🚨 Failed to create food.", err);
+    console.error("Error in createFood:", err);
+    throw new InternalServerError("Failed to create food.", err);
   }
 };
 
@@ -76,49 +75,58 @@ exports.getAllFoods = async (req, res) => {
     });
     return foods;
   } catch (err) {
-    console.error("❌ Error in getAllFoods:", err);
-    throw new InternalServerError("🚨 Failed to fetch foods.", err);
+    console.error("Error in getAllFoods:", err);
+    throw new InternalServerError("Failed to fetch foods.", err);
   }
 };
 
+// Get food by ID
 exports.getFoodById = async (foodId) => {
   try {
     const food = await Food.findByPk(foodId);
     if (!food) {
-      throw new InternalServerError("❌ Food not found");
+      throw new NotFoundError("Food not found"); 
     }
     return food;
   } catch (err) {
-    console.error("❌ Error in getFoodById:", err);
-    throw new InternalServerError("🚨 Failed to fetch food.", err);
+    console.error("Error in getFoodById:", err);
+    throw new InternalServerError("Failed to fetch food.", err);
   }
 };
 
-exports.updateFood = async (req, res) => {
+exports.updateFood = async (req, res, next) => {
   try {
-    const { error, value } = foodSchema.validate(req.body, { abortEarly: false });
+    // Destructuring req.body
+    const { name, description, price, isAvailable, categoryId } = req.body;
+    // Destructuring foodId from req.params
+    const { foodId } = req.params;
 
+    // Validate the data using the schema
+    const { error, value } = foodSchema.validate(req.body, { abortEarly: false });
+        // Fetch the food item by its foodId
+    const food = await Food.findOne({ where: { foodId } });
+    if (!food) {
+      throw new NotFoundError("Food item not found.");
+    }
+    
     if (error) {
       res.locals.error = error.details[0].message;
-      return res.render('admin/food/update-food', { title: 'Update Food' });
+      return res.render('admin/food/update-food', { title: 'Update Food' food});
     }
 
-    const food = await Food.findByPk(req.params.id);
-    if (!food) {
-      res.locals.error = "❌ Food not found";
-      return res.render('admin/food/update-food', { title: 'Update Food' });
-    }
-
+    // Handle file upload (if a new image is provided)
     if (req.file) {
       const buffer = await sharp(req.file.buffer)
         .resize({ width: 800 })
         .webp({ quality: 80 })
         .toBuffer();
 
+      // Delete the old image from Cloudinary
       if (food.cloudinaryPublicId) {
         await cloudinary.uploader.destroy(food.cloudinaryPublicId);
       }
 
+      // Upload the new image to Cloudinary
       const base64 = buffer.toString("base64");
       const dataUri = `data:image/webp;base64,${base64}`;
       const result = await cloudinary.uploader.upload(dataUri, { folder: "foods" });
@@ -127,32 +135,34 @@ exports.updateFood = async (req, res) => {
       food.cloudinaryPublicId = result.public_id;
     }
 
+    // Update the food item with the new data
     await food.update({
-      name: value.name,
-      description: value.description,
-      price: value.price,
-      isAvailable: value.isAvailable,
-      categoryId: value.categoryId,
+      name: name || food.name,
+      description: description || food.description,
+      price: price || food.price,
+      isAvailable: isAvailable || food.isAvailable,
+      categoryId: categoryId || food.categoryId,
       imageUrl: food.imageUrl,
       cloudinaryPublicId: food.cloudinaryPublicId,
       updatedBy: req.admin.adminId,
     });
 
-    res.locals.success = "✅ Food updated successfully";
+    // Success message
+    res.locals.success = "Food updated successfully";
     return res.render('admin/food/update-food', { title: 'Update Food', food });
 
   } catch (err) {
-    console.error("❌ Error in updateFood:", err);
-    throw new InternalServerError("🚨 Failed to update food.", err);
+      next(new InternalServerError("Failed to update food item", err));  
   }
 };
 
+
+// Delete food
 exports.deleteFood = async (req, res) => {
   try {
     const food = await Food.findByPk(req.params.id);
     if (!food) {
-      res.locals.error = "❌ Food not found";
-      return res.render('admin/food/list-food', { title: 'Food List' });
+      throw new NotFoundError("Food not found");
     }
 
     if (food.cloudinaryPublicId) {
@@ -162,11 +172,10 @@ exports.deleteFood = async (req, res) => {
     food.updatedBy = req.admin.adminId;
     await food.destroy();
 
-    res.locals.success = "🗑️ Food deleted successfully";
-    return res.render('admin/food/list-food', { title: 'Food List' });
+    return  res.locals.success = "Food deleted successfully";
 
   } catch (err) {
-    console.error("❌ Error in deleteFood:", err);
-    throw new InternalServerError("🚨 Failed to delete food.", err);
+    console.error("Error in deleteFood:", err);
+    throw new InternalServerError("Failed to delete food.", err);
   }
 };
