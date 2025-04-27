@@ -61,8 +61,8 @@
       <div class="flex items-center space-x-4">
         <i class="fas fa-user-check fa-2x"></i>
         <div>
-          <h3 class="text-md font-semibold">Active Users: <span class="text-2xl font-bold"><%= totalOnlineUsers %> (<%= ((totalOnlineUsers / totalUsers) * 100).toFixed(1) %>%)</span></h3>
-          <h3 class="text-md font-semibold">Orders Users: <span class="text-2xl font-bold"><%= usersWithOrders %> (<%= ((usersWithOrders / totalUsers) * 100).toFixed(1) %>%)</span></h3>
+          <h3 class="text-md font-semibold">Active Users: <span class="text-xl font-bold"><%= totalOnlineUsers %> (<%= ((totalOnlineUsers / totalUsers) * 100).toFixed(1) %>%)</span></h3>
+          <h3 class="text-md font-semibold">Orders Users: <span class="text-xl font-bold"><%= usersWithOrders %> (<%= ((usersWithOrders / totalUsers) * 100).toFixed(1) %>%)</span></h3>
         </div>
       </div>
     </div>
@@ -100,11 +100,26 @@
         <div>
           <h3 class="text-md font-semibold">Orders Status</h3>
           <div>
-            <p class="text-lg">Pending: 2</p>
-            <p class="text-lg">In Progress: 1</p>
-            <p class="text-lg">Completed: 0</p>
-            <p class="text-lg">Cancelled: 0</p>
-            <p class="text-lg">Shipped: 0</p>
+            <!-- Pending Status -->
+        <p class="text-lg">
+          <i class="fas fa-clock mr-2"></i> Pending: <%= pending %>
+        </p>
+        <!-- In Progress Status -->
+        <p class="text-lg">
+          <i class="fas fa-spinner mr-2"></i> In Progress: <%= progress %>
+        </p>
+        <!-- Completed Status -->
+        <p class="text-lg">
+          <i class="fas fa-check-circle mr-2"></i> Completed: <%= completed %>
+        </p>
+        <!-- Cancelled Status -->
+        <p class="text-lg">
+          <i class="fas fa-times-circle mr-2"></i> Cancelled: <%= cancelled %>
+        </p>
+        <!-- Delivered Status -->
+        <p class="text-lg">
+          <i class="fas fa-truck mr-2"></i> Delivered: <%= delivered %>
+        </p>
           </div>
         </div>
       </div>
@@ -120,11 +135,10 @@
         <div>
           <h3 class="text-md font-semibold">Top Users</h3>
           <ul class="space-y-2">
-            <li class="text-lg">User 1 - 3 Orders</li>
-            <li class="text-lg">User 2 - 2 Orders</li>
-            <li class="text-lg">User 3 - 1 Order</li>
-            <li class="text-lg">User 4 - 0 Orders</li>
-            <li class="text-lg">User 5 - 1 Order</li>
+      
+<% topUsers.forEach(user => { %>
+                <li class="text-lg"><%= user.name %> - <%= user.orderCount %> Orders</li>
+            <% }) %>
           </ul>
         </div>
       </div>
@@ -139,12 +153,37 @@
             User Feedback
           </h3>
           <ul class="space-y-3 mt-4 text-white">
-            <li class="text-lg">"noFeedback" (3)</li>
-            <li class="text-lg">"Great service!" (2)</li>
-            <li class="text-lg">"Very satisfied" (1)</li>
-            <li class="text-lg">"Would recommend" (0)</li>
-            <li class="text-lg">"Poor experience" (0)</li>
-            <li class="text-lg">"Excellent" (0)</li>
+          
+  <!-- Tasty feedback -->
+  <li class="text-lg">
+    <i class="mr-2">😋</i> Tasty: <%= tastyCount %> 
+  </li>
+
+  <!-- Love feedback -->
+  <li class="text-lg">
+    <i class="mr-2">😍</i> Loved it: <%= loveCount %> 
+  </li>
+
+  <!-- Delicious feedback -->
+  <li class="text-lg">
+    <i class="mr-2">🍽️</i> Delicious: <%= deliciousCount %> 
+  </li>
+
+  <!-- Good feedback -->
+  <li class="text-lg">
+    <i class="mr-2">😊</i> It was good: <%= goodCount %> 
+  </li>
+
+  <!-- Okay feedback -->
+  <li class="text-lg">
+    <i class="mr-2">👌</i> Okay: <%= okayCount %> 
+  </li>
+
+  <!-- Bad feedback -->
+  <li class="text-lg">
+    <i class="mr-2">😞</i> Not happy: <%= badCount %> 
+  </li>
+
           </ul>
         </div>
       </div>
@@ -220,28 +259,21 @@
       </tr>
     </thead>
     <tbody>
-      <!-- Example of current order entries -->
-      <tr class="hover:bg-gray-200">
-        <td class="py-3 px-4">#1001</td>
-        <td class="py-3 px-4">User 1</td>
-        <td class="py-3 px-4 text-green-500">In Progress</td>
-        <td class="py-3 px-4">ETB 60</td>
-        <td class="py-3 px-4">2025-04-25</td>
-      </tr>
-      <tr class="hover:bg-gray-200">
-        <td class="py-3 px-4">#1002</td>
-        <td class="py-3 px-4">User 2</td>
-        <td class="py-3 px-4 text-yellow-500">Pending</td>
-        <td class="py-3 px-4">ETB 75</td>
-        <td class="py-3 px-4">2025-04-25</td>
-      </tr>
-      <tr class="hover:bg-gray-200">
-        <td class="py-3 px-4">#1003</td>
-        <td class="py-3 px-4">User 3</td>
-        <td class="py-3 px-4 text-red-500">Cancelled</td>
-        <td class="py-3 px-4">ETB 50</td>
-        <td class="py-3 px-4">2025-04-25</td>
-      </tr>
+      <% orders.forEach(order => { %>
+        <tr class="hover:bg-gray-200">
+          <td class="py-3 px-4">#<%= order.orderId %></td>
+          <td class="py-3 px-4"><%= order.User.fullName %></td>
+          <td class="py-3 px-4 
+            <% if(order.status === 'progress') { %> text-green-500 <% } %>
+            <% if(order.status === 'pending') { %> text-yellow-500 <% } %>
+            <% if(order.status === 'cancelled') { %> text-red-500 <% } %>
+            <% if(order.status === 'completed') { %> text-blue-500 <% } %>
+            <% if(order.status === 'delivered') { %> text-teal-500 <% } %>
+          "><%= order.status %></td>
+          <td class="py-3 px-4">ETB <%= order.totalPrice %></td>
+          <td class="py-3 px-4"><%= order.date %></td>
+        </tr>
+      <% }) %>
     </tbody>
   </table>
 </div>
