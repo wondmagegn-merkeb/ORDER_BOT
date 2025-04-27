@@ -1,5 +1,5 @@
 const { InternalServerError, NotFoundError } = require('../../utils/customError');
-const { Op, col, fn, literal } = require('sequelize'); // fixed import
+const { Op, col, fn, literal } = require('sequelize');
 const moment = require('moment');
 const { User, Order } = require('../../models/index');
 
@@ -21,16 +21,16 @@ exports.showDashBoard = async (req, res, next) => {
       raw: true
     });
 
-        // Orders status by count
+    // Orders feedback count
     const userFeedback = await Order.findAll({
-  attributes: [
-    ['feedback', 'feedbackText'], // Rename 'feedback' to 'feedbackText'
-    [literal('COUNT(feedback)'), 'feedbackCount'] // Count the 'feedback' occurrences
-  ],
-  group: ['feedback'], // Group by feedback to count occurrences per feedback
-  raw: true,
-      logging: console.log  // Log the generated SQL query
-});
+      attributes: [
+        ['feedback', 'feedbackText'],
+        [literal('COUNT(feedback)'), 'feedbackCount']
+      ],
+      group: ['feedback'],
+      raw: true,
+      logging: console.log
+    });
 
     const safeUserFeedback = userFeedback.length > 0 ? userFeedback : [{ feedbackText: 'No data', feedbackCount: 0 }];
     const safeOrdersStatus = ordersStatus.length > 0 ? ordersStatus : [{ status: 'No data', count: 0 }];
@@ -39,29 +39,28 @@ exports.showDashBoard = async (req, res, next) => {
     const minOrderValue = await Order.min('totalPrice') || 0;
     const maxOrderValue = await Order.max('totalPrice') || 0;
     const avgOrder = await Order.findAll({
-       attributes: [[literal('AVG(`totalPrice`)'), 'avgOrderValue']],
-       raw: true,
-     });
+      attributes: [[literal('AVG(`totalPrice`)'), 'avgOrderValue']],
+      raw: true,
+    });
 
-     const safeAvgOrderValue = avgOrder[0]?.avgOrderValue ? Number(avgOrder[0].avgOrderValue).toFixed(2) : 0;
-    
+    const safeAvgOrderValue = avgOrder[0]?.avgOrderValue ? Number(avgOrder[0].avgOrderValue).toFixed(2) : 0;
+
     // Top users by order count
-const topUsers = await User.findAll({
-  attributes: [
-    'userId',
-    'fullName',
-    [literal('(SELECT COUNT(*) FROM `orders` AS `Order` WHERE `Order`.`createdBy` = `User`.`userId` AND `Order`.`deletedAt` IS NULL)'), 'orderCount']
-  ],
-  where: { deletedAt: null },
-  order: [[literal('orderCount'), 'DESC']],
-  limit: 5,
-  raw: true
-});
-
-
+    const topUsers = await User.findAll({
+      attributes: [
+        'userId',
+        'fullName',
+        [literal('(SELECT COUNT(*) FROM `orders` AS `Order` WHERE `Order`.`createdBy` = `User`.`userId` AND `Order`.`deletedAt` IS NULL)'), 'orderCount']
+      ],
+      where: { deletedAt: null },
+      order: [[literal('orderCount'), 'DESC']],
+      limit: 5,
+      raw: true
+    });
 
     const safeTopUsers = topUsers.length > 0 ? topUsers : [{ userId: 'N/A', fullName: 'No data', orderCount: 0 }];
 
+    // Users with orders count
     const usersWithOrders = await Order.count({
       distinct: true,
       col: 'userId'
@@ -72,22 +71,56 @@ const topUsers = await User.findAll({
     const endOfWeek = moment().endOf('week').format('YYYY-MM-DD');
     const startOfMonth = moment().startOf('month').format('YYYY-MM-DD');
     const endOfMonth = moment().endOf('month').format('YYYY-MM-DD');
+    const startOfDay = moment().startOf('day').format('YYYY-MM-DD HH:mm:ss');
+    const endOfDay = moment().endOf('day').format('YYYY-MM-DD HH:mm:ss');
 
-const newCustomersThisWeek = await User.count({
-  where: { 
-    createdAt: {
-      [Op.between]: [startOfWeek, endOfWeek]
-    }
-  }
-});
+    // Get daily revenue
+    const dailyRevenue = await Order.findAll({
+      attributes: [
+        [fn('DATE', col('createdAt')), 'date'],
+        [fn('SUM', col('totalPrice')), 'totalRevenue']
+      ],
+      where: {
+        createdAt: {
+          [Op.between]: [startOfDay, endOfDay]
+        }
+      },
+      group: ['date'],
+      order: [[fn('DATE', col('createdAt')), 'ASC']]
+    });
 
-const newCustomersThisMonth = await User.count({
-  where: { 
-    createdAt: {
-      [Op.between]: [startOfMonth, endOfMonth]
-    }
-  }
-});
+    // Get monthly revenue
+    const monthlyRevenue = await Order.findAll({
+      attributes: [
+        [fn('MONTH', col('createdAt')), 'month'],
+        [fn('SUM', col('totalPrice')), 'totalRevenue']
+      ],
+      where: {
+        createdAt: {
+          [Op.between]: [startOfMonth, endOfMonth]
+        }
+      },
+      group: ['month'],
+      order: [[fn('MONTH', col('createdAt')), 'ASC']]
+    });
+
+    // New customers this week
+    const newCustomersThisWeek = await User.count({
+      where: {
+        createdAt: {
+          [Op.between]: [startOfWeek, endOfWeek]
+        }
+      }
+    });
+
+    // New customers this month
+    const newCustomersThisMonth = await User.count({
+      where: {
+        createdAt: {
+          [Op.between]: [startOfMonth, endOfMonth]
+        }
+      }
+    });
 
     // Most ordered items this week
     const mostOrderedThisWeek = await Order.findAll({
@@ -150,7 +183,7 @@ const newCustomersThisMonth = await User.count({
       totalOrders,
       totalRevenue,
       totalOnlineUsers,
-      userFeedback:safeUserFeedback,
+      userFeedback: safeUserFeedback,
       ordersStatus: safeOrdersStatus,
       topUsers: safeTopUsers,
       minOrderValue,
@@ -162,6 +195,8 @@ const newCustomersThisMonth = await User.count({
       orderStatusThisWeek: safeOrderStatusThisWeek,
       orderStatusThisMonth: safeOrderStatusThisMonth,
       newCustomersThisWeek,
+      dailyRevenue,
+      monthlyRevenue,
       newCustomersThisMonth
     });
 
