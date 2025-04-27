@@ -1,5 +1,5 @@
 const { User } = require('../../models');
-const { InternalServerError } = require('../../utils/customError');
+const { InternalServerError, NotFoundError } = require('../../utils/customError'); // Import custom NotFoundError
 const userValidationSchema = require('../../validators/userValidation');
 const { sendMessageToUser } = require('../../bots/userBot');
 
@@ -27,7 +27,7 @@ exports.getAllUsers = async (req, res, next) => {
     const users = await User.findAll();
     return users;
   } catch (error) {
-    next(new InternalServerError('Failed to fetch users', error));
+    next(new InternalServerError('Failed to fetch users', error));  
   }
 };
 
@@ -35,9 +35,12 @@ exports.getAllUsers = async (req, res, next) => {
 exports.getUserById = async (userId, res, next) => {
   try {
     const user = await User.findByPk(userId);
+    if (!user) {
+      throw new NotFoundError('User not found'); 
+    }
     return user;
   } catch (error) {
-    next(new InternalServerError('Failed to fetch user', error));
+    next(new InternalServerError('Failed to fetch user', error));  
   }
 };
 
@@ -61,22 +64,16 @@ exports.updateUser = async (req, res, next) => {
 
     const user = await User.findByPk(userId);
     if (!user) {
-      res.locals.error = 'User not found';
-      return res.render('admin/user/update-user', {
-        title: 'Update User',
-        user: userData
-      });
+      throw new NotFoundError('User not found');  
     }
 
     const statusChanged = user.status !== status;
 
-    // Update fields
     user.status = status;
     user.userType = userType;
     user.updatedBy = req.admin.adminId;
     await user.save();
 
-    // Notify user if status changed
     if (statusChanged) {
       const message = generateUserUpdateMessage(user);
       await sendMessageToUser(user.telegramId, message);
@@ -89,6 +86,6 @@ exports.updateUser = async (req, res, next) => {
     });
 
   } catch (error) {
-    next(new InternalServerError('Failed to update user', error));
+    next(new InternalServerError('Failed to update user', error));  
   }
 };
