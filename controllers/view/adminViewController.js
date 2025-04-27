@@ -1,7 +1,7 @@
 const { getAllAdmins, getAdminById } = require('../api/adminController'); 
 const { InternalServerError } = require('../../utils/customError');
 
-exports.listAdmins = async (req, res) => {
+exports.listAdmins = async (req, res,next) => {
   try {
     const admins = await getAllAdmins();
     const models = admins;
@@ -46,7 +46,7 @@ exports.showAddForm = (req, res) => {
   res.render('admin/create-admin', { title: 'Add Admin' });
 };
 
-exports.showEditForm = async (req, res) => {
+exports.showEditForm = async (req, res,next) => {
   try {
     const adminId = req.params.id;
     const admin = await getAdminById(adminId);
@@ -60,7 +60,7 @@ exports.showEditForm = async (req, res) => {
   }
 };
 
-exports.showProfileForm = async (req, res) => {
+exports.showProfileForm = async (req, res,next) => {
   try {
     const adminId = req.admin.adminId;
     const admin = await getAdminById(adminId);
