@@ -40,8 +40,8 @@ FoodCategory.afterCreate(async (category) => {
   try {
     await FoodCategoryUpdateLog.create({
       categoryId: category.categoryId,
-      oldValue: null,
-      newValue: category.toJSON(),
+      oldData: null,
+      newData: category.toJSON(),
       performedBy: category.createdBy || 'system',
       action: 'CREATE',
     });
@@ -55,8 +55,8 @@ FoodCategory.afterUpdate(async (category) => {
   try {
     await FoodCategoryUpdateLog.create({
       categoryId: category.categoryId,
-      oldValue: category._previousDataValues,
-      newValue: category.toJSON(),
+      oldData: category._previousDataValues,
+      newData: category.toJSON(),
       performedBy: category.updatedBy || 'system',
       action: 'UPDATE',
     });
@@ -70,8 +70,8 @@ FoodCategory.afterDestroy(async (category) => {
   try {
     await FoodCategoryUpdateLog.create({
       categoryId: category.categoryId,
-      oldValue: category.toJSON(),
-      newValue: null,
+      oldData: category.toJSON(),
+      newData: null,
       performedBy: category.updatedBy || 'system',
       action: 'DELETE',
     });
