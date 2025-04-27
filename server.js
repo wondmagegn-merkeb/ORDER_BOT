@@ -20,6 +20,7 @@ const apiAdminRoutes = require('./routes/api/adminRoutes');
 const apiCategoryRoutes = require('./routes/api/categoryRoutes');
 const adminController = require('./controllers/api/adminController');
 const viewUserRoutes = require('./routes/view/userRoutes');
+const viewDashboardRoutes = require('./routes/view/dashboardRoutes');
 const { authenticateAndAuthorize } = require('./middleware/authMiddleware');
 const { userBot } = require('./bots/userBot');
 const { adminBot } = require('./bots/adminBot');
@@ -93,10 +94,9 @@ app.use('/api/users', authenticateAndAuthorize('admin', 'manager'), apiUserRoute
 app.use('/api/orders', authenticateAndAuthorize('admin', 'superadmin'), apiOrderRoutes);
 app.use('/api/food', authenticateAndAuthorize('admin'), require('./routes/api/foodRoutes'));
 app.use('/food',authenticateAndAuthorize('admin', 'superadmin'), require('./routes/view/foodRoutes'));
-
+app.get('/dashboard',authenticateAndAuthorize('admin', 'manager'), viewDashboardRoutes);
 // Login / Password Reset
 app.get('/login', (req, res) => {
-  
   res.render('login', { message: null, layout: false });
 });
 
@@ -110,33 +110,6 @@ app.get('/reset-password', (req, res) => {
   res.render('reset-password', { message: null, token, layout: false });
 });
 app.post('/reset-password', adminController.resetPassword);
-
-app.get('/dashboard',authenticateAndAuthorize('admin', 'manager'), (req, res) => {
-  const demoData = {
-    totalOrders: 250,
-    pendingOrders: 50,
-    completedOrders: 180,
-    canceledOrders: 20,
-    totalRevenue: 12000,
-    mostOrderedItems: [
-      { name: 'Burger', count: 75 },
-      { name: 'Pizza', count: 60 },
-      { name: 'Soda', count: 45 },
-      { name: 'Pasta', count: 40 },
-      { name: 'Salad', count: 30 },
-    ],
-    recentOrders: [
-      { id: 101, customer: 'John Doe', status: 'Completed', total: 45, date: '2025-04-19' },
-      { id: 102, customer: 'Jane Smith', status: 'Pending', total: 32, date: '2025-04-18' },
-      { id: 103, customer: 'David Lee', status: 'Completed', total: 58, date: '2025-04-17' },
-      { id: 104, customer: 'Sarah Kim', status: 'Canceled', total: 24, date: '2025-04-16' },
-      { id: 105, customer: 'James Brown', status: 'Pending', total: 36, date: '2025-04-15' },
-    ],
-  };
-
-  res.render('admin/dashboard', { title: 'Dashboard', ...demoData });
-});
-
 app.get('/logout', (req, res) => {
   req.session.destroy((err) => {
     if (err) {
