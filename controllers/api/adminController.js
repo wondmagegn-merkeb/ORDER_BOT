@@ -13,7 +13,6 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 exports.createAdmin = async (req, res, next) => {
   const { error } = createAdminSchema.validate(req.body);
   if (error) {
-    return next(new ValidationError(error.details[0].message));
     res.locals.error = error.details[0].message;
     return res.render('admin/create-admin', { title: 'Add Admin' });
   }
