@@ -154,16 +154,25 @@ exports.getAdminById = async (adminId) => {
 
 // ✅ Update Admin
 exports.updateAdmin = async (req, res, next) => {
-  const { error } = updateAdminSchema.validate(req.body);
-  if (error) return next(new ValidationError(error.details[0].message));
+  
 
   try {
     const { adminId } = req.params;
     const { username, email, password, telegramId, role, states } = req.body;
 
     const admin = await Admin.findOne({ where: { adminId } });
-    if (!admin) return next(new NotFoundError('Admin not found'));
 
+    const { error } = updateAdminSchema.validate(req.body);
+
+    if (!admin) return next(new NotFoundError('Admin not found'));
+    if (error) {
+      return 
+    res.locals.error = error.details[0].message;
+    res.render('admin/update-admin', {
+      admin,
+      title: 'Edit Admin'
+    });
+  }
     if (username) admin.username = username;
     if (email) admin.email = email;
     
@@ -181,12 +190,12 @@ exports.updateAdmin = async (req, res, next) => {
     await admin.save();
     const referer = req.headers.referer || '';
     if (referer.includes('/admins/edit')) {
-      return res.redirect(`/admins/${adminId}/edit`);
-    } else if (referer.includes('/admins')) {
-      return res.redirect(`/admins/${adminId}`);
-    } else {
-      return res.redirect('/admins');
-    }
+      res.locals.success = 'Admin updated successfully!';
+      return res.redirect(`/admins/edit/${adminId}`);
+    } else if (referer.includes('/admins/profile')) {
+      res.locals.success = 'Profile updated successfully!';
+      return res.redirect(`/admins/profile`);
+    } 
   } catch (err) {
     return next(new InternalServerError(err.message));
   }
