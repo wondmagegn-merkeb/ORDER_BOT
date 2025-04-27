@@ -111,7 +111,7 @@ exports.updateFood = async (req, res, next) => {
     
     if (error) {
       res.locals.error = error.details[0].message;
-      return res.render('admin/food/update-food', { title: 'Update Food' food});
+      return res.render('admin/food/update-food', { title: 'Update Food', food});
     }
 
     // Handle file upload (if a new image is provided)
