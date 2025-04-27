@@ -1,6 +1,3 @@
-const {
-  getDashboardData
-} = require('../api/dashboradController');
 const { InternalServerError } = require('../../utils/customError');
 
 // Show the form to edit an existing user
