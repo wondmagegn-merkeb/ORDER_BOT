@@ -135,9 +135,9 @@
         <div>
           <h3 class="text-md font-semibold">Top Users</h3>
           <ul class="space-y-2">
-      
+    
 <% topUsers.forEach(user => { %>
-                <li class="text-lg"><%= user.name %> - <%= user.orderCount %> Orders</li>
+                <li class="text-lg"><%= user.fullName %>(<%= user.userId %>) - <%= user.orderCount %> Orders</li>
             <% }) %>
           </ul>
         </div>
