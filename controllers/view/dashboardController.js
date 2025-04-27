@@ -10,6 +10,54 @@ exports.showDashBoard = async (req, res, next) => {
     const totalOrders = await Order.count();
     const totalRevenue = await Order.sum('totalPrice');
     const totalOnlineUsers = await User.count({ where: { status: 'active' } });
+const pending = await Order.count({
+  where: {
+    status: 'pending'
+  }
+});
+
+const progress = await Order.count({
+  where: {
+    status: 'in progress'
+  }
+});
+
+const completed = await Order.count({
+  where: {
+    status: 'completed'
+  }
+});
+
+const cancelled = await Order.count({
+  where: {
+    status: 'cancelled'
+  }
+});
+
+const delivered = await Order.count({
+  where: {
+    status: 'delivered'
+  }
+});
+const tastyCount = await Feedback.count({ where: { feedback: 'tasty' } });
+const loveCount = await Feedback.count({ where: { feedback: 'love' } });
+const deliciousCount = await Feedback.count({ where: { feedback: 'delicious' } });
+const goodCount = await Feedback.count({ where: { feedback: 'good' } });
+const okayCount = await Feedback.count({ where: { feedback: 'okay' } });
+const badCount = await Feedback.count({ where: { feedback: 'bad' } });
+const orders = await Order.findAll({
+  include: [{
+    model: User, // Assuming User is associated with Order
+    attributes: ['fullName'], // Select only the necessary fields from the User model
+  }],
+  where: { 
+    status: ['In Progress', 'Pending', 'Cancelled', 'Completed', 'Delivered']
+  },
+  order: [['createdAt', 'DESC']] // Optional: sort orders by creation date
+});
+
+// You can return or log these counts as needed
+
 
     // Orders status by count
     const ordersStatus = await Order.findAll({
@@ -183,6 +231,18 @@ exports.showDashBoard = async (req, res, next) => {
       totalOrders,
       totalRevenue,
       totalOnlineUsers,
+      pending,
+  progress,
+  completed,
+  cancelled,
+  delivered,
+      tastyCount,
+  loveCount,
+  deliciousCount,
+  goodCount,
+  okayCount,
+  badCount,
+      orders,
       userFeedback: safeUserFeedback,
       ordersStatus: safeOrdersStatus,
       topUsers: safeTopUsers,
