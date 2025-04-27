@@ -40,11 +40,17 @@ exports.createAdmin = async (req, res, next) => {
     }
 
     // Check if the email already exists
-    const existing = await Admin.findOne({ where: { email } });
-    if (existing) {
-      res.locals.error = 'Email already in use';
-      return res.render('admin/create-admin', { title: 'Add Admin' });
-    }
+    const existingEmail = await Admin.findOne({ where: { email } });
+if (existingEmail) {
+  res.locals.error = 'Email already in use';
+  return res.render('admin/create-admin', { title: 'Add Admin' });
+}
+
+const existingTelegramId = await Admin.findOne({ where: { telegramId } });
+if (existingTelegramId) {
+  res.locals.error = 'Telegram ID already in use';
+  return res.render('admin/create-admin', { title: 'Add Admin' });
+}
 
     // Generate a new admin ID
     const lastAdmin = await Admin.findOne({ order: [['createdAt', 'DESC']] });
@@ -155,7 +161,7 @@ exports.getAdminById = async (adminId) => {
 // ✅ Update Admin
 exports.updateAdmin = async (req, res, next) => {
   try {
-    const adminId  = req.params.id;
+    const adminId = req.params.id;
     const { username, email, password, telegramId, role, states } = req.body;
 
     const admin = await Admin.findOne({ where: { adminId } });
@@ -164,25 +170,62 @@ exports.updateAdmin = async (req, res, next) => {
 
     if (!admin) return next(new NotFoundError('Admin not found'));
     if (error) {
-      return 
-    res.locals.error = error.details[0].message;
-    res.render('admin/update-admin', {
-      admin,
-      title: 'Edit Admin'
-    });
-  }
-    if (username) admin.username = username;
-    if (email) admin.email = email;
+      res.locals.error = error.details[0].message;
+      return res.render('admin/update-admin', {
+        admin,
+        title: 'Edit Admin'
+      });
+    }
+
+    // Check if the new telegramId already exists for another admin
+    if (telegramId) {
+      const existingTelegramId = await Admin.findOne({ where: { telegramId, adminId: { [Op.ne]: adminId } } });
+      if (existingTelegramId) {
+        res.locals.error = 'Telegram ID already in use';
+        return res.render('admin/update-admin', {
+          admin,
+          title: 'Edit Admin'
+        });
+      }
+      admin.telegramId = telegramId;
+    }
+
+    // Check if email already exists (if changed)
+    if (email && email !== admin.email) {
+      const existingEmail = await Admin.findOne({ where: { email } });
+      if (existingEmail) {
+        res.locals.error = 'Email already in use';
+        return res.render('admin/update-admin', {
+          admin,
+          title: 'Edit Admin'
+        });
+      }
+      admin.email = email;
+    }
+
+    let credentialsChangedUsername = false;  // To track if both username and password are changed
+    let credentialsChangedPassword = false;  
     
     // Only update password if it's not an empty string
     if (password && password.trim() !== '') {
       admin.password = password; // Hash here if needed
+      credentialsChangedPassword = true;
     }
 
-    if (telegramId) admin.telegramId = telegramId;
+    // Only update username if it's not the same as the current one
+    if (username && username !== admin.username) {
+      admin.username = username;
+      credentialsChangedUsername = true;
+    }
+
+    // Set mustChangeCredentials flag if both username and password are updated
+    if (credentialsChangedUsername && credentialsChangedPassword) {
+      admin.mustChangeCredentials = true;
+    }
+    
     if (states) admin.states = states;
     if (role) admin.role = role;
-    
+
     admin.updatedBy = req.admin.adminId;
 
     await admin.save();
@@ -193,11 +236,12 @@ exports.updateAdmin = async (req, res, next) => {
     } else if (referer.includes('/admins/profile')) {
       res.locals.success = 'Profile updated successfully!';
       return res.redirect(`/admins/profile`);
-    } 
+    }
   } catch (err) {
     next(new InternalServerError('Failed to update admin', err));
   }
 };
+
 
 
 // ✅ Admin login
