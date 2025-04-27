@@ -1,4 +1,4 @@
-const { Admin } = require('../../models/index');
+const { Admin, Food, FoodCategory, Order, AdminAuditLog, FoodUpdateLog, FoodCategoryUpdateLog, OrderUpdateLog } = require('../../models/index');
 const { NotFoundError, ValidationError, InternalServerError, UnauthorizedError } = require('../../utils/customError');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
@@ -112,7 +112,7 @@ exports.createAdmin = async (req, res, next) => {
       adminId,
       username,
       email,
-      password,  // Save the hashed password
+      password, 
       telegramId,
       createdBy: req.admin.adminId,
       role
@@ -121,7 +121,7 @@ exports.createAdmin = async (req, res, next) => {
     res.locals.success = 'Admin added successfully!';
     res.render('admin/create-admin', { title: 'Add Admin' });
   } catch (err) {
-    return next(new InternalServerError(err.message));
+    next(new InternalServerError('Failed to create admin', err));
   }
 };
 
@@ -136,7 +136,7 @@ exports.getAllAdmins = async () => {
 
     return admins;
   } catch (err) {
-    throw new InternalServerError(err.message);
+    next(new InternalServerError('Failed to fetch admins', err));
   }
 };
 
@@ -148,16 +148,14 @@ exports.getAdminById = async (adminId) => {
     if (!admin) throw new NotFoundError('Admin not found');
     return admin;
   } catch (err) {
-    throw new InternalServerError(err.message);
+    next(new InternalServerError('Failed to fetch admin', err));
   }
 };
 
 // ✅ Update Admin
 exports.updateAdmin = async (req, res, next) => {
-  
-
   try {
-    const { adminId } = req.params;
+    const adminId  = req.params.id;
     const { username, email, password, telegramId, role, states } = req.body;
 
     const admin = await Admin.findOne({ where: { adminId } });
@@ -197,7 +195,7 @@ exports.updateAdmin = async (req, res, next) => {
       return res.redirect(`/admins/profile`);
     } 
   } catch (err) {
-    return next(new InternalServerError(err.message));
+    next(new InternalServerError('Failed to update admin', err));
   }
 };
 
@@ -230,7 +228,7 @@ exports.login = async (req, res, next) => {
     
 
   } catch (err) {
-    return next(new InternalServerError(err.message));
+    next(new InternalServerError('Failed to login', err));
   }
 };
 
@@ -326,7 +324,7 @@ const resetLink = `${baseUrl}/reset-password?token=${token}`;
 
     res.render('reset-email-sent', { layout: false });
   } catch (err) {
-    return next(new InternalServerError(err.message));
+    next(new InternalServerError('Failed to reset email send', err));
   }
 };
 
@@ -355,6 +353,47 @@ exports.resetPassword = async (req, res, next) => {
 
     res.render('login', { message: 'Password reset successful', layout: false  });
   } catch (err) {
-    return next(new InternalServerError(err.message));
+    next(new InternalServerError('Failed to reset', err));
   }
 };
+
+exports.deleteAdmin = async (req, res, next) => {
+  try {
+    const adminId = req.params.id;
+    const admin = await Admin.findByPk(adminId);
+
+    if (!admin) {
+      return next(new NotFoundError('Admin not found'));
+    }
+
+    // Check if Admin is referenced anywhere
+    const [foodCreated, foodUpdated, foodCategoryCreated, foodCategoryUpdated, 
+           foodUpdateLog, foodCategoryUpdateLog, orderUpdated, adminAuditLog, orderUpdateLog] = await Promise.all([
+      Food.findOne({ where: { createdBy: adminId } }),
+      Food.findOne({ where: { updatedBy: adminId } }),
+      FoodCategory.findOne({ where: { createdBy: adminId } }),
+      FoodCategory.findOne({ where: { updatedBy: adminId } }),
+      FoodUpdateLog.findOne({ where: { performedBy: adminId } }),
+      FoodCategoryUpdateLog.findOne({ where: { performedBy: adminId } }),
+      Order.findOne({ where: { updatedBy: adminId } }),
+      AdminAuditLog.findOne({ where: { performedBy: adminId } }),
+      OrderUpdateLog.findOne({ where: { performedBy: adminId } }),
+    ]);
+
+    if (foodCreated || foodUpdated || foodCategoryCreated || foodCategoryUpdated || 
+        foodUpdateLog || foodCategoryUpdateLog || orderUpdated || adminAuditLog || orderUpdateLog) {
+        return  res.locals.error = 'Cannot delete admin. Admin is referenced in other records.';
+    }
+
+    // No references, safe to delete
+    admin.updatedBy = req.admin.adminId;
+    await admin.destroy();
+
+    return  res.locals.success = 'Category deleted successfully!';
+     
+    
+  } catch (error) {
+    next(new InternalServerError('Failed to delete admin', error));
+  }
+};
+
