@@ -38,8 +38,7 @@ exports.showDashBoard = async (req, res, next) => {
 
 const safeAvgOrderValue = avgOrder[0]?.avgOrderValue ? Number(avgOrder[0].avgOrderValue).toFixed(2) : 0;
 
-    const safeAvgOrderValue = avgOrderValue ? avgOrderValue.toFixed(2) : 0;
-
+    
     // Top users by order count
     const topUsers = await User.findAll({
       attributes: [
