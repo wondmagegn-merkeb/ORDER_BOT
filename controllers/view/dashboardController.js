@@ -1,4 +1,4 @@
-įconst { InternalServerError, NotFoundError } = require('../../utils/customError');
+const { InternalServerError, NotFoundError } = require('../../utils/customError');
 const { Op, col, fn, literal } = require('sequelize'); // fixed import
 const moment = require('moment');
 const { User, Order } = require('../../models/index');
