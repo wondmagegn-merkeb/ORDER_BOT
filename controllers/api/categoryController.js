@@ -1,6 +1,6 @@
 const categoryValidationSchema = require('../../validators/categoryValidation');
 const { FoodCategory } = require('../../models/index');
-const { InternalServerError } = require('../../utils/customError');
+const { InternalServerError, NotFoundError } = require('../../utils/customError');
 
 // Get all categories
 exports.getAllCategories = async (req, res, next) => {
@@ -13,12 +13,11 @@ exports.getAllCategories = async (req, res, next) => {
 };
 
 // Get a single category by ID
-exports.getCategoryById = async (categoryId, res) => {
+exports.getCategoryById = async (categoryId, res, next) => {
   try {
     const category = await FoodCategory.findByPk(categoryId);
     if (!category) {
-      res.locals.error = 'Category not found';
-      return res.render('admin/category/list-category', { title: 'List Category' });
+      return next(new NotFoundError('Category not found'));
     }
     return category;
   } catch (error) {
@@ -71,18 +70,18 @@ exports.createCategory = async (req, res, next) => {
 exports.updateCategory = async (req, res, next) => {
   try {
     const { error } = categoryValidationSchema.validate(req.body);
-    if (error) {
-      res.locals.error = error.details[0].message;
-      return res.render('admin/category/update-category', { title: 'Update Category' });
-    }
-
     const { categoryName, description } = req.body;
     const categoryId = req.params.id;
+    const categoryData = { categoryName, description, categoryId };
+
+    if (error) {
+      res.locals.error = error.details[0].message;
+      return res.render('admin/category/update-category', { title: 'Update Category', category: categoryData });
+    }
 
     const category = await FoodCategory.findByPk(categoryId);
     if (!category) {
-      res.locals.error = 'Category not found';
-      return res.render('admin/category/update-category', { title: 'Update Category' });
+      return next(new NotFoundError('Category not found'));
     }
 
     category.categoryName = categoryName || category.categoryName;
@@ -92,7 +91,7 @@ exports.updateCategory = async (req, res, next) => {
     await category.save();
 
     res.locals.success = 'Category updated successfully!';
-    return res.render('admin/category/update-category', { title: 'Update Category' });
+    return res.render('admin/category/update-category', { title: 'Update Category', category });
   } catch (error) {
     next(new InternalServerError('Failed to update category', error));
   }
@@ -105,15 +104,14 @@ exports.deleteCategory = async (req, res, next) => {
     const category = await FoodCategory.findByPk(categoryId);
 
     if (!category) {
-      res.locals.error = 'Category not found';
-      return res.render('admin/category/list-category', { title: 'List Category' });
+      return next(new NotFoundError('Category not found'));
     }
 
     category.updatedBy = req.admin.adminId;
     await category.destroy();
-
+    const categories = await FoodCategory.findAll();
     res.locals.success = 'Category deleted successfully!';
-    return res.render('admin/category/list-category', { title: 'List Category' });
+    return res.render('admin/category/list-category', { title: 'List Category',categories });
   } catch (error) {
     next(new InternalServerError('Failed to delete category', error));
   }
