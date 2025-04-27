@@ -43,7 +43,7 @@ exports.showDashBoard = async (req, res, next) => {
       attributes: [
         'userId',
         'fullName',
-        [literal('COUNT(orders.orderId)'), 'orderCount']
+        [literal('COUNT(Orders.orderId)'), 'orderCount']
       ],
       include: [{ model: Order, attributes: [] }],
       group: ['User.userId'],
