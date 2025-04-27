@@ -46,7 +46,7 @@ const topUsers = await User.findAll({
     [literal('(SELECT COUNT(*) FROM `orders` AS `Order` WHERE `Order`.`createdBy` = `User`.`userId` AND `Order`.`deletedAt` IS NULL)'), 'orderCount']
   ],
   where: { deletedAt: null },
-  order: [[sequelize.literal('orderCount'), 'DESC']],
+  order: [[literal('orderCount'), 'DESC']],
   limit: 5,
   raw: true
 });
