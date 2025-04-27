@@ -51,7 +51,7 @@ const orders = await Order.findAll({
     attributes: ['fullName'], // Select only the necessary fields from the User model
   }],
   where: { 
-    status: ['In Progress', 'Pending', 'Cancelled', 'Completed', 'Delivered']
+    status: ['progress', 'pending', 'cancelled', 'completed', 'delivered']
   },
   order: [['createdAt', 'DESC']] // Optional: sort orders by creation date
 });
