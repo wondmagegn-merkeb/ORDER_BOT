@@ -14,7 +14,7 @@ exports.loginSchema = Joi.object({
 exports.updateAdminSchema = Joi.object({
   username: Joi.string().min(3).required(),
   email: Joi.string().email().required(),
-  password: Joi.string().min(6).required(),
+  password: Joi.string().min(6).allow(null).required(),
   telegramId: Joi.string().required(),
   role: Joi.string().valid('admin', 'manager', 'delivery').required(), // added 'delivery' role
   states: Joi.string().required() // states made required
