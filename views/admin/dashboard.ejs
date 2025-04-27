@@ -19,10 +19,10 @@
         <div class="flex flex-col space-y-4 mt-2">
             <!-- Users Online -->
             <div class="text-3xl text-white">
-                <span>Online: <%= usersOnline %></span>
+                <span>Online: <%= totalOnlineUsers %></span>
             </div>
             <div class="text-xl text-white">
-                <span><%= ((usersOnline / totalUsers) * 100).toFixed(1) %> of Total Users</span>
+                <span><%= ((totalOnlineUsers / totalUsers) * 100).toFixed(1) %> of Total Users</span>
             </div>
             
             <!-- Users with Orders -->
@@ -34,13 +34,6 @@
             </div>
         </div>
     </div>
-</div>
-
-<!-- Users with Orders Section -->
-<div class="bg-gradient-to-r from-teal-500 via-green-500 to-blue-500 p-6 rounded-xl shadow-lg">
-    <h3 class="text-lg font-semibold text-white">Users with Orders</h3>
-    <p class="text-3xl text-white mt-2"><%= usersWithOrders %></p>
-    <p class="text-xl text-white mt-2"><%= ((usersWithOrders / totalUsers) * 100).toFixed(1) %> of Total Users</p>
 </div>
 
 <!-- Additional KPIs -->
