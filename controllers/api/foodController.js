@@ -147,7 +147,7 @@ exports.updateFood = async (req, res, next) => {
       updatedBy: req.admin.adminId,
     });
 
-    // Success message
+    
     res.locals.success = "Food updated successfully";
     return res.render('admin/food/update-food', { title: 'Update Food', food });
 
@@ -171,9 +171,11 @@ exports.deleteFood = async (req, res) => {
 
     food.updatedBy = req.admin.adminId;
     await food.destroy();
-
+    const foods = await Food.findAll({
+      include: { model: FoodCategory, attributes: ['categoryName'] }
+    });
     return  res.locals.success = "Food deleted successfully";
-
+    res.render('admin/food/list-food', { foods ,title:'Food List'});
   } catch (err) {
     console.error("Error in deleteFood:", err);
     throw new InternalServerError("Failed to delete food.", err);
