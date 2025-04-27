@@ -1,6 +1,6 @@
 const sharp = require("sharp");
 const cloudinary = require("../../config/cloudinary");
-const { Food, FoodCategory, Admin, User } = require("../../models/index");
+const { Food, FoodCategory, Admin, User, Order} = require("../../models/index");
 const { foodSchema } = require("../../validators/foodValidation");
 const { getAllCategories } = require("./categoryController");
 const { sendMessageToUser } = require("../../bots/userBot");
@@ -158,26 +158,44 @@ exports.updateFood = async (req, res, next) => {
 
 
 // Delete food
-exports.deleteFood = async (req, res) => {
+exports.deleteFood = async (req, res, next) => {
   try {
-    const food = await Food.findByPk(req.params.id);
+    const foodId = req.params.id;
+    const food = await Food.findByPk(foodId);
+
     if (!food) {
-      throw new NotFoundError("Food not found");
+      return next(new NotFoundError('Food not found'));
     }
 
+    // 1. Check if food is referenced in Orders or FoodUpdateLogs
+    const relatedOrder = await Order.findOne({ where: { foodId } });
+    const relatedUpdateLog = await FoodUpdateLog.findOne({ where: { foodId } });
+
+    if (relatedOrder || relatedUpdateLog) {
+      return res.locals.error = 'Cannot delete food. It is referenced in orders or update logs.';
+    }
+
+    // 2. If food has Cloudinary image, delete it
     if (food.cloudinaryPublicId) {
       await cloudinary.uploader.destroy(food.cloudinaryPublicId);
     }
 
+    // 3. Mark who updated it
     food.updatedBy = req.admin.adminId;
+
+    // 4. Delete the food
     await food.destroy();
+
+    // 5. Fetch updated list
     const foods = await Food.findAll({
       include: { model: FoodCategory, attributes: ['categoryName'] }
     });
-    return  res.locals.success = "Food deleted successfully";
-    res.render('admin/food/list-food', { foods ,title:'Food List'});
+
+   return res.locals.success = 'Food deleted successfully';
+
   } catch (err) {
     console.error("Error in deleteFood:", err);
-    throw new InternalServerError("Failed to delete food.", err);
+    next(new InternalServerError('Failed to delete food.', err));
   }
 };
+
