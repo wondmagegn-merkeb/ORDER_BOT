@@ -32,7 +32,7 @@ exports.showDashBoard = async (req, res, next) => {
     const minOrderValue = await Order.min('totalPrice') || 0;
     const maxOrderValue = await Order.max('totalPrice') || 0;
     const avgOrder = await Order.findAll({
-  attributes: [[literal('AVG', col('totalPrice')), 'avgOrderValue']],
+  attributes: [[literal('AVG(totalPrice)'), 'avgOrderValue']],
   raw: true,
 });
 
