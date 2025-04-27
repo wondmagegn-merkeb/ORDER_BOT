@@ -10,78 +10,32 @@ exports.showDashBoard = async (req, res, next) => {
     const totalOrders = await Order.count();
     const totalRevenue = await Order.sum('totalPrice');
     const totalOnlineUsers = await User.count({ where: { status: 'active' } });
-const pending = await Order.count({
-  where: {
-    status: 'pending'
-  }
-});
 
-const progress = await Order.count({
-  where: {
-    status: 'in progress'
-  }
-});
+    const pending = await Order.count({ where: { status: 'pending' } });
+    const progress = await Order.count({ where: { status: 'in progress' } });
+    const completed = await Order.count({ where: { status: 'completed' } });
+    const cancelled = await Order.count({ where: { status: 'cancelled' } });
+    const delivered = await Order.count({ where: { status: 'delivered' } });
 
-const completed = await Order.count({
-  where: {
-    status: 'completed'
-  }
-});
+    // Feedback counts
+    const tastyCount = await Order.count({ where: { feedback: 'tasty' } });
+    const loveCount = await Order.count({ where: { feedback: 'love' } });
+    const deliciousCount = await Order.count({ where: { feedback: 'delicious' } });
+    const goodCount = await Order.count({ where: { feedback: 'good' } });
+    const okayCount = await Order.count({ where: { feedback: 'okay' } });
+    const badCount = await Order.count({ where: { feedback: 'bad' } });
 
-const cancelled = await Order.count({
-  where: {
-    status: 'cancelled'
-  }
-});
-
-const delivered = await Order.count({
-  where: {
-    status: 'delivered'
-  }
-});
-const tastyCount = await Feedback.count({ where: { feedback: 'tasty' } });
-const loveCount = await Feedback.count({ where: { feedback: 'love' } });
-const deliciousCount = await Feedback.count({ where: { feedback: 'delicious' } });
-const goodCount = await Feedback.count({ where: { feedback: 'good' } });
-const okayCount = await Feedback.count({ where: { feedback: 'okay' } });
-const badCount = await Feedback.count({ where: { feedback: 'bad' } });
-const orders = await Order.findAll({
-  include: [{
-    model: User, // Assuming User is associated with Order
-    attributes: ['fullName'], // Select only the necessary fields from the User model
-  }],
-  where: { 
-    status: ['progress', 'pending', 'cancelled', 'completed', 'delivered']
-  },
-  order: [['createdAt', 'DESC']] // Optional: sort orders by creation date
-});
-
-// You can return or log these counts as needed
-
-
-    // Orders status by count
-    const ordersStatus = await Order.findAll({
-      attributes: [
-        'status',
-        [literal('COUNT(status)'), 'count']
-      ],
-      group: 'status',
-      raw: true
+    // Fetch recent orders with user info
+    const orders = await Order.findAll({
+      include: [{
+        model: User,
+        attributes: ['fullName'],
+      }],
+      where: {
+        status: ['progress', 'pending', 'cancelled', 'completed', 'delivered']
+      },
+      order: [['createdAt', 'DESC']]
     });
-
-    // Orders feedback count
-    const userFeedback = await Order.findAll({
-      attributes: [
-        ['feedback', 'feedbackText'],
-        [literal('COUNT(feedback)'), 'feedbackCount']
-      ],
-      group: ['feedback'],
-      raw: true,
-      logging: console.log
-    });
-
-    const safeUserFeedback = userFeedback.length > 0 ? userFeedback : [{ feedbackText: 'No data', feedbackCount: 0 }];
-    const safeOrdersStatus = ordersStatus.length > 0 ? ordersStatus : [{ status: 'No data', count: 0 }];
 
     // Fetch min, max, and avg order value
     const minOrderValue = await Order.min('totalPrice') || 0;
@@ -109,12 +63,9 @@ const orders = await Order.findAll({
     const safeTopUsers = topUsers.length > 0 ? topUsers : [{ userId: 'N/A', fullName: 'No data', orderCount: 0 }];
 
     // Users with orders count
-    const usersWithOrders = await Order.count({
-      distinct: true,
-      col: 'userId'
-    }) || 0;
+    const usersWithOrders = await Order.count({ distinct: true, col: 'userId' }) || 0;
 
-    // Date ranges
+    // Date ranges for weekly and monthly stats
     const startOfWeek = moment().startOf('week').format('YYYY-MM-DD');
     const endOfWeek = moment().endOf('week').format('YYYY-MM-DD');
     const startOfMonth = moment().startOf('month').format('YYYY-MM-DD');
@@ -152,7 +103,7 @@ const orders = await Order.findAll({
       order: [[fn('MONTH', col('createdAt')), 'ASC']]
     });
 
-    // New customers this week
+    // New customers this week and month
     const newCustomersThisWeek = await User.count({
       where: {
         createdAt: {
@@ -161,7 +112,6 @@ const orders = await Order.findAll({
       }
     });
 
-    // New customers this month
     const newCustomersThisMonth = await User.count({
       where: {
         createdAt: {
@@ -170,7 +120,7 @@ const orders = await Order.findAll({
       }
     });
 
-    // Most ordered items this week
+    // Most ordered items this week and month
     const mostOrderedThisWeek = await Order.findAll({
       attributes: [
         'foodId',
@@ -184,7 +134,6 @@ const orders = await Order.findAll({
 
     const safeMostOrderedThisWeek = mostOrderedThisWeek.length > 0 ? mostOrderedThisWeek : [{ foodId: 'N/A', orderCount: 0 }];
 
-    // Most ordered items this month
     const mostOrderedThisMonth = await Order.findAll({
       attributes: [
         'foodId',
@@ -198,7 +147,7 @@ const orders = await Order.findAll({
 
     const safeMostOrderedThisMonth = mostOrderedThisMonth.length > 0 ? mostOrderedThisMonth : [{ foodId: 'N/A', orderCount: 0 }];
 
-    // Order status this week
+    // Order status this week and month
     const orderStatusThisWeek = await Order.findAll({
       attributes: [
         'status',
@@ -211,7 +160,6 @@ const orders = await Order.findAll({
 
     const safeOrderStatusThisWeek = orderStatusThisWeek.length > 0 ? orderStatusThisWeek : [{ status: 'No data', statusCount: 0 }];
 
-    // Order status this month
     const orderStatusThisMonth = await Order.findAll({
       attributes: [
         'status',
@@ -232,19 +180,17 @@ const orders = await Order.findAll({
       totalRevenue,
       totalOnlineUsers,
       pending,
-  progress,
-  completed,
-  cancelled,
-  delivered,
+      progress,
+      completed,
+      cancelled,
+      delivered,
       tastyCount,
-  loveCount,
-  deliciousCount,
-  goodCount,
-  okayCount,
-  badCount,
+      loveCount,
+      deliciousCount,
+      goodCount,
+      okayCount,
+      badCount,
       orders,
-      userFeedback: safeUserFeedback,
-      ordersStatus: safeOrdersStatus,
       topUsers: safeTopUsers,
       minOrderValue,
       maxOrderValue,
@@ -259,7 +205,6 @@ const orders = await Order.findAll({
       monthlyRevenue,
       newCustomersThisMonth
     });
-
   } catch (error) {
     console.error("Error in showDashBoard:", error);
     if (error.name === 'SequelizeDatabaseError') {
