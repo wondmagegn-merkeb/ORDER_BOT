@@ -43,19 +43,14 @@ const topUsers = await User.findAll({
   attributes: [
     'userId',
     'fullName',
-    [fn('COUNT', col('Orders.orderId')), 'orderCount']
+    [sequelize.literal('(SELECT COUNT(*) FROM `orders` AS `Order` WHERE `Order`.`createdBy` = `User`.`userId` AND `Order`.`deletedAt` IS NULL)'), 'orderCount']
   ],
-  include: [
-    {
-      model: Order,
-      attributes: [], // No need to select any columns from the Order table
-    },
-  ],
-  group: ['User.userId'],
-  order: [[fn('COUNT', col('Orders.orderId')), 'DESC']], // Sort by the orderCount in descending order
+  where: { deletedAt: null },
+  order: [[sequelize.literal('orderCount'), 'DESC']],
   limit: 5,
-  raw: true, // Optional: to get raw results without Sequelize's additional formatting
+  raw: true
 });
+
 
 
     const safeTopUsers = topUsers.length > 0 ? topUsers : [{ userId: 'N/A', fullName: 'No data', orderCount: 0 }];
