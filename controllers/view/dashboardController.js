@@ -1,5 +1,5 @@
 const { InternalServerError, NotFoundError } = require('../../utils/customError');
-const { Op, fn, col, sequelize } = require('sequelize');
+const { Op, col, sequelize } = require('sequelize');
 const moment = require('moment');
 const { User, Order } = require('../../models/index');
 
@@ -17,11 +17,14 @@ exports.showDashBoard = async (req, res, next) => {
 
     // Orders status by count
     const ordersStatus = await Order.findAll({
-      attributes: ['status', [sequelize.fn('count', sequelize.col('status')), 'count']],
+      attributes: [
+        'status',
+        [sequelize.literal('COUNT(status)'), 'count']
+      ],
       group: 'status',
       raw: true
     });
-console.log('Orders Status:', ordersStatus);
+    console.log('Orders Status:', ordersStatus);
     // Default empty check for ordersStatus
     const safeOrdersStatus = ordersStatus.length > 0 ? ordersStatus : [{ status: 'No data', count: 0 }];
 
@@ -29,7 +32,7 @@ console.log('Orders Status:', ordersStatus);
     const minOrderValue = await Order.min('totalPrice');
     const maxOrderValue = await Order.max('totalPrice');
     const avgOrderValue = await Order.avg('totalPrice');
-console.log('Min Order Value:', minOrderValue);
+    console.log('Min Order Value:', minOrderValue);
     console.log('Max Order Value:', maxOrderValue);
     console.log('Avg Order Value:', avgOrderValue);
 
@@ -40,7 +43,11 @@ console.log('Min Order Value:', minOrderValue);
 
     // Fetch top users by order count
     const topUsers = await User.findAll({
-      attributes: ['userId', 'fullName', [sequelize.fn('count', sequelize.col('orders.orderId')), 'orderCount']],
+      attributes: [
+        'userId', 
+        'fullName', 
+        [sequelize.literal('COUNT(orders.orderId)'), 'orderCount']
+      ],
       include: [{ model: Order, attributes: [] }],
       group: ['User.userId'],
       order: [[sequelize.literal('orderCount'), 'DESC']],
@@ -64,10 +71,13 @@ console.log('Min Order Value:', minOrderValue);
 
     // Fetch most ordered items this week
     const mostOrderedThisWeek = await Order.findAll({
-      attributes: ['foodId', [fn('COUNT', col('foodId')), 'orderCount']],
+      attributes: [
+        'foodId',
+        [sequelize.literal('COUNT(foodId)'), 'orderCount']
+      ],
       where: { createdAt: { [Op.between]: [startOfWeek, endOfWeek] } },
       group: ['foodId'],
-      order: [[fn('COUNT', col('foodId')), 'DESC']],
+      order: [[sequelize.literal('COUNT(foodId)'), 'DESC']],
       limit: 5
     });
 
@@ -76,10 +86,13 @@ console.log('Min Order Value:', minOrderValue);
 
     // Fetch most ordered items this month
     const mostOrderedThisMonth = await Order.findAll({
-      attributes: ['foodId', [fn('COUNT', col('foodId')), 'orderCount']],
+      attributes: [
+        'foodId',
+        [sequelize.literal('COUNT(foodId)'), 'orderCount']
+      ],
       where: { createdAt: { [Op.between]: [startOfMonth, endOfMonth] } },
       group: ['foodId'],
-      order: [[fn('COUNT', col('foodId')), 'DESC']],
+      order: [[sequelize.literal('COUNT(foodId)'), 'DESC']],
       limit: 5
     });
 
@@ -88,10 +101,13 @@ console.log('Min Order Value:', minOrderValue);
 
     // Fetch order status counts for this week
     const orderStatusThisWeek = await Order.findAll({
-      attributes: ['status', [fn('COUNT', col('status')), 'statusCount']],
+      attributes: [
+        'status',
+        [sequelize.literal('COUNT(status)'), 'statusCount']
+      ],
       where: { createdAt: { [Op.between]: [startOfWeek, endOfWeek] } },
       group: ['status'],
-      order: [[fn('COUNT', col('status')), 'DESC']]
+      order: [[sequelize.literal('COUNT(status)'), 'DESC']]
     });
 
     // Default empty check for order status this week
@@ -99,10 +115,13 @@ console.log('Min Order Value:', minOrderValue);
 
     // Fetch order status counts for this month
     const orderStatusThisMonth = await Order.findAll({
-      attributes: ['status', [fn('COUNT', col('status')), 'statusCount']],
+      attributes: [
+        'status',
+        [sequelize.literal('COUNT(status)'), 'statusCount']
+      ],
       where: { createdAt: { [Op.between]: [startOfMonth, endOfMonth] } },
       group: ['status'],
-      order: [[fn('COUNT', col('status')), 'DESC']]
+      order: [[sequelize.literal('COUNT(status)'), 'DESC']]
     });
 
     // Default empty check for order status this month
@@ -138,3 +157,4 @@ console.log('Min Order Value:', minOrderValue);
     }
   }
 };
+
