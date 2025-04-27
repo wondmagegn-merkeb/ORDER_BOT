@@ -11,11 +11,6 @@ exports.showDashBoard = async (req, res, next) => {
     const totalRevenue = await Order.sum('totalPrice');
     const totalOnlineUsers = await User.count({ where: { status: 'active' } });
 
-    console.log('Total Users:', totalUsers);
-    console.log('Total Orders:', totalOrders);
-    console.log('Total Revenue:', totalRevenue);
-    console.log('Total Online Users:', totalOnlineUsers);
-
     // Orders status by count
     const ordersStatus = await Order.findAll({
       attributes: [
@@ -65,6 +60,22 @@ const topUsers = await User.findAll({
     const endOfWeek = moment().endOf('week').format('YYYY-MM-DD');
     const startOfMonth = moment().startOf('month').format('YYYY-MM-DD');
     const endOfMonth = moment().endOf('month').format('YYYY-MM-DD');
+
+const newCustomersThisWeek = await User.count({
+  where: { 
+    createdAt: {
+      [Op.between]: [startOfWeek, endOfWeek]
+    }
+  }
+});
+
+const newCustomersThisMonth = await User.count({
+  where: { 
+    createdAt: {
+      [Op.between]: [startOfMonth, endOfMonth]
+    }
+  }
+});
 
     // Most ordered items this week
     const mostOrderedThisWeek = await Order.findAll({
@@ -136,7 +147,9 @@ const topUsers = await User.findAll({
       mostOrderedThisWeek: safeMostOrderedThisWeek,
       mostOrderedThisMonth: safeMostOrderedThisMonth,
       orderStatusThisWeek: safeOrderStatusThisWeek,
-      orderStatusThisMonth: safeOrderStatusThisMonth
+      orderStatusThisMonth: safeOrderStatusThisMonth,
+      newCustomersThisWeek,
+      newCustomersThisMonth
     });
 
   } catch (error) {
