@@ -4,7 +4,7 @@ const moment = require('moment'); // Moment for handling date and time
 const { User, Order } = require('../../models/index'); // Assuming you have User and Order models set up
 
 // Show the form to edit an existing user
-exports.showEditForm = async (req, res, next) => {
+exports.showDashBoard = async (req, res, next) => {
   try {
     // Fetch data for the dashboard
     const totalUsers = await User.count();
