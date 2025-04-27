@@ -1,5 +1,5 @@
 const categoryValidationSchema = require('../../validators/categoryValidation');
-const { FoodCategory } = require('../../models/index');
+const { FoodCategory,Food} = require('../../models/index');
 const { InternalServerError, NotFoundError } = require('../../utils/customError');
 
 // Get all categories
@@ -107,12 +107,21 @@ exports.deleteCategory = async (req, res, next) => {
       return next(new NotFoundError('Category not found'));
     }
 
+    // Check if any Food is using this category
+    const foodLinked = await Food.findOne({ where: { categoryId: categoryId } });
+
+    if (foodLinked) {
+      return res.locals.error ='Cannot delete category because it is used by existing foods.';
+    }
+
+    // Safe to delete
     category.updatedBy = req.admin.adminId;
     await category.destroy();
-    const categories = await FoodCategory.findAll();
+    
     res.locals.success = 'Category deleted successfully!';
-    return res.render('admin/category/list-category', { title: 'List Category',categories });
+
   } catch (error) {
     next(new InternalServerError('Failed to delete category', error));
   }
 };
+
