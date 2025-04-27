@@ -14,11 +14,11 @@ const modelColumns = [
   { name: 'Performed By', field: 'performedBy', index: 2 },
 ];
 
-// Colorful filters (better colors)
+// Colorful filters (updated colors)
 const actionFilters = [
-  { id: 'CREATE', name: 'CREATE', value: 'CREATE', colorClass: 'bg-emerald-400 hover:bg-emerald-500' },
-  { id: 'UPDATE', name: 'UPDATE', value: 'UPDATE', colorClass: 'bg-indigo-400 hover:bg-indigo-500' },
-  { id: 'DELETE', name: 'DELETE', value: 'DELETE', colorClass: 'bg-rose-400 hover:bg-rose-500' },
+  { id: 'CREATE', name: 'CREATE', value: 'CREATE', colorClass: 'bg-blue-500 hover:bg-blue-600' },  // Blue color for CREATE
+  { id: 'UPDATE', name: 'UPDATE', value: 'UPDATE', colorClass: 'bg-green-500 hover:bg-green-600' },  // Green color for UPDATE
+  { id: 'DELETE', name: 'DELETE', value: 'DELETE', colorClass: 'bg-red-500 hover:bg-red-600' },  // Red color for DELETE
 ];
 
 // Admin Logs
@@ -49,12 +49,12 @@ const getAdminLogs = async (req, res, next) => {
 const getOrderLogs = async (req, res, next) => {
   try {
     const models = await OrderUpdateLog.findAll();
-    actionFilters = [];
+    actionFilters = []; // No filters for orders
     res.render('admin/logs/orderLog-list', {
       title: 'Order Logs',
       models,
       modelColumns,
-      filters: [], // no filters for orders
+      filters: [], // No filters for orders
       modelName: 'Order Log',
       modelNameLower: 'orderlogs',
       permissions: {
@@ -73,12 +73,12 @@ const getOrderLogs = async (req, res, next) => {
 const getUserLogs = async (req, res, next) => {
   try {
     const models = await UserUpdateLog.findAll();
-    actionFilters = [];
+    actionFilters = []; // No filters for users
     res.render('admin/logs/userLog-list', {
       title: 'User Logs',
       models,
       modelColumns,
-      filters: [], // no filters for users
+      filters: [], // No filters for users
       modelName: 'User Log',
       modelNameLower: 'userlogs',
       permissions: {
