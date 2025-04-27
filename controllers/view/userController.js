@@ -21,14 +21,13 @@ exports.listUsers = async (req, res, next) => {
       { name: 'Status', field: 'status', index: 7 },
     ];
 
-const filters = [
-  { id: 'guest', name: 'Guest', value: 'guest', colorClass: 'bg-yellow-500 hover:bg-yellow-600' },
-  { id: 'vip', name: 'VIP', value: 'vip', colorClass: 'bg-purple-600 hover:bg-purple-700' },
-  { id: 'customer', name: 'Customer', value: 'customer', colorClass: 'bg-blue-600 hover:bg-blue-700' },
-  { id: 'active', name: 'Active', value: 'active', colorClass: 'bg-green-600 hover:bg-green-700' },
-  { id: 'inactive', name: 'Inactive', value: 'inactive', colorClass: 'bg-red-600 hover:bg-red-700' },
-];
-
+    const filters = [
+      { id: 'guest', name: 'Guest', value: 'guest', colorClass: 'bg-yellow-500 hover:bg-yellow-600' },
+      { id: 'vip', name: 'VIP', value: 'vip', colorClass: 'bg-indigo-600 hover:bg-indigo-700' }, // Changed to indigo for better contrast
+      { id: 'customer', name: 'Customer', value: 'customer', colorClass: 'bg-blue-600 hover:bg-blue-700' },
+      { id: 'active', name: 'Active', value: 'active', colorClass: 'bg-emerald-600 hover:bg-emerald-700' }, // Changed to emerald for a more vibrant green
+      { id: 'inactive', name: 'Inactive', value: 'inactive', colorClass: 'bg-rose-600 hover:bg-rose-700' }, // Changed to rose for a softer red
+    ];
 
     res.render('admin/user/list-user', {
       title: 'User List',
@@ -55,10 +54,6 @@ exports.showEditForm = async (req, res, next) => {
     const userId = req.params.id;
 
     const user = await getUserById(userId);
-
-    if (!user) {
-      res.locals.error =  'User not found';
-    }
 
     res.render('admin/user/update-user', {
       user,
