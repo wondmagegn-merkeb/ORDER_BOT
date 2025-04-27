@@ -31,7 +31,13 @@ exports.showDashBoard = async (req, res, next) => {
     // Fetch min, max, and avg order value
     const minOrderValue = await Order.min('totalPrice') || 0;
     const maxOrderValue = await Order.max('totalPrice') || 0;
-    const avgOrderValue = await Order.avg('totalPrice');
+    const avgOrder = await Order.findAll({
+  attributes: [[literal('AVG', col('totalPrice')), 'avgOrderValue']],
+  raw: true,
+});
+
+const safeAvgOrderValue = avgOrder[0]?.avgOrderValue ? Number(avgOrder[0].avgOrderValue).toFixed(2) : 0;
+
     const safeAvgOrderValue = avgOrderValue ? avgOrderValue.toFixed(2) : 0;
 
     // Top users by order count
