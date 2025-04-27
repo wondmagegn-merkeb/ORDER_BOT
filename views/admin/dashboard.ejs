@@ -1,215 +1,94 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 p-6">
+<h2 class="text-4xl font-semibold text-blue-700 mb-6">📊 Dashboard Overview</h2>
 
-  <h2 class="text-4xl font-semibold text-blue-700 mb-6">📊 Dashboard Overview</h2>
-
-  <!-- KPI Section with Different Background Colors -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-    <div class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-6 rounded-xl shadow-lg">
-      <h3 class="text-lg font-semibold text-white">Total Users</h3>
-      <p class="text-3xl text-white mt-2">157</p>
+<!-- KPI Section with Different Background Colors -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+    <div class="bg-gradient-to-r from-purple-700 via-indigo-700 to-blue-700 p-6 rounded-xl shadow-lg">
+        <h3 class="text-lg font-semibold text-white">Total Users</h3>
+        <p class="text-3xl text-white mt-2"><%= totalUsers %></p>
     </div>
-    <div class="bg-gradient-to-r from-blue-500 via-teal-500 to-green-500 p-6 rounded-xl shadow-lg">
-      <h3 class="text-lg font-semibold text-white">Total Orders</h3>
-      <p class="text-3xl text-white mt-2">432</p>
+    <div class="bg-gradient-to-r from-teal-600 via-green-600 to-lime-600 p-6 rounded-xl shadow-lg">
+        <h3 class="text-lg font-semibold text-white">Total Orders</h3>
+        <p class="text-3xl text-white mt-2"><%= totalOrders %></p>
     </div>
-    <div class="bg-gradient-to-r from-yellow-500 via-red-500 to-orange-500 p-6 rounded-xl shadow-lg">
-      <h3 class="text-lg font-semibold text-white">Total Revenue</h3>
-      <p class="text-3xl text-white mt-2">$15,800</p>
+    <div class="bg-gradient-to-r from-yellow-500 via-red-600 to-pink-500 p-6 rounded-xl shadow-lg">
+        <h3 class="text-lg font-semibold text-white">Total Revenue</h3>
+        <p class="text-3xl text-white mt-2">ETB <%= totalRevenue %></p>
     </div>
-    <div class="bg-gradient-to-r from-green-400 via-blue-400 to-purple-400 p-6 rounded-xl shadow-lg">
-      <h3 class="text-lg font-semibold text-white">Users Online</h3>
-      <p class="text-3xl text-white mt-2">12</p>
+    <div class="bg-gradient-to-r from-green-500 via-teal-500 to-blue-500 p-6 rounded-xl shadow-lg">
+        <h3 class="text-lg font-semibold text-white">Users</h3>
+        <div class="flex flex-col space-y-4 mt-2">
+            <!-- Users Online -->
+            <div class="text-3xl text-white">
+                <span>Online: <%= usersOnline %></span>
+            </div>
+            <div class="text-xl text-white">
+                <span><%= ((usersOnline / totalUsers) * 100).toFixed(1) %> of Total Users</span>
+            </div>
+            
+            <!-- Users with Orders -->
+            <div class="text-3xl text-white mt-4">
+                <span>With Orders: <%= usersWithOrders %></span>
+            </div>
+            <div class="text-xl text-white">
+                <span><%= ((usersWithOrders / totalUsers) * 100).toFixed(1) %> of Total Users</span>
+            </div>
+        </div>
     </div>
-  </div>
+</div>
 
-  <!-- Additional KPIs -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-    <div class="bg-white p-6 rounded-xl shadow-md">
-      <h3 class="text-lg font-semibold text-gray-700">New Customers This Week</h3>
-      <p class="text-3xl text-purple-600 mt-2">54</p>
+<!-- Users with Orders Section -->
+<div class="bg-gradient-to-r from-teal-500 via-green-500 to-blue-500 p-6 rounded-xl shadow-lg">
+    <h3 class="text-lg font-semibold text-white">Users with Orders</h3>
+    <p class="text-3xl text-white mt-2"><%= usersWithOrders %></p>
+    <p class="text-xl text-white mt-2"><%= ((usersWithOrders / totalUsers) * 100).toFixed(1) %> of Total Users</p>
+</div>
+
+<!-- Additional KPIs -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+    <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-6 rounded-xl shadow-md">
+        <h3 class="text-lg font-semibold text-white">New Customers</h3>
+        <div class="mt-4">
+            <p class="text-3xl text-purple-300">This Week: <%= newCustomersThisWeek %></p>
+            <p class="text-3xl text-purple-100">This Month: <%= newCustomersThisMonth %></p>
+        </div>
     </div>
-    <div class="bg-white p-6 rounded-xl shadow-md">
-      <h3 class="text-lg font-semibold text-gray-700">Average Order Value</h3>
-      <p class="text-3xl text-pink-600 mt-2">$36.57</p>
+    <div class="bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 p-6 rounded-xl shadow-md">
+        <h3 class="text-lg font-semibold text-white">Average Order Value</h3>
+        <div class="flex items-center justify-between mt-4">
+            <p class="text-2xl text-white">Min: <span class="text-yellow-300">${minOrderValue}</span></p>
+            <p class="text-2xl text-white">Max: <span class="text-red-300">${maxOrderValue}</span></p>
+            <p class="text-3xl text-pink-400 mt-2">Avg: $<%= avgOrderValue %></p>
+        </div>
     </div>
-    <div class="bg-white p-6 rounded-xl shadow-md">
-      <h3 class="text-lg font-semibold text-gray-700">Orders by Status</h3>
-      <ul class="mt-4 space-y-1 text-sm text-gray-600">
-        <li>🟡 Pending: 123</li>
-        <li>🟢 Completed: 250</li>
-        <li>🔴 Canceled: 59</li>
-      </ul>
+    <div class="bg-gradient-to-r from-yellow-600 via-red-500 to-orange-500 p-6 rounded-xl shadow-md">
+        <h3 class="text-lg font-semibold text-white">Orders by Status</h3>
+        <ul class="mt-4 space-y-1 text-sm text-white">
+            <% ordersByStatus.forEach(status => { %>
+                <li><%= status.status %>: <%= status.count %></li>
+            <% }) %>
+        </ul>
     </div>
-  </div>
+</div>
 
-  <!-- Charts Section -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-    <div class="bg-white p-6 rounded-xl shadow-md">
-      <h3 class="text-lg font-semibold text-gray-700 mb-4">Order Status Chart</h3>
-      <canvas id="orderStatusChart"></canvas>
+<!-- Top Users Section -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <!-- Top Users Section -->
+    <div class="bg-gradient-to-r from-pink-600 via-red-600 to-orange-600 p-6 rounded-xl shadow-md mb-8">
+        <h3 class="text-lg font-semibold text-white">Top Users</h3>
+        <ul class="space-y-3 mt-4">
+            <% topUsers.forEach(user => { %>
+                <li class="text-lg text-white"><%= user.name %> - <%= user.orderCount %> Orders</li>
+            <% }) %>
+        </ul>
     </div>
-    <div class="bg-white p-6 rounded-xl shadow-md">
-      <h3 class="text-lg font-semibold text-gray-700 mb-4">Most Ordered Items</h3>
-      <canvas id="mostOrderedItemsChart"></canvas>
+
+    <!-- Feedback Section -->
+    <div class="bg-gradient-to-r from-indigo-500 via-blue-400 to-teal-500 p-6 rounded-xl shadow-md mb-8">
+        <h3 class="text-lg font-semibold text-white">User Feedback</h3>
+        <ul class="space-y-3 mt-4">
+            <% userFeedback.forEach(feedback => { %>
+                <li class="text-lg text-white">"<%= feedback.feedbackText %>" <span class="text-gray-200">(<%= feedback.feedbackCount %>)</span></li>
+            <% }) %>
+        </ul>
     </div>
-  </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-    <div class="bg-white p-6 rounded-xl shadow-md">
-      <h3 class="text-lg font-semibold text-gray-700 mb-4">Daily Revenue</h3>
-      <canvas id="dailyRevenueChart"></canvas>
-    </div>
-    <div class="bg-white p-6 rounded-xl shadow-md">
-      <h3 class="text-lg font-semibold text-gray-700 mb-4">Orders by Day</h3>
-      <canvas id="ordersByDayChart"></canvas>
-    </div>
-  </div>
-
-  <!-- Orders by Month Comparison Chart -->
-  <div class="bg-white p-6 rounded-xl shadow-md mb-8">
-    <h3 class="text-lg font-semibold text-gray-700 mb-4">Orders Comparison by Month</h3>
-    <canvas id="ordersByMonthChart"></canvas>
-  </div>
-
-  <!-- Recent Orders Table -->
-  <div class="bg-white p-6 rounded-xl shadow-md">
-    <h3 class="text-lg font-semibold text-gray-700 mb-4">Recent Orders</h3>
-    <table class="w-full text-sm text-left text-gray-600">
-      <thead class="bg-gray-100 text-xs uppercase">
-        <tr>
-          <th class="px-4 py-2">Order ID</th>
-          <th class="px-4 py-2">Customer</th>
-          <th class="px-4 py-2">Item</th>
-          <th class="px-4 py-2">Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr class="border-t">
-          <td class="px-4 py-2">ORD123</td>
-          <td class="px-4 py-2">Alex</td>
-          <td class="px-4 py-2">Pizza</td>
-          <td class="px-4 py-2 text-green-600">Completed</td>
-        </tr>
-        <tr class="border-t">
-          <td class="px-4 py-2">ORD124</td>
-          <td class="px-4 py-2">Mia</td>
-          <td class="px-4 py-2">Burger</td>
-          <td class="px-4 py-2 text-yellow-600">Pending</td>
-        </tr>
-        <tr class="border-t">
-          <td class="px-4 py-2">ORD125</td>
-          <td class="px-4 py-2">John</td>
-          <td class="px-4 py-2">Pasta</td>
-          <td class="px-4 py-2 text-red-600">Canceled</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- Chart JS Logic -->
-  <script>
-    new Chart(document.getElementById('orderStatusChart'), {
-      type: 'bar',
-      data: {
-        labels: ['Pending', 'Completed', 'Canceled'],
-        datasets: [{
-          label: 'Orders',
-          data: [123, 250, 59],
-          backgroundColor: ['#FBBF24', '#10B981', '#EF4444'],
-          borderColor: ['#F59E0B', '#059669', '#DC2626'],
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: { beginAtZero: true }
-        }
-      }
-    });
-
-    new Chart(document.getElementById('mostOrderedItemsChart'), {
-      type: 'pie',
-      data: {
-        labels: ['Burger', 'Pizza', 'Sandwich'],
-        datasets: [{
-          data: [98, 74, 65],
-          backgroundColor: ['#F87171', '#60A5FA', '#34D399']
-        }]
-      },
-      options: { responsive: true }
-    });
-
-    new Chart(document.getElementById('dailyRevenueChart'), {
-      type: 'line',
-      data: {
-        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-        datasets: [{
-          label: 'Revenue',
-          data: [500, 700, 450, 600, 900, 1000, 1050],
-          fill: true,
-          borderColor: '#3B82F6',
-          backgroundColor: 'rgba(59,130,246,0.2)',
-          tension: 0.3
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: { beginAtZero: true }
-        }
-      }
-    });
-
-    new Chart(document.getElementById('ordersByDayChart'), {
-      type: 'bar',
-      data: {
-        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-        datasets: [{
-          label: 'Orders',
-          data: [50, 70, 45, 60, 90, 110, 120],
-          backgroundColor: '#A78BFA'
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: { beginAtZero: true }
-        }
-      }
-    });
-
-    // Orders by Month Comparison
-    new Chart(document.getElementById('ordersByMonthChart'), {
-      type: 'bar',
-      data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-        datasets: [{
-          label: 'Orders',
-          data: [120, 200, 180, 250, 210, 270],
-          backgroundColor: '#A78BFA',
-          borderColor: '#8B5CF6',
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: { beginAtZero: true }
-        }
-      }
-    });
-
-  </script>
-
-</body>
-</html>
+</div>
