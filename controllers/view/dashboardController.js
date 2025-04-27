@@ -148,7 +148,8 @@ exports.showDashBoard = async (req, res, next) => {
 
   } catch (error) {
     console.error("Error in showDashBoard:", error);
-
+console.error(sequelize);
+    console.error(sequelize.fn)
     // Custom error handling for specific issues
     if (error.name === 'SequelizeDatabaseError') {
       next(new InternalServerError('Database query failed', error));
