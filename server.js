@@ -127,12 +127,12 @@ app.use(globalErrorHandler);
     await sequelize.authenticate();
     console.log('✅ Database connected');
 
-    await sequelize.sync({ alter : true });
+    await sequelize.sync({ force : true });
 
     const PORT = process.env.PORT || 8080;
 
     app.listen(PORT, () => {
-      console.log(`🚀 Server running iion port:${PORT}`);
+      console.log(`🚀 Server running on port:${PORT}`);
     });
     
     console.log('Initializing user Bot...');
