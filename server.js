@@ -77,12 +77,11 @@ app.use((req, res, next) => {
   res.locals.currentPath = req.path;
   next();
 });
-app.get('/',authenticateAndAuthorize('admin', 'manager'), viewDashboardRoutes);
+);
 // ======= Routes =======
 app.get('/', (req, res) => {
   res.render('home', { title: 'Home Page', layout: false });
 });
-app.get('/',authenticateAndAuthorize('admin', 'manager'), viewDashboardRoutes);
 app.use('/admin',authenticateAndAuthorize('admin', 'superadmin'), viewAdminRoutes);
 app.use('/logs',authenticateAndAuthorize('admin', 'superadmin'), viewLogsRoutes);
 app.use('/categories',authenticateAndAuthorize('admin', 'superadmin'), categoryRoutes);
@@ -94,7 +93,7 @@ app.use('/api/users', authenticateAndAuthorize('admin', 'manager'), apiUserRoute
 app.use('/api/orders', authenticateAndAuthorize('admin', 'superadmin'), apiOrderRoutes);
 app.use('/api/food', authenticateAndAuthorize('admin'), require('./routes/api/foodRoutes'));
 app.use('/food',authenticateAndAuthorize('admin', 'superadmin'), require('./routes/view/foodRoutes'));
-app.get('/dashboard',authenticateAndAuthorize('admin', 'manager'), viewDashboardRoutes);
+app.use('/dashboard',authenticateAndAuthorize('admin', 'manager'), viewDashboardRoutes);
 // Login / Password Reset
 app.get('/login', (req, res) => {
   res.render('login', { message: null, layout: false });
@@ -129,7 +128,7 @@ app.use(globalErrorHandler);
     await sequelize.authenticate();
     console.log('✅ Database connected');
 
-    await sequelize.sync({ force : true });
+    await sequelize.sync({ alter : true });
 
     const PORT = process.env.PORT || 8080;
 
