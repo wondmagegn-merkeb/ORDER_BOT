@@ -10,6 +10,10 @@ exports.showDashBoard = async (req, res, next) => {
     const totalOrders = await Order.count();
     const totalRevenue = await Order.sum('totalPrice');
     const totalOnlineUsers = await User.count({ where: { status: 'active' } });
+    console.log('Total Users:', totalUsers);
+    console.log('Total Orders:', totalOrders);
+    console.log('Total Revenue:', totalRevenue);
+    console.log('Total Online Users:', totalOnlineUsers);
 
     // Orders status by count
     const ordersStatus = await Order.findAll({
@@ -17,7 +21,7 @@ exports.showDashBoard = async (req, res, next) => {
       group: 'status',
       raw: true
     });
-
+console.log('Orders Status:', ordersStatus);
     // Default empty check for ordersStatus
     const safeOrdersStatus = ordersStatus.length > 0 ? ordersStatus : [{ status: 'No data', count: 0 }];
 
@@ -25,6 +29,9 @@ exports.showDashBoard = async (req, res, next) => {
     const minOrderValue = await Order.min('totalPrice');
     const maxOrderValue = await Order.max('totalPrice');
     const avgOrderValue = await Order.avg('totalPrice');
+console.log('Min Order Value:', minOrderValue);
+    console.log('Max Order Value:', maxOrderValue);
+    console.log('Avg Order Value:', avgOrderValue);
 
     // Provide safe defaults for these values
     const safeMinOrderValue = minOrderValue || 0;
