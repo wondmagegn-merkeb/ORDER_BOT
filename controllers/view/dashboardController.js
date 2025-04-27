@@ -28,7 +28,8 @@ exports.showDashBoard = async (req, res, next) => {
     [literal('COUNT(feedback)'), 'feedbackCount'] // Count the 'feedback' occurrences
   ],
   group: ['feedback'], // Group by feedback to count occurrences per feedback
-  raw: true
+  raw: true,
+      logging: console.log  // Log the generated SQL query
 });
 
     const safeUserFeedback = userFeedback.length > 0 ? userFeedback : [{ feedbackText: 'No data', feedbackCount: 0 }];
