@@ -65,7 +65,7 @@
               <% } %>
 
               <% if (permissions.canDelete) { %>
-              <form method="POST" class="delete-form inline" data-id="<%= id %>" data-action="/<%= modelNameLower %>/delete">
+              <form method="POST" class="delete-form inline" data-id="<%= id %>" data-action="/api/<%= modelNameLower %>/delete">
                 <button type="button" class="open-delete-modal text-red-500 hover:text-red-600">
                   <i class="fas fa-trash-alt"></i> Delete
                 </button>
@@ -96,10 +96,10 @@
     </button>
     <h2 class="text-2xl font-bold mb-4 text-center text-gray-800">Order Details</h2>
     <!-- Scrollable Content -->
-    <div id="modalContent" class="flex-1 max-h-64 overflow-y-auto overflow-x-hidden space-y-6 pr-2">
+    <div id="modalContent" class="flex-1 max-h-74 overflow-y-auto overflow-x-hidden space-y-6 pr-2">
+  <!-- Dynamic content will go here -->
+</div>
 
-      <!-- Dynamic content will go here -->
-    </div>
   </div>
 </div>
 
