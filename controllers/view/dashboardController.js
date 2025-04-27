@@ -39,17 +39,24 @@ exports.showDashBoard = async (req, res, next) => {
      const safeAvgOrderValue = avgOrder[0]?.avgOrderValue ? Number(avgOrder[0].avgOrderValue).toFixed(2) : 0;
     
     // Top users by order count
-    const topUsers = await User.findAll({
-      attributes: [
-        'userId',
-        'fullName',
-        [literal('COUNT(Orders.orderId)'), 'orderCount']
-      ],
-      include: [{ model: Order, attributes: [] }],
-      group: ['User.userId'],
-      order: [[literal('orderCount'), 'DESC']],
-      limit: 5
-    });
+const topUsers = await User.findAll({
+  attributes: [
+    'userId',
+    'fullName',
+    [fn('COUNT', col('Orders.orderId')), 'orderCount']
+  ],
+  include: [
+    {
+      model: Order,
+      attributes: [], // No need to select any columns from the Order table
+    },
+  ],
+  group: ['User.userId'],
+  order: [[fn('COUNT', col('Orders.orderId')), 'DESC']], // Sort by the orderCount in descending order
+  limit: 5,
+  raw: true, // Optional: to get raw results without Sequelize's additional formatting
+});
+
 
     const safeTopUsers = topUsers.length > 0 ? topUsers : [{ userId: 'N/A', fullName: 'No data', orderCount: 0 }];
 
