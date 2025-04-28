@@ -20,7 +20,28 @@
 </head>
 
 <body class="bg-gray-100 p-6" onload="AOS.init()">
-
+<% dailyRevenue.forEach(user => { %>
+                <li class="text-lg"><%= user.date %> - <%= user.totalRevenue %> Orders</li>
+            <% }) %>
+          </ul>
+<ul class="space-y-2">
+      
+<% monthlyRevenue.forEach(user => { %>
+                <li class="text-lg"><%= user.month %> - <%= user.orderCount %> Orders</li>
+            <% }) %>
+          </ul>
+<ul class="space-y-2">
+      
+<% mostOrderedThisWeek.forEach(user => { %>
+                <li class="text-lg"><%= user.foodId %> - <%= user.orderCount %> Orders</li>
+            <% }) %>
+          </ul>
+<ul class="space-y-2">
+      
+<% mostOrderedThisMonth.forEach(user => { %>
+                <li class="text-lg"><%= user.foodId %> - <%= user.orderCount %> Orders</li>
+            <% }) %>
+          </ul>
   <!-- Top KPIs -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
     <!-- Total Users -->
