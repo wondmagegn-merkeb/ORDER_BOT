@@ -145,35 +145,58 @@ const yearPieChartData = topItemsYear.map(item => item.dataValues.totalOrdered);
       order: [[fn('DAY', col('createdAt')), 'ASC']]
     });
 
-    // Prepare data for daily orders line graph
-    const dailyOrderLabels = dailyOrdersThisMonth.map(item => item.get('day'));
-    const dailyOrderCounts = dailyOrdersThisMonth.map(item => item.get('orderCount'));
+    // Map day to order count
+const orderCountMap = {};
+dailyOrdersThisMonth.forEach(item => {
+  orderCountMap[item.get('day')] = parseInt(item.get('orderCount'));
+});
 
-    // Get monthly order counts for this year
-    const monthlyOrdersThisYear = await Order.findAll({
-      attributes: [
-        [fn('MONTH', col('createdAt')), 'month'],
-        [fn('COUNT', col('orderId')), 'orderCount']
-      ],
-      where: {
-        createdAt: {
-          [Op.between]: [startOfYear, endOfYear] // Ensure correct start and end of the year
-        }
-      },
-      group: [fn('MONTH', col('createdAt'))],
-      order: [[fn('MONTH', col('createdAt')), 'ASC']]
-    });
+// Total number of days in current month
+const totalDaysInMonth = moment().daysInMonth();
 
-    // Prepare data for monthly orders line graph
-    const monthlyOrderLabels = monthlyOrdersThisYear.map(item => {
-      const month = item.get('month');
-      const monthNames = [
-        'January', 'February', 'March', 'April', 'May', 'June', 
-        'July', 'August', 'September', 'October', 'November', 'December'
-      ];
-      return monthNames[month - 1]; // Convert month number to month name
-    });
-    const monthlyOrderCounts = monthlyOrdersThisYear.map(item => item.get('orderCount'));
+// Fill the labels and counts
+const dailyOrderLabels = [];
+const dailyOrderCounts = [];
+
+for (let day = 1; day <= totalDaysInMonth; day++) {
+  dailyOrderLabels.push(day.toString());
+  dailyOrderCounts.push(orderCountMap[day] || 0);
+}
+    
+// Query monthly orders this year
+const monthlyOrdersThisYear = await Order.findAll({
+  attributes: [
+    [fn('MONTH', col('createdAt')), 'month'],
+    [fn('COUNT', col('orderId')), 'orderCount']
+  ],
+  where: {
+    createdAt: {
+      [Op.between]: [startOfYear, endOfYear]
+    }
+  },
+  group: [fn('MONTH', col('createdAt'))],
+  order: [[fn('MONTH', col('createdAt')), 'ASC']]
+});
+
+// Build a map from month number to order count
+const orderCountMap = {};
+monthlyOrdersThisYear.forEach(item => {
+  orderCountMap[item.get('month')] = parseInt(item.get('orderCount'));
+});
+
+// Prepare labels and counts
+const monthNames = [
+  'January', 'February', 'March', 'April', 'May', 'June', 
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
+
+const monthlyOrderLabels = [];
+const monthlyOrderCounts = [];
+
+for (let month = 1; month <= 12; month++) {
+  monthlyOrderLabels.push(monthNames[month - 1]);
+  monthlyOrderCounts.push(orderCountMap[month] || 0);
+}
 
     const dailyRevenue = await Order.findAll({
       attributes: [
