@@ -1,58 +1,28 @@
-const { InternalServerError, NotFoundError } = require('../../utils/customError');
+const { InternalServerError } = require('../../utils/customError');
 const { Op, col, fn, literal } = require('sequelize');
 const moment = require('moment');
-const { User, Order } = require('../../models/index');
+const { Food, User, Order } = require('../../models/index');
 
 exports.showDashBoard = async (req, res, next) => {
   try {
-    // Fetch data for the dashboard
     const totalUsers = await User.count();
-    console.log('Total Users:', totalUsers);
-
     const totalOrders = await Order.count();
-    console.log('Total Orders:', totalOrders);
-
     const totalRevenue = await Order.sum('totalPrice');
-    console.log('Total Revenue:', totalRevenue);
-
     const totalOnlineUsers = await User.count({ where: { status: 'active' } });
-    console.log('Total Online Users:', totalOnlineUsers);
 
     const pending = await Order.count({ where: { status: 'pending' } });
-    console.log('Pending Orders:', pending);
-
     const progress = await Order.count({ where: { status: 'in progress' } });
-    console.log('Orders in Progress:', progress);
-
     const completed = await Order.count({ where: { status: 'completed' } });
-    console.log('Completed Orders:', completed);
-
     const cancelled = await Order.count({ where: { status: 'cancelled' } });
-    console.log('Cancelled Orders:', cancelled);
-
     const delivered = await Order.count({ where: { status: 'delivered' } });
-    console.log('Delivered Orders:', delivered);
 
-    // Feedback counts
     const tastyCount = await Order.count({ where: { feedback: 'tasty' } });
-    console.log('Tasty Feedbacks:', tastyCount);
-
     const loveCount = await Order.count({ where: { feedback: 'love' } });
-    console.log('Love Feedbacks:', loveCount);
-
     const deliciousCount = await Order.count({ where: { feedback: 'delicious' } });
-    console.log('Delicious Feedbacks:', deliciousCount);
-
     const goodCount = await Order.count({ where: { feedback: 'good' } });
-    console.log('Good Feedbacks:', goodCount);
-
     const okayCount = await Order.count({ where: { feedback: 'okay' } });
-    console.log('Okay Feedbacks:', okayCount);
-
     const badCount = await Order.count({ where: { feedback: 'bad' } });
-    console.log('Bad Feedbacks:', badCount);
 
-    // Fetch recent orders with user info
     const orders = await Order.findAll({
       include: [{
         model: User,
@@ -63,23 +33,16 @@ exports.showDashBoard = async (req, res, next) => {
       },
       order: [['createdAt', 'DESC']]
     });
-    console.log('Recent Orders:', orders.length);
 
-    // Fetch min, max, and avg order value
     const minOrderValue = await Order.min('totalPrice') || 0;
-    console.log('Min Order Value:', minOrderValue);
-
     const maxOrderValue = await Order.max('totalPrice') || 0;
-    console.log('Max Order Value:', maxOrderValue);
 
     const avgOrder = await Order.findAll({
       attributes: [[literal('AVG(`totalPrice`)'), 'avgOrderValue']],
       raw: true,
     });
     const safeAvgOrderValue = avgOrder[0]?.avgOrderValue ? Number(avgOrder[0].avgOrderValue).toFixed(2) : 0;
-    console.log('Average Order Value:', safeAvgOrderValue);
 
-    // Top users by order count
     const topUsers = await User.findAll({
       attributes: [
         'userId',
@@ -91,23 +54,82 @@ exports.showDashBoard = async (req, res, next) => {
       limit: 5,
       raw: true
     });
-    console.log('Top Users:', topUsers);
-
     const safeTopUsers = topUsers.length > 0 ? topUsers : [{ userId: 'N/A', fullName: 'No data', orderCount: 0 }];
 
-    // Users with orders count
     const usersWithOrders = await Order.count({ distinct: true, col: 'userId' }) || 0;
-    console.log('Users with at least one Order:', usersWithOrders);
 
-    // Date ranges
     const startOfWeek = moment().startOf('week').format('YYYY-MM-DD');
     const endOfWeek = moment().endOf('week').format('YYYY-MM-DD');
     const startOfMonth = moment().startOf('month').format('YYYY-MM-DD');
     const endOfMonth = moment().endOf('month').format('YYYY-MM-DD');
     const startOfDay = moment().startOf('day').format('YYYY-MM-DD HH:mm:ss');
     const endOfDay = moment().endOf('day').format('YYYY-MM-DD HH:mm:ss');
+    const startOfYear = moment().startOf('year').format('YYYY-MM-DD 00:00:00');
+    const endOfYear = moment().endOf('year').format('YYYY-MM-DD 23:59:59');
 
-    // Get daily revenue
+   // Get TOP 5 ITEMS for week
+const topItemsWeek = await Order.findAll({
+  attributes: [
+    'foodId',
+    [fn('SUM', col('quantity')), 'totalOrdered']
+  ],
+  include: [{ model: Food, attributes: ['name'] }],
+  where: {
+    createdAt: {
+      [Op.between]: [startOfWeek, endOfWeek]
+    }
+  },
+  group: ['foodId'],
+  order: [[literal('totalOrdered'), 'DESC']],
+  limit: 5
+});
+
+// Get TOP 5 ITEMS for month
+const topItemsMonth = await Order.findAll({
+  attributes: [
+    'foodId',
+    [fn('SUM', col('quantity')), 'totalOrdered']
+  ],
+  include: [{ model: Food, attributes: ['name'] }],
+  where: {
+    createdAt: {
+      [Op.between]: [startOfMonth, endOfMonth]
+    }
+  },
+  group: ['foodId'],
+  order: [[literal('totalOrdered'), 'DESC']],
+  limit: 5
+});
+
+// Get TOP 5 ITEMS for year
+const topItemsYear = await Order.findAll({
+  attributes: [
+    'foodId',
+    [fn('SUM', col('quantity')), 'totalOrdered']
+  ],
+  include: [{ model: Food, attributes: ['name'] }],
+  where: {
+    createdAt: {
+      [Op.between]: [startOfYear, endOfYear]
+    }
+  },
+  group: ['foodId'],
+  order: [[literal('totalOrdered'), 'DESC']],
+  limit: 5
+});
+
+// WEEK
+const weekPieChartLabels = topItemsWeek.map(item => item.Food.name);
+const weekPieChartData = topItemsWeek.map(item => item.dataValues.totalOrdered);
+
+// MONTH
+const monthPieChartLabels = topItemsMonth.map(item => item.Food.name);
+const monthPieChartData = topItemsMonth.map(item => item.dataValues.totalOrdered);
+
+// YEAR
+const yearPieChartLabels = topItemsYear.map(item => item.Food.name);
+const yearPieChartData = topItemsYear.map(item => item.dataValues.totalOrdered);
+ 
     const dailyRevenue = await Order.findAll({
       attributes: [
         [fn('DATE', col('createdAt')), 'date'],
@@ -121,40 +143,32 @@ exports.showDashBoard = async (req, res, next) => {
       group: ['date'],
       order: [[fn('DATE', col('createdAt')), 'ASC']]
     });
-    console.log('Daily Revenue:', dailyRevenue);
-    
-// Get daily revenue from Monday to Saturday
-const weeklyRevenue = await Order.findAll({
-  attributes: [
-    [fn('DAYOFWEEK', col('createdAt')), 'dayOfWeek'],
-    [fn('SUM', col('totalPrice')), 'totalRevenue']
-  ],
-  where: {
-    createdAt: {
-      [Op.between]: [startOfWeek, endOfWeek]
-    }
-  },
-  group: ['dayOfWeek'],
-  order: [[fn('DAYOFWEEK', col('createdAt')), 'ASC']]
-});
 
-// Map database results to an object for quick lookup
-const revenueByDay = {};
-weeklyRevenue.forEach(item => {
-  revenueByDay[item.get('dayOfWeek')] = parseFloat(item.get('totalRevenue'));
-});
+    const weeklyRevenue = await Order.findAll({
+      attributes: [
+        [fn('DAYOFWEEK', col('createdAt')), 'dayOfWeek'],
+        [fn('SUM', col('totalPrice')), 'totalRevenue']
+      ],
+      where: {
+        createdAt: {
+          [Op.between]: [startOfWeek, endOfWeek]
+        }
+      },
+      group: ['dayOfWeek'],
+      order: [[fn('DAYOFWEEK', col('createdAt')), 'ASC']]
+    });
 
-// Now create full list: Sunday (1) to Saturday (7)
-const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const revenueByDay = {};
+    weeklyRevenue.forEach(item => {
+      revenueByDay[item.get('dayOfWeek')] = parseFloat(item.get('totalRevenue'));
+    });
 
-const formattedWeeklyRevenue = daysOfWeek.map((day, index) => ({
-  day,
-  revenue: revenueByDay[index + 1] || 0  // index + 1 because DAYOFWEEK starts at 1 (Sunday)
-}));
+    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const formattedWeeklyRevenue = daysOfWeek.map((day, index) => ({
+      day,
+      revenue: revenueByDay[index + 1] || 0
+    }));
 
-console.log('Formatted Weekly Revenue:', formattedWeeklyRevenue);
-
-    // Get monthly revenue
     const monthlyRevenue = await Order.findAll({
       attributes: [
         [fn('MONTH', col('createdAt')), 'month'],
@@ -168,9 +182,7 @@ console.log('Formatted Weekly Revenue:', formattedWeeklyRevenue);
       group: ['month'],
       order: [[fn('MONTH', col('createdAt')), 'ASC']]
     });
-    console.log('Monthly Revenue:', monthlyRevenue);
 
-    // New customers
     const newCustomersThisWeek = await User.count({
       where: {
         createdAt: {
@@ -178,7 +190,6 @@ console.log('Formatted Weekly Revenue:', formattedWeeklyRevenue);
         }
       }
     });
-    console.log('New Customers This Week:', newCustomersThisWeek);
 
     const newCustomersThisMonth = await User.count({
       where: {
@@ -187,9 +198,7 @@ console.log('Formatted Weekly Revenue:', formattedWeeklyRevenue);
         }
       }
     });
-    console.log('New Customers This Month:', newCustomersThisMonth);
 
-    // Most ordered items
     const mostOrderedThisWeek = await Order.findAll({
       attributes: [
         'foodId',
@@ -200,8 +209,6 @@ console.log('Formatted Weekly Revenue:', formattedWeeklyRevenue);
       order: [[literal('COUNT(foodId)'), 'DESC']],
       limit: 5
     });
-    console.log('Most Ordered Items This Week:', mostOrderedThisWeek);
-
     const safeMostOrderedThisWeek = mostOrderedThisWeek.length > 0 ? mostOrderedThisWeek : [{ foodId: 'N/A', orderCount: 0 }];
 
     const mostOrderedThisMonth = await Order.findAll({
@@ -214,11 +221,8 @@ console.log('Formatted Weekly Revenue:', formattedWeeklyRevenue);
       order: [[literal('COUNT(foodId)'), 'DESC']],
       limit: 5
     });
-    console.log('Most Ordered Items This Month:', mostOrderedThisMonth);
-
     const safeMostOrderedThisMonth = mostOrderedThisMonth.length > 0 ? mostOrderedThisMonth : [{ foodId: 'N/A', orderCount: 0 }];
 
-    // Order status stats
     const orderStatusThisWeek = await Order.findAll({
       attributes: [
         'status',
@@ -228,8 +232,6 @@ console.log('Formatted Weekly Revenue:', formattedWeeklyRevenue);
       group: ['status'],
       order: [[literal('COUNT(status)'), 'DESC']]
     });
-    console.log('Order Status This Week:', orderStatusThisWeek);
-
     const safeOrderStatusThisWeek = orderStatusThisWeek.length > 0 ? orderStatusThisWeek : [{ status: 'No data', statusCount: 0 }];
 
     const orderStatusThisMonth = await Order.findAll({
@@ -241,11 +243,8 @@ console.log('Formatted Weekly Revenue:', formattedWeeklyRevenue);
       group: ['status'],
       order: [[literal('COUNT(status)'), 'DESC']]
     });
-    console.log('Order Status This Month:', orderStatusThisMonth);
-
     const safeOrderStatusThisMonth = orderStatusThisMonth.length > 0 ? orderStatusThisMonth : [{ status: 'No data', statusCount: 0 }];
 
-    // Render dashboard
     res.render('admin/dashboard', {
       title: 'Dashboard',
       totalUsers,
@@ -269,17 +268,23 @@ console.log('Formatted Weekly Revenue:', formattedWeeklyRevenue);
       maxOrderValue,
       avgOrderValue: safeAvgOrderValue,
       usersWithOrders,
+      newCustomersThisWeek,
+      newCustomersThisMonth,
+      weekPieChartLabels,
+      weekPieChartData,
+      monthPieChartLabels,
+      monthPieChartData,
+      yearPieChartLabels,
+      yearPieChartData,
       mostOrderedThisWeek: safeMostOrderedThisWeek,
       mostOrderedThisMonth: safeMostOrderedThisMonth,
       orderStatusThisWeek: safeOrderStatusThisWeek,
       orderStatusThisMonth: safeOrderStatusThisMonth,
-      newCustomersThisWeek,
       dailyRevenue,
       monthlyRevenue,
-      newCustomersThisMonth
+      formattedWeeklyRevenue
     });
   } catch (error) {
-    console.error("Error in showDashBoard:", error);
     if (error.name === 'SequelizeDatabaseError') {
       next(new InternalServerError('Database query failed', error));
     } else {
