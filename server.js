@@ -136,14 +136,14 @@ app.use(globalErrorHandler);
     });
     
     console.log('Initializing user Bot...');
-userBot.launch()
-    .then(() => console.log('Admin Bot started successfully'))
-    .catch((err) => console.error('Error starting user Bot:', err));
+//userBot.launch()
+//    .then(() => console.log('Admin Bot started successfully'))
+//    .catch((err) => console.error('Error starting user Bot:', err));
     
 console.log('Initializing Admin Bot...');
-adminBot.launch()
-    .then(() => console.log('Admin Bot started successfully'))
-    .catch((err) => console.error('Error starting Admin Bot:', err));
+//adminBot.launch()
+//    .then(() => console.log('Admin Bot started successfully'))
+//    .catch((err) => console.error('Error starting Admin Bot:', err));
 
     // ======= Graceful Shutdown =======
     process.once('SIGINT', () => {
