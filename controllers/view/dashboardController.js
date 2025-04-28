@@ -129,7 +129,52 @@ const monthPieChartData = topItemsMonth.map(item => item.dataValues.totalOrdered
 // YEAR
 const yearPieChartLabels = topItemsYear.map(item => item.Food.name);
 const yearPieChartData = topItemsYear.map(item => item.dataValues.totalOrdered);
- 
+
+    // Get day-by-day order counts for this month
+    const dailyOrdersThisMonth = await Order.findAll({
+      attributes: [
+        [fn('DAY', col('createdAt')), 'day'],
+        [fn('COUNT', col('id')), 'orderCount']
+      ],
+      where: {
+        createdAt: {
+          [Op.between]: [startOfMonth, endOfMonth]
+        }
+      },
+      group: [fn('DAY', col('createdAt'))],
+      order: [[fn('DAY', col('createdAt')), 'ASC']]
+    });
+
+    // Prepare data for daily orders line graph
+    const dailyOrderLabels = dailyOrdersThisMonth.map(item => item.get('day'));
+    const dailyOrderCounts = dailyOrdersThisMonth.map(item => item.get('orderCount'));
+
+    // Get monthly order counts for this year
+    const monthlyOrdersThisYear = await Order.findAll({
+      attributes: [
+        [fn('MONTH', col('createdAt')), 'month'],
+        [fn('COUNT', col('id')), 'orderCount']
+      ],
+      where: {
+        createdAt: {
+          [Op.between]: [startOfYear, endOfYear] // Ensure correct start and end of the year
+        }
+      },
+      group: [fn('MONTH', col('createdAt'))],
+      order: [[fn('MONTH', col('createdAt')), 'ASC']]
+    });
+
+    // Prepare data for monthly orders line graph
+    const monthlyOrderLabels = monthlyOrdersThisYear.map(item => {
+      const month = item.get('month');
+      const monthNames = [
+        'January', 'February', 'March', 'April', 'May', 'June', 
+        'July', 'August', 'September', 'October', 'November', 'December'
+      ];
+      return monthNames[month - 1]; // Convert month number to month name
+    });
+    const monthlyOrderCounts = monthlyOrdersThisYear.map(item => item.get('orderCount'));
+
     const dailyRevenue = await Order.findAll({
       attributes: [
         [fn('DATE', col('createdAt')), 'date'],
@@ -276,10 +321,10 @@ const yearPieChartData = topItemsYear.map(item => item.dataValues.totalOrdered);
       monthPieChartData,
       yearPieChartLabels,
       yearPieChartData,
-      mostOrderedThisWeek: safeMostOrderedThisWeek,
-      mostOrderedThisMonth: safeMostOrderedThisMonth,
-      orderStatusThisWeek: safeOrderStatusThisWeek,
-      orderStatusThisMonth: safeOrderStatusThisMonth,
+      dailyOrderLabels,
+      dailyOrderCounts,
+      monthlyOrderLabels,
+      monthlyOrderCounts,
       dailyRevenue,
       monthlyRevenue,
       formattedWeeklyRevenue
