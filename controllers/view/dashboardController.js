@@ -122,6 +122,33 @@ exports.showDashBoard = async (req, res, next) => {
       order: [[fn('DATE', col('createdAt')), 'ASC']]
     });
     console.log('Daily Revenue:', dailyRevenue);
+    
+// Get daily revenue from Monday to Saturday
+const weeklyRevenue = await Order.findAll({
+  attributes: [
+    [fn('DAYOFWEEK', col('createdAt')), 'dayOfWeek'],
+    [fn('SUM', col('totalPrice')), 'totalRevenue']
+  ],
+  where: {
+    createdAt: {
+      [Op.between]: [startOfWeek, endOfWeek]
+    },
+    [Op.not]: {
+      [fn('DAYOFWEEK', col('createdAt'))]: 1  // Exclude Sundays (1 is Sunday in DayOfWeek)
+    }
+  },
+  group: ['dayOfWeek'],
+  order: [[fn('DAYOFWEEK', col('createdAt')), 'ASC']]
+});
+
+// Adjusting the data to a readable format (Monday, Tuesday, etc.)
+const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const formattedWeeklyRevenue = weeklyRevenue.map(item => ({
+  day: daysOfWeek[item.dayOfWeek - 2], // Subtract 1 because DayOfWeek starts with Sunday (1), adjust for Monday start
+  revenue: item.totalRevenue
+}));
+
+console.log('Weekly Revenue (Monday to Saturday):', formattedWeeklyRevenue);
 
     // Get monthly revenue
     const monthlyRevenue = await Order.findAll({
