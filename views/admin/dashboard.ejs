@@ -227,6 +227,21 @@
       <canvas id="yearPieChart"></canvas>
     </div>
   </div>
+<!-- Order Count Bar Charts -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Daily Order Count Bar Chart -->
+    <div class="bg-purple-100 p-6 rounded-xl shadow-lg text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up">
+      <h3 class="text-lg font-semibold mb-4 text-black">Monthly Order Count</h3>
+      <canvas id="monthlyOrderCountLineChart"></canvas>
+    </div></div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Monthly Order Count Bar Chart -->
+    <div class="bg-indigo-50 p-6 rounded-xl shadow-lg text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up" data-aos-delay="100">
+      <h3 class="text-lg font-semibold mb-4 text-black">Yearly Order Count</h3>
+      <canvas id="yearlyOrderCountBarChart"></canvas>
+    </div>
+  </div>
+
   <!-- Revenue Line Charts -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
     <!-- Daily Revenue Line Chart -->
@@ -257,20 +272,7 @@
     </div>
   </div>
 
-  <!-- Order Count Bar Charts -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
-    <!-- Daily Order Count Bar Chart -->
-    <div class="bg-purple-100 p-6 rounded-xl shadow-lg text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up">
-      <h3 class="text-lg font-semibold mb-4 text-black">Daily Order Count</h3>
-      <canvas id="dailyOrderCountBarChart"></canvas>
-    </div>
-
-    <!-- Monthly Order Count Bar Chart -->
-    <div class="bg-indigo-50 p-6 rounded-xl shadow-lg text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up" data-aos-delay="100">
-      <h3 class="text-lg font-semibold mb-4 text-black">Monthly Order Count</h3>
-      <canvas id="monthlyOrderCountBarChart"></canvas>
-    </div>
-  </div>
+  
 <!-- Present Orders Table -->
 <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
   <h3 class="text-lg font-semibold mb-4 text-black">Present Orders</h3>
@@ -367,6 +369,44 @@ new Chart(document.getElementById('yearPieChart'), {
 });
 
 
+    // Monthly Order Count Data
+    const monthlyOrderCountData = {
+      labels: <%- JSON.stringify(dailyOrderLabels) %>,
+      datasets: [{
+        label: 'Orders',
+        data: <%- JSON.stringify(dailyOrderCounts) %>, 
+        backgroundColor: '#FF5733',
+        borderColor: '#FF5733',
+        borderWidth: 1,
+      }]
+    };
+
+    // Create the Monthly Order Count Line Chart
+    new Chart(document.getElementById('monthlyOrderCountLineChart'), {
+      type: 'line',
+      data: monthlyOrderCountData,
+      options: chartOptions,
+    });
+
+    // Yearly Order Count Data
+    const yearlyOrderCountData = {
+      labels: <%- JSON.stringify(monthlyOrderLabels) %>,
+      datasets: [{
+        label: 'Orders',
+        data: <%- JSON.stringify(monthlyOrderCounts) %>, 
+        backgroundColor: '#FF5733',
+        borderColor: '#FF5733',
+        borderWidth: 1,
+      }]
+    };
+
+    // Create the Yearly Order Count Line Chart
+    new Chart(document.getElementById('yearlyOrderCountLineChart'), {
+      type: 'line',
+      data: yearlyOrderCountData,
+      options: chartOptions,
+    });
+  
     // Sample Data for Line Charts and Bar Charts (Replace with actual data)
     const dailyRevenueData = {
       labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
@@ -412,27 +452,7 @@ new Chart(document.getElementById('yearPieChart'), {
       }]
     };
 
-    const dailyOrderCountData = {
-      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-      datasets: [{
-        label: 'Orders',
-        data: [10, 12, 8, 14, 16],
-        backgroundColor: '#FFCE56',
-        borderColor: '#FFCE56',
-        borderWidth: 1,
-      }]
-    };
-
-    const monthlyOrderCountData = {
-      labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-      datasets: [{
-        label: 'Orders',
-        data: [45, 60, 55, 70],
-        backgroundColor: '#FF5733',
-        borderColor: '#FF5733',
-        borderWidth: 1,
-      }]
-    };
+    
 
 
     // Create the Revenue Line Charts
@@ -461,18 +481,7 @@ new Chart(document.getElementById('yearPieChart'), {
       options: chartOptions,
     });
 
-    // Create the Order Count Bar Charts
-    new Chart(document.getElementById('dailyOrderCountBarChart'), {
-      type: 'bar',
-      data: dailyOrderCountData,
-      options: chartOptions,
-    });
-
-    new Chart(document.getElementById('monthlyOrderCountBarChart'), {
-      type: 'bar',
-      data: monthlyOrderCountData,
-      options: chartOptions,
-    });
+    
   </script>
 
 </body>
