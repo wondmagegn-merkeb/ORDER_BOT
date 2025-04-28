@@ -134,7 +134,7 @@ const yearPieChartData = topItemsYear.map(item => item.dataValues.totalOrdered);
     const dailyOrdersThisMonth = await Order.findAll({
       attributes: [
         [fn('DAY', col('createdAt')), 'day'],
-        [fn('COUNT', col('id')), 'orderCount']
+        [fn('COUNT', col('orderId')), 'orderCount']
       ],
       where: {
         createdAt: {
@@ -153,7 +153,7 @@ const yearPieChartData = topItemsYear.map(item => item.dataValues.totalOrdered);
     const monthlyOrdersThisYear = await Order.findAll({
       attributes: [
         [fn('MONTH', col('createdAt')), 'month'],
-        [fn('COUNT', col('id')), 'orderCount']
+        [fn('COUNT', col('orderId')), 'orderCount']
       ],
       where: {
         createdAt: {
