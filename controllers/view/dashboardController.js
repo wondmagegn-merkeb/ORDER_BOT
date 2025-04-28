@@ -138,14 +138,21 @@ const weeklyRevenue = await Order.findAll({
   order: [[fn('DAYOFWEEK', col('createdAt')), 'ASC']]
 });
 
-// Adjusting the data to a readable format (Monday, Tuesday, etc.)
+// Map database results to an object for quick lookup
+const revenueByDay = {};
+weeklyRevenue.forEach(item => {
+  revenueByDay[item.get('dayOfWeek')] = parseFloat(item.get('totalRevenue'));
+});
+
+// Now create full list: Sunday (1) to Saturday (7)
 const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-const formattedWeeklyRevenue = weeklyRevenue.map(item => ({
-  day: daysOfWeek[item.dayOfWeek - 1], // Subtract 1 because DayOfWeek starts with Sunday (1), adjust for Monday start
-  revenue: item.totalRevenue
+
+const formattedWeeklyRevenue = daysOfWeek.map((day, index) => ({
+  day,
+  revenue: revenueByDay[index + 1] || 0  // index + 1 because DAYOFWEEK starts at 1 (Sunday)
 }));
 
-console.log('Weekly Revenue (Monday to Saturday):', formattedWeeklyRevenue);
+console.log('Formatted Weekly Revenue:', formattedWeeklyRevenue);
 
     // Get monthly revenue
     const monthlyRevenue = await Order.findAll({
