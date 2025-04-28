@@ -221,6 +221,11 @@
       <h3 class="text-lg font-semibold mb-4 text-black">Most Ordered Items (This Month)</h3>
       <canvas id="monthPieChart"></canvas>
     </div>
+
+    <div class="bg-green-100 p-6 rounded-xl shadow-lg text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up" data-aos-delay="100">
+      <h3 class="text-lg font-semibold mb-4 text-black">Most Ordered Items (This Year)</h3>
+      <canvas id="yearPieChart"></canvas>
+    </div>
   </div>
   <!-- Revenue Line Charts -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
@@ -303,23 +308,65 @@
     // Initialize AOS (for animations)
     AOS.init();
 
-    const weekData = {
-      labels: ['Item 1', 'Item 2', 'Item 3', 'Item 4'],
-      datasets: [{
-        data: [30, 20, 25, 25],
-        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF5733'],
-        hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF5733'],
-      }]
+    // Options for all charts
+    const chartOptions = {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'top',
+        },
+      },
     };
 
-    const monthData = {
-      labels: ['Item 1', 'Item 2', 'Item 3', 'Item 4'],
-      datasets: [{
-        data: [50, 20, 15, 15],
-        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF5733'],
-        hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF5733'],
-      }]
-    };
+const weekData = {
+  labels: <%- JSON.stringify(weekPieChartLabels) %>,
+  datasets: [{
+    data: <%- JSON.stringify(weekPieChartData) %>,
+    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF5733'],
+    hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF5733'],
+  }]
+};
+
+// Create the Week Pie Chart
+new Chart(document.getElementById('weekPieChart'), {
+  type: 'pie',
+  data: weekData,
+  options: chartOptions,
+});
+
+const monthData = {
+  labels: <%- JSON.stringify(monthPieChartLabels) %>,
+  datasets: [{
+    data: <%- JSON.stringify(monthPieChartData) %>,
+    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF5733'],
+    hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF5733'],
+  }]
+};
+
+// Create the Month Pie Chart
+new Chart(document.getElementById('monthPieChart'), {
+  type: 'pie',
+  data: monthData,
+  options: chartOptions,
+});
+
+const yearData = {
+  labels: <%- JSON.stringify(yearPieChartLabels) %>,
+  datasets: [{
+    data: <%- JSON.stringify(yearPieChartData) %>,
+    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF5733'],
+    hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF5733'],
+  }]
+};
+
+// Create the Year Pie Chart
+new Chart(document.getElementById('yearPieChart'), {
+  type: 'pie',
+  data: yearData,
+  options: chartOptions,
+});
+
+
     // Sample Data for Line Charts and Bar Charts (Replace with actual data)
     const dailyRevenueData = {
       labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
@@ -387,29 +434,7 @@
       }]
     };
 
-    // Options for all charts
-    const chartOptions = {
-      responsive: true,
-      plugins: {
-        legend: {
-          position: 'top',
-        },
-      },
-    };
- 
-    // Create the Week Pie Chart
-    new Chart(document.getElementById('weekPieChart'), {
-      type: 'pie',
-      data: weekData,
-      options: chartOptions,
-    });
 
-    // Create the Month Pie Chart
-    new Chart(document.getElementById('monthPieChart'), {
-      type: 'pie',
-      data: monthData,
-      options: chartOptions,
-    });
     // Create the Revenue Line Charts
     new Chart(document.getElementById('dailyRevenueLineChart'), {
       type: 'line',
