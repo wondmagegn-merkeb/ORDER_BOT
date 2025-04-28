@@ -132,9 +132,6 @@ const weeklyRevenue = await Order.findAll({
   where: {
     createdAt: {
       [Op.between]: [startOfWeek, endOfWeek]
-    },
-    [Op.not]: {
-      [fn('DAYOFWEEK', col('createdAt'))]: 1  // Exclude Sundays (1 is Sunday in DayOfWeek)
     }
   },
   group: ['dayOfWeek'],
@@ -142,9 +139,9 @@ const weeklyRevenue = await Order.findAll({
 });
 
 // Adjusting the data to a readable format (Monday, Tuesday, etc.)
-const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const formattedWeeklyRevenue = weeklyRevenue.map(item => ({
-  day: daysOfWeek[item.dayOfWeek - 2], // Subtract 1 because DayOfWeek starts with Sunday (1), adjust for Monday start
+  day: daysOfWeek[item.dayOfWeek - 1], // Subtract 1 because DayOfWeek starts with Sunday (1), adjust for Monday start
   revenue: item.totalRevenue
 }));
 
