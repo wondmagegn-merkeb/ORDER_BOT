@@ -387,8 +387,7 @@ new Chart(document.getElementById('yearPieChart'), {
   options: chartOptions,
 });
 
-
-    // Monthly Order Count Data
+// Monthly Order Count Data
 const monthlyOrderCountData = {
   labels: <%- JSON.stringify(dailyOrderLabels) %>,
   datasets: [{
@@ -396,8 +395,8 @@ const monthlyOrderCountData = {
     data: <%- JSON.stringify(dailyOrderCounts) %>, 
     backgroundColor: 'transparent',
     borderColor: '#FF5733',
-    borderWidth: 2,
-    fill: false,
+    fill: true,
+    tension: 0.4,
   }]
 };
 
@@ -416,8 +415,8 @@ const yearlyOrderCountData = {
     data: <%- JSON.stringify(monthlyOrderCounts) %>, 
     backgroundColor: 'transparent',
     borderColor: '#FF5733',
-    borderWidth: 2,
-    fill: false,
+    fill: true,
+    tension: 0.4,
   }]
 };
 
@@ -428,8 +427,7 @@ new Chart(document.getElementById('yearlyOrderCountLineChart'), {
   options: chartOptions,
 });
 
-  
-    // Daily Revenue Line Chart Data
+// Daily Revenue Line Chart Data
 const dailyRevenueLineData = {
   labels: <%- JSON.stringify(dailyRevenueLabels) %>,
   datasets: [{
@@ -438,7 +436,7 @@ const dailyRevenueLineData = {
     backgroundColor: '#36A2EB',
     borderColor: '#36A2EB',
     fill: true,
-    tension: 0.4, // Smooth curve
+    tension: 0.4, 
   }]
 };
 
@@ -466,7 +464,7 @@ const monthlyRevenueLineData = {
     backgroundColor: '#4BC0C0',
     borderColor: '#4BC0C0',
     fill: true,
-    tension: 0.4, // Smooth curve
+    tension: 0.4, 
   }]
 };
 
@@ -485,8 +483,7 @@ new Chart(document.getElementById('monthlyRevenueLineChart'), {
   }
 });
 
-
-    // DAILY ORDER STATUS BAR CHART
+// DAILY ORDER STATUS BAR CHART
 const dailyOrderStatusData = {
   labels: <%- JSON.stringify(statusLabels) %>,
   datasets: [{
@@ -557,8 +554,6 @@ new Chart(document.getElementById('yearlyOrderStatusBarChart'), {
     }
   }
 });
-
-    
   </script>
 
 </body>
