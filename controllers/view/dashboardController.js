@@ -8,6 +8,11 @@ exports.showDashBoard = async (req, res, next) => {
     const totalUsers = await User.count();
     const totalOrders = await Order.count();
     const totalRevenue = await Order.sum('totalPrice');
+    const totalRevenueDelivered = await Order.sum('totalPrice', {
+       where: {
+       status: 'delivered'
+      }
+    });
     const totalOnlineUsers = await User.count({ where: { status: 'active' } });
 
     const pending = await Order.count({ where: { status: 'pending' } });
@@ -36,12 +41,35 @@ exports.showDashBoard = async (req, res, next) => {
 
     const minOrderValue = await Order.min('totalPrice') || 0;
     const maxOrderValue = await Order.max('totalPrice') || 0;
-
     const avgOrder = await Order.findAll({
       attributes: [[literal('AVG(`totalPrice`)'), 'avgOrderValue']],
       raw: true,
     });
     const safeAvgOrderValue = avgOrder[0]?.avgOrderValue ? Number(avgOrder[0].avgOrderValue).toFixed(2) : 0;
+
+const minOrderValueDelivered = await Order.min('totalPrice', {
+  where: {
+    status: 'delivered'
+  }
+}) || 0;
+
+const maxOrderValueDelivered = await Order.max('totalPrice', {
+  where: {
+    status: 'delivered'
+  }
+}) || 0;
+
+const avgOrderDelivered = await Order.findAll({
+  attributes: [[literal('AVG(`totalPrice`)'), 'avgOrderValue']],
+  where: {
+    status: 'delivered'
+  },
+  raw: true,
+});
+
+const avgOrderValueDelivered = avgOrderDelivered[0]?.avgOrderValue
+  ? Number(avgOrderDelivered[0].avgOrderValue).toFixed(2)
+  : 0;
 
     const topUsers = await User.findAll({
       attributes: [
@@ -62,11 +90,14 @@ exports.showDashBoard = async (req, res, next) => {
     const endOfWeek = moment().endOf('week').format('YYYY-MM-DD');
     const startOfMonth = moment().startOf('month').format('YYYY-MM-DD');
     const endOfMonth = moment().endOf('month').format('YYYY-MM-DD');
-    const startOfDay = moment().startOf('day').format('YYYY-MM-DD HH:mm:ss');
-    const endOfDay = moment().endOf('day').format('YYYY-MM-DD HH:mm:ss');
     const startOfYear = moment().startOf('year').format('YYYY-MM-DD 00:00:00');
     const endOfYear = moment().endOf('year').format('YYYY-MM-DD 23:59:59');
-
+const totalDaysInMonth = moment().daysInMonth();
+const allStatuses = ['pending', 'in_progress', 'completed', 'cancelled', 'delivered']; // Update based on your system
+const monthNames = [
+  'January', 'February', 'March', 'April', 'May', 'June', 
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
    // Get TOP 5 ITEMS for week
 const topItemsWeek = await Order.findAll({
   attributes: [
@@ -151,9 +182,6 @@ dailyOrdersThisMonth.forEach(item => {
   orderCountMap[item.get('day')] = parseInt(item.get('orderCount'));
 });
 
-// Total number of days in current month
-const totalDaysInMonth = moment().daysInMonth();
-
 // Fill the labels and counts
 const dailyOrderLabels = [];
 const dailyOrderCounts = [];
@@ -184,12 +212,6 @@ monthlyOrdersThisYear.forEach(item => {
   orderCountMap[item.get('month')] = parseInt(item.get('orderCount'));
 });
 
-// Prepare labels and counts
-const monthNames = [
-  'January', 'February', 'March', 'April', 'May', 'June', 
-  'July', 'August', 'September', 'October', 'November', 'December'
-];
-
 const monthlyOrderLabels = [];
 const monthlyOrderCounts = [];
 
@@ -198,58 +220,65 @@ for (let month = 1; month <= 12; month++) {
   monthlyOrderCounts.push(orderCountMap[month] || 0);
 }
 
-    const dailyRevenue = await Order.findAll({
-      attributes: [
-        [fn('DATE', col('createdAt')), 'date'],
-        [fn('SUM', col('totalPrice')), 'totalRevenue']
-      ],
-      where: {
-        createdAt: {
-          [Op.between]: [startOfDay, endOfDay]
-        }
-      },
-      group: ['date'],
-      order: [[fn('DATE', col('createdAt')), 'ASC']]
-    });
+const dailyRevenueThisMonth = await Order.findAll({
+  attributes: [
+    [fn('DAY', col('createdAt')), 'day'],
+    [fn('SUM', col('totalPrice')), 'totalRevenue']
+  ],
+  where: {
+    createdAt: {
+      [Op.between]: [startOfMonth, endOfMonth]
+    },
+    status: 'delivered' // Only delivered orders
+  },
+  group: [fn('DAY', col('createdAt'))],
+  order: [[fn('DAY', col('createdAt')), 'ASC']]
+});
 
-    const weeklyRevenue = await Order.findAll({
-      attributes: [
-        [fn('DAYOFWEEK', col('createdAt')), 'dayOfWeek'],
-        [fn('SUM', col('totalPrice')), 'totalRevenue']
-      ],
-      where: {
-        createdAt: {
-          [Op.between]: [startOfWeek, endOfWeek]
-        }
-      },
-      group: ['dayOfWeek'],
-      order: [[fn('DAYOFWEEK', col('createdAt')), 'ASC']]
-    });
+// Map day to revenue
+const revenueCountMap = {};
+dailyRevenueThisMonth.forEach(item => {
+  revenueCountMap[item.get('day')] = parseFloat(item.get('totalRevenue'));
+});
 
-    const revenueByDay = {};
-    weeklyRevenue.forEach(item => {
-      revenueByDay[item.get('dayOfWeek')] = parseFloat(item.get('totalRevenue'));
-    });
+// Prepare labels and data
+const dailyRevenueLabels = [];
+const dailyRevenueCounts = [];
 
-    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const formattedWeeklyRevenue = daysOfWeek.map((day, index) => ({
-      day,
-      revenue: revenueByDay[index + 1] || 0
-    }));
+for (let day = 1; day <= totalDaysInMonth; day++) {
+  dailyRevenueLabels.push(day.toString());
+  dailyRevenueCounts.push(revenueCountMap[day] || 0);
+}
 
-    const monthlyRevenue = await Order.findAll({
-      attributes: [
-        [fn('MONTH', col('createdAt')), 'month'],
-        [fn('SUM', col('totalPrice')), 'totalRevenue']
-      ],
-      where: {
-        createdAt: {
-          [Op.between]: [startOfMonth, endOfMonth]
-        }
-      },
-      group: ['month'],
-      order: [[fn('MONTH', col('createdAt')), 'ASC']]
-    });
+const monthlyRevenueThisYear = await Order.findAll({
+  attributes: [
+    [fn('MONTH', col('createdAt')), 'month'],
+    [fn('SUM', col('totalPrice')), 'totalRevenue']
+  ],
+  where: {
+    createdAt: {
+      [Op.between]: [startOfYear, endOfYear]
+    },
+    status: 'delivered' // Only delivered orders
+  },
+  group: [fn('MONTH', col('createdAt'))],
+  order: [[fn('MONTH', col('createdAt')), 'ASC']]
+});
+
+// Map month to revenue
+const revenueMonthMap = {};
+monthlyRevenueThisYear.forEach(item => {
+  revenueMonthMap[item.get('month')] = parseFloat(item.get('totalRevenue'));
+});
+
+const monthlyRevenueLabels = [];
+const monthlyRevenueCounts = [];
+
+for (let month = 1; month <= 12; month++) {
+  monthlyRevenueLabels.push(monthNames[month - 1]);
+  monthlyRevenueCounts.push(revenueMonthMap[month] || 0);
+}
+
 
     const newCustomersThisWeek = await User.count({
       where: {
@@ -267,90 +296,146 @@ for (let month = 1; month <= 12; month++) {
       }
     });
 
-    const mostOrderedThisWeek = await Order.findAll({
-      attributes: [
-        'foodId',
-        [literal('COUNT(foodId)'), 'orderCount']
-      ],
-      where: { createdAt: { [Op.between]: [startOfWeek, endOfWeek] } },
-      group: ['foodId'],
-      order: [[literal('COUNT(foodId)'), 'DESC']],
-      limit: 5
-    });
-    const safeMostOrderedThisWeek = mostOrderedThisWeek.length > 0 ? mostOrderedThisWeek : [{ foodId: 'N/A', orderCount: 0 }];
+const orderStatusThisWeek = await Order.findAll({
+  attributes: [
+    'status',
+    [literal('COUNT(status)'), 'statusCount']
+  ],
+  where: {
+    createdAt: {
+      [Op.between]: [startOfWeek, endOfWeek]
+    }
+  },
+  group: ['status'],
+  order: [[literal('COUNT(status)'), 'DESC']]
+});
 
-    const mostOrderedThisMonth = await Order.findAll({
-      attributes: [
-        'foodId',
-        [literal('COUNT(foodId)'), 'orderCount']
-      ],
-      where: { createdAt: { [Op.between]: [startOfMonth, endOfMonth] } },
-      group: ['foodId'],
-      order: [[literal('COUNT(foodId)'), 'DESC']],
-      limit: 5
-    });
-    const safeMostOrderedThisMonth = mostOrderedThisMonth.length > 0 ? mostOrderedThisMonth : [{ foodId: 'N/A', orderCount: 0 }];
+// Map actual counts
+const statusCountMap = {};
+orderStatusThisWeek.forEach(item => {
+  statusCountMap[item.get('status')] = parseInt(item.get('statusCount'));
+});
 
-    const orderStatusThisWeek = await Order.findAll({
-      attributes: [
-        'status',
-        [literal('COUNT(status)'), 'statusCount']
-      ],
-      where: { createdAt: { [Op.between]: [startOfWeek, endOfWeek] } },
-      group: ['status'],
-      order: [[literal('COUNT(status)'), 'DESC']]
-    });
-    const safeOrderStatusThisWeek = orderStatusThisWeek.length > 0 ? orderStatusThisWeek : [{ status: 'No data', statusCount: 0 }];
+// Prepare labels and counts (fill missing statuses with 0)
+const statusLabels = [];
+const statusCounts = [];
 
-    const orderStatusThisMonth = await Order.findAll({
-      attributes: [
-        'status',
-        [literal('COUNT(status)'), 'statusCount']
-      ],
-      where: { createdAt: { [Op.between]: [startOfMonth, endOfMonth] } },
-      group: ['status'],
-      order: [[literal('COUNT(status)'), 'DESC']]
-    });
-    const safeOrderStatusThisMonth = orderStatusThisMonth.length > 0 ? orderStatusThisMonth : [{ status: 'No data', statusCount: 0 }];
+allStatuses.forEach(status => {
+  statusLabels.push(status);
+  statusCounts.push(statusCountMap[status] || 0);
+});
 
+const orderStatusThisMonth = await Order.findAll({
+  attributes: [
+    'status',
+    [literal('COUNT(status)'), 'statusCount']
+  ],
+  where: {
+    createdAt: { [Op.between]: [startOfMonth, endOfMonth] }
+  },
+  group: ['status']
+});
+
+// Build a status map
+const monthlyStatusMap = {};
+orderStatusThisMonth.forEach(item => {
+  monthlyStatusMap[item.get('status')] = parseInt(item.get('statusCount'));
+});
+
+// Fill in missing statuses with 0
+const monthStatusLabels = [];
+const monthStatusCounts = [];
+
+allStatuses.forEach(status => {
+  monthStatusLabels.push(status);
+  monthStatusCounts.push(monthlyStatusMap[status] || 0);
+});
+
+const orderStatusThisYear = await Order.findAll({
+  attributes: [
+    'status',
+    [literal('COUNT(status)'), 'statusCount']
+  ],
+  where: {
+    createdAt: { [Op.between]: [startOfYear, endOfYear] }
+  },
+  group: ['status']
+});
+
+const yearlyStatusMap = {};
+orderStatusThisYear.forEach(item => {
+  yearlyStatusMap[item.get('status')] = parseInt(item.get('statusCount'));
+});
+
+const yearStatusLabels = [];
+const yearStatusCounts = [];
+    
+allStatuses.forEach(status => {
+  yearStatusLabels.push(status);
+  yearStatusCounts.push(yearlyStatusMap[status] || 0);
+});
+    
     res.render('admin/dashboard', {
       title: 'Dashboard',
       totalUsers,
       totalOrders,
       totalRevenue,
+      totalRevenueDelivered,
       totalOnlineUsers,
+      
       pending,
       progress,
       completed,
       cancelled,
       delivered,
+      
       tastyCount,
       loveCount,
       deliciousCount,
       goodCount,
       okayCount,
       badCount,
+      
       orders,
+      
       topUsers: safeTopUsers,
+      
       minOrderValue,
       maxOrderValue,
       avgOrderValue: safeAvgOrderValue,
+
+      minOrderValueDelivered,
+      maxOrderValueDelivered,
+      avgOrderValueDelivered,
+      
       usersWithOrders,
+      
       newCustomersThisWeek,
       newCustomersThisMonth,
+      
       weekPieChartLabels,
       weekPieChartData,
       monthPieChartLabels,
       monthPieChartData,
       yearPieChartLabels,
       yearPieChartData,
+      
       dailyOrderLabels,
       dailyOrderCounts,
       monthlyOrderLabels,
       monthlyOrderCounts,
-      dailyRevenue,
-      monthlyRevenue,
-      formattedWeeklyRevenue
+      
+      dailyRevenueLabels,
+      dailyRevenueCounts,
+      monthlyRevenueLabels,
+      monthlyRevenueCounts,
+      
+      statusLabels ,
+      statusCounts,
+      monthStatusLabels,
+      monthStatusCounts,
+      yearStatusLabels,
+      yearStatusCounts,
     });
   } catch (error) {
     console.log(error)
