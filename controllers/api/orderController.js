@@ -3,6 +3,7 @@ const { InternalServerError, NotFoundError } = require('../../utils/customError'
 const updateOrderSchema = require('../../validators/updateOrderValidation');
 const { sendMessageToUser } = require("../../bots/userBot");
 const { adminBot } = require('../../bots/adminBot'); 
+
 // Get all orders
 exports.getAllOrders = async (req, res, next) => {
   try {
@@ -148,6 +149,7 @@ message += `
     return res.render('admin/order/update-order', { title: 'Update Order', order });
 
   } catch (error) {
+    console.log(error)
     next(new InternalServerError('Failed to update order', error));
   }
 };
