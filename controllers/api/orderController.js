@@ -60,8 +60,9 @@ exports.updateOrder = async (req, res, next) => {
     // Proceed only if customer exists and status changed
     if (customer && oldStatus !== status) {
         const orderId = order.orderId || 'N/A';
-        const oldPrice = oldTotalPrice?.toFixed(2) || 'N/A';
-        const newPrice = newTotalPrice?.toFixed(2) || 'N/A';
+        const oldPrice = oldTotalPrice ? Number(oldTotalPrice).toFixed(2) : 'N/A';
+        const newPrice = newTotalPrice ? Number(newTotalPrice).toFixed(2) : 'N/A';
+
         console.log(1);
         let message = '';
 
