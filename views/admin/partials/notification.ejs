@@ -1,7 +1,7 @@
 <% if (typeof success !== 'undefined') { %>
   <div id="toast-success" class="fixed top-20 right-5 z-50 flex items-start gap-4 p-4 rounded-lg shadow-md bg-green-100 border border-green-400 text-green-700 animate-slide-in">
     <div>
-      <strong class="font-semibold">Success:</strong> <%= success %>
+       <%= success %>
     </div>
     <button onclick="closeToast('toast-success')" class="text-green-700 hover:text-green-900 text-xl font-bold ml-4 leading-none">&times;</button>
   </div>
@@ -10,7 +10,7 @@
 <% if (typeof error !== 'undefined') { %>
   <div id="toast-error" class="fixed top-20 right-5 z-50 flex items-start gap-4 p-4 rounded-lg shadow-md bg-red-100 border border-red-400 text-red-700 animate-slide-in">
     <div>
-      <strong class="font-semibold">Error:</strong> <%= error %>
+       <%= error %>
     </div>
     <button onclick="closeToast('toast-error')" class="text-red-700 hover:text-red-900 text-xl font-bold ml-4 leading-none">&times;</button>
   </div>
