@@ -16,7 +16,7 @@ exports.showDashBoard = async (req, res, next) => {
     const totalOnlineUsers = await User.count({ where: { status: 'active' } });
 
     const pending = await Order.count({ where: { status: 'pending' } });
-    const progress = await Order.count({ where: { status: 'in progress' } });
+    const progress = await Order.count({ where: { status: 'progress' } });
     const completed = await Order.count({ where: { status: 'completed' } });
     const cancelled = await Order.count({ where: { status: 'cancelled' } });
     const delivered = await Order.count({ where: { status: 'delivered' } });
@@ -93,7 +93,7 @@ const avgOrderValueDelivered = avgOrderDelivered[0]?.avgOrderValue
     const startOfYear = moment().startOf('year').format('YYYY-MM-DD 00:00:00');
     const endOfYear = moment().endOf('year').format('YYYY-MM-DD 23:59:59');
 const totalDaysInMonth = moment().daysInMonth();
-const allStatuses = ['pending', 'in_progress', 'completed', 'cancelled', 'delivered']; // Update based on your system
+const allStatuses = ['pending', 'progress', 'completed', 'cancelled', 'delivered']; // Update based on your system
 const monthNames = [
   'January', 'February', 'March', 'April', 'May', 'June', 
   'July', 'August', 'September', 'October', 'November', 'December'
