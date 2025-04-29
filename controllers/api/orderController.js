@@ -62,10 +62,11 @@ exports.updateOrder = async (req, res, next) => {
         const orderId = order.orderId || 'N/A';
         const oldPrice = oldTotalPrice?.toFixed(2) || 'N/A';
         const newPrice = newTotalPrice?.toFixed(2) || 'N/A';
-        
+        console.log(1);
         let message = '';
 
         if (status === 'progress') {
+          console.log(2);
             message = `
 ✅ <b>Your Order Has Been Accepted</b>\n
 <b>Order ID:</b> ${orderId}\n
@@ -74,6 +75,7 @@ exports.updateOrder = async (req, res, next) => {
 <i>Your order is now being prepared, and we are working hard to get it ready. Please be patient while we complete your order.</i>\n
             `;
           if (newPrice !== oldPrice) {
+            console.log(3);
             message += `
 <b>Reason for Price Change:</b> ${order.specialOrder || 'This could be due to special order adjustments, such as customized items or delivery-related fees.'}
           \n  `;}
@@ -82,6 +84,7 @@ message += `
             `;
           
         } else if (status === 'cancelled') {
+         console.log(4); 
             message = `
 ❌ <b>Your Order Has Been Cancelled</b>\n
 <b>Order ID:</b> ${orderId}\n
@@ -90,6 +93,7 @@ message += `
             `;
 
         } else if (status === 'completed') {
+          console.log(5);
             message = `
 🎉 <b>Your Order Has Been Completed</b> 🎉\n
 <b>Order ID:</b> ${orderId}\n
@@ -100,6 +104,7 @@ const deliveryAdmins = await Admin.findAll({
 });
             // If the admin role is 'delivery', send a message to notify them to address the completed food
             if (deliveryAdmins && status === 'completed') {
+              console.log(6);
                 const deliveryMessage = `
 🚚 <b>Delivery Team, Please Address the Completed Order</b> 🍽️\n
 <b>Order ID:</b> ${orderId}\n
@@ -121,6 +126,7 @@ for (const admin of deliveryAdmins) {
 
             }
         } else if (status === 'delivered') {
+          console.log(7);
             message = `
 🎉 <b>Your Order Has Been Delivered</b> 🚚\n
 <b>Order ID:</b> ${orderId}\n
@@ -129,6 +135,7 @@ for (const admin of deliveryAdmins) {
 <i>Thank you for your patience! Your order has successfully been delivered. We hope everything is to your satisfaction!</i>\n\n
             `;
           if (newPrice !== oldPrice) {
+            console.log(8);
             message += `
 <b>Reason for Price Change:</b> ${order.specialOrder || 'This could be due to special order adjustments, such as customized items or delivery-related fees.'}
           \n  `;}
@@ -141,6 +148,7 @@ message += `
         }
 
         if (message && customer.telegramId) {
+          console.log(9);
             await sendMessageToUser(customer.telegramId, message);
         }
     }
