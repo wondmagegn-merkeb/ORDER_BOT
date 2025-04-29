@@ -13,7 +13,7 @@ const updateOrderSchema = Joi.object({
     }),
 
   status: Joi.string()
-    .valid('pending', 'in progress', 'completed', 'cancelled') // Allowed status values
+    .valid('pending', 'progress', 'completed', 'cancelled', 'delivered') // Allowed status values
     .optional()  // Optional as user can update only one field
     .messages({
       'string.base': 'Status must be a string.',
