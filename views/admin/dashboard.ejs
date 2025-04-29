@@ -1,28 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <!-- TailwindCSS -->
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  
-  <!-- FontAwesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  
-  <!-- AOS (Animation on Scroll) Library -->
-  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
-
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-
-<body class="bg-gray-100 p-6" onload="AOS.init()">
 
   <!-- Top KPIs -->
-<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
+<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-2 mb-2">
     <!-- Total Users -->
     <div class="bg-blue-500 p-4 rounded-xl shadow-lg flex items-center justify-between h-32 text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up">
       <div class="flex items-center space-x-4">
@@ -56,7 +34,7 @@
       </div>
     </div>
 
-<div class="bg-yellow-400 p-4 rounded-xl shadow-lg flex items-center justify-between h-32 text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up" data-aos-delay="200">
+<div class="bg-orange-400 p-4 rounded-xl shadow-lg flex items-center justify-between h-32 text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up" data-aos-delay="200">
   <div class="flex items-center space-x-4">
     <i class="fas fa-dollar-sign fa-2x"></i>
     <div>
@@ -79,7 +57,7 @@
   </div>
 
  <!-- Additional KPIs -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 mb-2">
   <!-- New Customers -->
   <div class="bg-pink-500 p-4 rounded-xl shadow-lg flex items-center justify-between h-auto text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up">
     <div class="flex items-center space-x-4">
@@ -105,7 +83,7 @@
   </div>
 
   <!-- Average Order Value (Delivered) -->
-  <div class="bg-purple-500 p-4 rounded-xl shadow-lg flex items-center justify-between h-auto text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up" data-aos-delay="100">
+  <div class="bg-sky-500 p-4 rounded-xl shadow-lg flex items-center justify-between h-auto text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up" data-aos-delay="100">
     <div class="flex items-center space-x-4">
       <i class="fas fa-chart-line fa-2x"></i>
       <div>
@@ -151,7 +129,7 @@
 </div>
   
   <!-- Top Users and Feedback -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
     <!-- Top Users -->
     <div class="bg-green-400 p-4 rounded-xl shadow-lg flex items-center justify-between h-auto text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up">
       <div class="flex items-center space-x-4">
@@ -214,7 +192,7 @@
     </div>
   </div>
   
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mb-2">
   <!-- Most Ordered Items (This Week) -->
   <div class="bg-blue-100 p-6 rounded-xl shadow-lg text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up">
     <h3 class="text-lg font-semibold mb-4 text-black">Most Ordered Items (This Week)</h3>
@@ -236,7 +214,7 @@
 
 <!-- Order Count Line Charts -->
   <!-- Order Count Line Charts -->
-<div class="mb-8">
+<div class="mb-2">
   <!-- Daily Order Count Line Chart -->
   <div class="bg-purple-100 p-6 rounded-xl shadow-lg text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up">
     <h3 class="text-lg font-semibold mb-4 text-black">Monthly Order Count</h3>
@@ -244,7 +222,7 @@
   </div>
 </div>
 
-<div class="mb-8">
+<div class="mb-2">
   <!-- Yearly Order Count Line Chart -->
   <div class="bg-indigo-50 p-6 rounded-xl shadow-lg text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up" data-aos-delay="100">
     <h3 class="text-lg font-semibold mb-4 text-black">Yearly Order Count</h3>
@@ -255,7 +233,7 @@
 
 
 <!-- Order Status Bar Charts -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mb-2">
   <!-- Daily Order Status Bar Chart -->
   <div class="bg-yellow-100 p-6 rounded-xl shadow-lg text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up">
     <h3 class="text-lg font-semibold mb-4 text-black">Daily Order Status</h3>
@@ -276,7 +254,7 @@
 </div>
 
 <!-- Revenue Line Charts -->
-<div class="mb-8">
+<div class="mb-2">
   <!-- Daily Revenue Line Chart -->
   <div class="bg-blue-100 p-6 rounded-xl shadow-lg text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up">
     <h3 class="text-lg font-semibold mb-4 text-black">Daily Revenue</h3>
@@ -284,7 +262,7 @@
   </div>
 </div>
 
-<div class="mb-8">
+<div class="mb-2">
   <!-- Monthly Revenue Line Chart -->
   <div class="bg-green-100 p-6 rounded-xl shadow-lg text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up" data-aos-delay="100">
     <h3 class="text-lg font-semibold mb-4 text-black">Monthly Revenue</h3>
@@ -293,7 +271,7 @@
 </div>
 
 <!-- Present Orders Table -->
-<div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+<div class="bg-white p-6 rounded-xl shadow-lg mb-1">
   <h3 class="text-lg font-semibold mb-4 text-black">Present Orders</h3>
   <table class="min-w-full bg-gray-100 border border-gray-200 rounded-lg overflow-hidden">
     <thead>
@@ -318,33 +296,35 @@
             <% if(order.status === 'delivered') { %> text-teal-500 <% } %>
           "><%= order.status %></td>
           <td class="py-3 px-4">ETB <%= order.totalPrice %></td>
-          <td class="py-3 px-4"><%= order.date %></td>
+          <td class="py-3 px-4"><%= order.createdAt %></td>
         </tr>
       <% }) %>
     </tbody>
   </table>
 </div>
-
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    // Initialize AOS (for animations)
-    AOS.init();
-
-    // Options for all charts
-    const chartOptions = {
-      responsive: true,
-      plugins: {
-        legend: {
-          position: 'top',
-        },
-      },
-    };
+ 
+const chartOptions = {
+  responsive: true,
+  plugins: {
+    legend: {
+      display: false, 
+    },
+    tooltip: {
+      titleFont: { weight: 'bold' },
+      bodyFont: { weight: 'bold' }
+    }
+  }
+};
 
 const weekData = {
   labels: <%- JSON.stringify(weekPieChartLabels) %>,
   datasets: [{
     data: <%- JSON.stringify(weekPieChartData) %>,
-    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF5733'],
-    hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF5733'],
+    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF5733', '#4BC0C0'],
+    hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF5733', '#4BC0C0'],
   }]
 };
 
@@ -359,8 +339,8 @@ const monthData = {
   labels: <%- JSON.stringify(monthPieChartLabels) %>,
   datasets: [{
     data: <%- JSON.stringify(monthPieChartData) %>,
-    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF5733'],
-    hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF5733'],
+    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF5733', '#4BC0C0'],
+    hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF5733', '#4BC0C0'],
   }]
 };
 
@@ -375,8 +355,8 @@ const yearData = {
   labels: <%- JSON.stringify(yearPieChartLabels) %>,
   datasets: [{
     data: <%- JSON.stringify(yearPieChartData) %>,
-    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF5733'],
-    hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF5733'],
+    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF5733', '#4BC0C0'],
+    hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF5733', '#4BC0C0'],
   }]
 };
 
@@ -387,58 +367,114 @@ new Chart(document.getElementById('yearPieChart'), {
   options: chartOptions,
 });
 
-// Monthly Order Count Data
 const monthlyOrderCountData = {
   labels: <%- JSON.stringify(dailyOrderLabels) %>,
   datasets: [{
     label: 'Orders',
     data: <%- JSON.stringify(dailyOrderCounts) %>, 
-    backgroundColor: 'transparent',
-    borderColor: '#FF5733',
+    backgroundColor: (context) => {
+      const chart = context.chart;
+      const {ctx, chartArea} = chart;
+
+      if (!chartArea) return null; // avoid issues on initial load
+
+      const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+      gradient.addColorStop(0, 'rgba(137, 207, 240, 0.1)');
+      gradient.addColorStop(1, 'rgba(137, 207, 240, 0.4)');
+      return gradient;
+    },
+    borderColor: 'oklch(54.6% 0.245 262.881)',
     fill: true,
     tension: 0.4,
+    pointBackgroundColor: 'white',
+    pointBorderColor: 'oklch(54.6% 0.245 262.881)',
+    pointRadius: 4,
+    pointHoverRadius: 6
   }]
 };
+
 
 // Create the Monthly Order Count Line Chart
 new Chart(document.getElementById('monthlyOrderCountLineChart'), {
   type: 'line',
   data: monthlyOrderCountData,
-  options: chartOptions,
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: true },
+    },
+    scales: {
+      y: { beginAtZero: true }
+    }
+  },
 });
 
-// Yearly Order Count Data
 const yearlyOrderCountData = {
   labels: <%- JSON.stringify(monthlyOrderLabels) %>,
   datasets: [{
     label: 'Orders',
     data: <%- JSON.stringify(monthlyOrderCounts) %>, 
-    backgroundColor: 'transparent',
+    backgroundColor: (context) => {
+      const chart = context.chart;
+      const {ctx, chartArea} = chart;
+      if (!chartArea) return null;
+
+      const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+      gradient.addColorStop(0, 'rgba(255, 87, 51, 0.1)');  // Lighter version of #FF5733
+      gradient.addColorStop(1, 'rgba(255, 87, 51, 0.3)');
+      return gradient;
+    },
     borderColor: '#FF5733',
+    pointBackgroundColor: 'white',
+    pointBorderColor: '#FF5733',
+    pointRadius: 4,
+    pointHoverRadius: 6,
     fill: true,
     tension: 0.4,
   }]
 };
 
+
 // Create the Yearly Order Count Line Chart
 new Chart(document.getElementById('yearlyOrderCountLineChart'), {
   type: 'line',
   data: yearlyOrderCountData,
-  options: chartOptions,
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: true },
+    },
+    scales: {
+      y: { beginAtZero: true }
+    }
+  },
 });
 
-// Daily Revenue Line Chart Data
 const dailyRevenueLineData = {
   labels: <%- JSON.stringify(dailyRevenueLabels) %>,
   datasets: [{
     label: 'Daily Revenue',
     data: <%- JSON.stringify(dailyRevenueCounts) %>,
-    backgroundColor: '#36A2EB',
+    backgroundColor: (context) => {
+      const chart = context.chart;
+      const {ctx, chartArea} = chart;
+      if (!chartArea) return null;
+
+      const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+      gradient.addColorStop(0, 'rgba(54, 162, 235, 0.1)');
+      gradient.addColorStop(1, 'rgba(54, 162, 235, 0.4)');
+      return gradient;
+    },
     borderColor: '#36A2EB',
+    pointBackgroundColor: 'white',
+    pointBorderColor: '#36A2EB',
+    pointRadius: 4,
+    pointHoverRadius: 6,
     fill: true,
     tension: 0.4, 
   }]
 };
+
 
 // Create Daily Revenue Line Chart
 new Chart(document.getElementById('dailyRevenueLineChart'), {
@@ -455,18 +491,31 @@ new Chart(document.getElementById('dailyRevenueLineChart'), {
   }
 });
 
-// Monthly Revenue Line Chart Data
 const monthlyRevenueLineData = {
   labels: <%- JSON.stringify(monthlyRevenueLabels) %>,
   datasets: [{
     label: 'Monthly Revenue',
     data: <%- JSON.stringify(monthlyRevenueCounts) %>,
-    backgroundColor: '#4BC0C0',
+    backgroundColor: (context) => {
+      const chart = context.chart;
+      const {ctx, chartArea} = chart;
+      if (!chartArea) return null;
+
+      const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+      gradient.addColorStop(0, 'rgba(75, 192, 192, 0.1)');
+      gradient.addColorStop(1, 'rgba(75, 192, 192, 0.4)');
+      return gradient;
+    },
     borderColor: '#4BC0C0',
+    pointBackgroundColor: 'white',
+    pointBorderColor: '#4BC0C0',
+    pointRadius: 4,
+    pointHoverRadius: 6,
     fill: true,
-    tension: 0.4, 
+    tension: 0.4,
   }]
 };
+
 
 // Create Monthly Revenue Line Chart
 new Chart(document.getElementById('monthlyRevenueLineChart'), {
@@ -490,11 +539,12 @@ const dailyOrderStatusData = {
     label: 'Daily Orders',
     data: <%- JSON.stringify(statusCounts) %>,
     backgroundColor: [
-      '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'
+      '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#FF5733' 
     ],
     borderWidth: 1
   }]
 };
+
 
 new Chart(document.getElementById('dailyOrderStatusBarChart'), {
   type: 'bar',
@@ -514,11 +564,12 @@ const monthlyOrderStatusData = {
     label: 'Monthly Orders',
     data: <%- JSON.stringify(monthStatusCounts) %>,
     backgroundColor: [
-      '#FF9F40', '#9966FF', '#C9CBCF', '#FF6384'
+      '#FF9F40', '#9966FF', '#C9CBCF', '#FF6384', '#4BC0C0' 
     ],
     borderWidth: 1
   }]
 };
+
 
 new Chart(document.getElementById('monthlyOrderStatusBarChart'), {
   type: 'bar',
@@ -538,11 +589,12 @@ const yearlyOrderStatusData = {
     label: 'Yearly Orders',
     data: <%- JSON.stringify(yearStatusCounts) %>,
     backgroundColor: [
-      '#36A2EB', '#FF6384', '#FFCE56', '#4BC0C0'
+      '#36A2EB', '#FF6384', '#FFCE56', '#4BC0C0', '#FF5733'
     ],
     borderWidth: 1
   }]
 };
+
 
 new Chart(document.getElementById('yearlyOrderStatusBarChart'), {
   type: 'bar',
@@ -555,6 +607,3 @@ new Chart(document.getElementById('yearlyOrderStatusBarChart'), {
   }
 });
   </script>
-
-</body>
-</html>
