@@ -4,13 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><%= title %> | Admin Panel</title>
-<link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  
+  <!-- AOS (Animation on Scroll) Library -->
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
 
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 
-<body id="body" class="bg-gray-100 text-gray-900 font-sans tracking-normal transition-colors duration-300 dark:bg-gray-900 dark:text-gray-100">
+<body id="body" class="bg-gray-100 text-gray-900 font-sans tracking-normal transition-colors duration-300 dark:bg-gray-900 dark:text-gray-100" onload="AOS.init()">
   <div class="flex">
     <!-- Sidebar -->
     <div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 shadow-lg transform md:translate-x-0 -translate-x-full transition-transform duration-200 ease-in-out z-40">
@@ -46,6 +50,34 @@
 
   <!-- Sidebar and Theme Toggle -->
   <script defer>
+    // Initialize AOS (for animations)
+    AOS.init();
+
+  // Live Clock and Date
+  function updateDateTime() {
+    const now = new Date();
+    const time = now.toLocaleTimeString();
+    const date = now.toLocaleDateString();
+    document.getElementById('datetime').textContent = `${date} ${time}`;
+  }
+  setInterval(updateDateTime, 1000);
+  updateDateTime();
+
+  // Notification
+  function notifyMe() {
+    if (!("Notification" in window)) {
+      alert("This browser does not support desktop notifications.");
+    } else if (Notification.permission === "granted") {
+      new Notification("Hello! This is your notification.");
+    } else if (Notification.permission !== "denied") {
+      Notification.requestPermission().then(permission => {
+        if (permission === "granted") {
+          new Notification("Hello! This is your notification.");
+        }
+      });
+    }
+  }
+
     const body = document.getElementById('body');
     const darkModeToggle = document.getElementById('darkModeToggle');
     const icon = darkModeToggle ? darkModeToggle.querySelector('i') : null;
