@@ -146,7 +146,7 @@ const yearPieChartData = topItemsYear.map(item => item.dataValues.totalOrdered);
     });
 
     // Map day to order count
-const orderCountMap = {};
+let orderCountMap = {};
 dailyOrdersThisMonth.forEach(item => {
   orderCountMap[item.get('day')] = parseInt(item.get('orderCount'));
 });
@@ -353,6 +353,7 @@ for (let month = 1; month <= 12; month++) {
       formattedWeeklyRevenue
     });
   } catch (error) {
+    console.log(error)
     if (error.name === 'SequelizeDatabaseError') {
       next(new InternalServerError('Database query failed', error));
     } else {
