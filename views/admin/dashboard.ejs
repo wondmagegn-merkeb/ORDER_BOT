@@ -22,7 +22,7 @@
 <body class="bg-gray-100 p-6" onload="AOS.init()">
 
   <!-- Top KPIs -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
     <!-- Total Users -->
     <div class="bg-blue-500 p-4 rounded-xl shadow-lg flex items-center justify-between h-32 text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up">
       <div class="flex items-center space-x-4">
@@ -50,11 +50,21 @@
       <div class="flex items-center space-x-4">
         <i class="fas fa-dollar-sign fa-2x"></i>
         <div>
-          <h3 class="text-md font-semibold">Total Revenue</h3>
+          <h3 class="text-md font-semibold">Total Revenue (Expected)</h3>
           <p class="text-2xl font-bold">ETB <%= totalRevenue %></p>
         </div>
       </div>
     </div>
+
+<div class="bg-yellow-400 p-4 rounded-xl shadow-lg flex items-center justify-between h-32 text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up" data-aos-delay="200">
+  <div class="flex items-center space-x-4">
+    <i class="fas fa-dollar-sign fa-2x"></i>
+    <div>
+      <h3 class="text-md font-semibold">Total Revenue (Delivered)</h3>
+      <p class="text-2xl font-bold">ETB <%= totalRevenueDelivered %></p>
+    </div>
+  </div>
+</div>
 
     <!-- Active Users -->
     <div class="bg-indigo-500 p-4 rounded-xl shadow-lg flex items-center justify-between h-32 text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up" data-aos-delay="300">
@@ -67,64 +77,78 @@
       </div>
     </div>
   </div>
+
  <!-- Additional KPIs -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-    <!-- New Customers -->
-    <div class="bg-pink-500 p-4 rounded-xl shadow-lg flex items-center justify-between h-auto text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up">
-      <div class="flex items-center space-x-4">
-        <i class="fas fa-user-plus fa-2x"></i>
-        <div>
-          <h3 class="text-md font-semibold">New Customers</h3>
-          <p class="text-lg">This Week: <%= newCustomersThisWeek %>, This Month: <%= newCustomersThisMonth %></p>
-        </div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+  <!-- New Customers -->
+  <div class="bg-pink-500 p-4 rounded-xl shadow-lg flex items-center justify-between h-auto text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up">
+    <div class="flex items-center space-x-4">
+      <i class="fas fa-user-plus fa-2x"></i>
+      <div>
+        <h3 class="text-md font-semibold">New Customers</h3>
+        <p class="text-lg">This Week: <%= newCustomersThisWeek %>, This Month: <%= newCustomersThisMonth %></p>
       </div>
     </div>
+  </div>
 
-    <!-- Average Order Value -->
-    <div class="bg-purple-500 p-4 rounded-xl shadow-lg flex items-center justify-between h-auto text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up" data-aos-delay="100">
-      <div class="flex items-center space-x-4">
-        <i class="fas fa-chart-line fa-2x"></i>
-        <div>
-          <h3 class="text-md font-semibold">Average Order Value</h3>
-          <p class="text-lg">Min: ETB <%= minOrderValue %></p>
-          <p class="text-lg">Max: ETB <%= maxOrderValue %></p>
-          <p class="text-lg font-bold">Avg: ETB <%= avgOrderValue %></p>
-        </div>
+  <!-- Average Order Value -->
+  <div class="bg-purple-500 p-4 rounded-xl shadow-lg flex items-center justify-between h-auto text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up" data-aos-delay="100">
+    <div class="flex items-center space-x-4">
+      <i class="fas fa-chart-line fa-2x"></i>
+      <div>
+        <h3 class="text-md font-semibold">Average Order Value (Expected)</h3>
+        <p class="text-lg">Min: ETB <%= minOrderValue %></p>
+        <p class="text-lg">Max: ETB <%= maxOrderValue %></p>
+        <p class="text-lg font-bold">Avg: ETB <%= avgOrderValue %></p>
       </div>
     </div>
+  </div>
 
-    <!-- Orders by Status -->
-    <div class="bg-red-500 p-4 rounded-xl shadow-lg flex items-center justify-between h-auto text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up" data-aos-delay="200">
-      <div class="flex items-center space-x-4">
-        <i class="fas fa-tasks fa-2x"></i>
+  <!-- Average Order Value (Delivered) -->
+  <div class="bg-purple-500 p-4 rounded-xl shadow-lg flex items-center justify-between h-auto text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up" data-aos-delay="100">
+    <div class="flex items-center space-x-4">
+      <i class="fas fa-chart-line fa-2x"></i>
+      <div>
+        <h3 class="text-md font-semibold">Average Order Value (Delivered)</h3>
+        <p class="text-lg">Min: ETB <%= minOrderValueDelivered %></p>
+        <p class="text-lg">Max: ETB <%= maxOrderValueDelivered %></p>
+        <p class="text-lg font-bold">Avg: ETB <%= avgOrderValueDelivered %></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Orders by Status -->
+  <div class="bg-red-500 p-4 rounded-xl shadow-lg flex items-center justify-between h-auto text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up" data-aos-delay="200">
+    <div class="flex items-center space-x-4">
+      <i class="fas fa-tasks fa-2x"></i>
+      <div>
+        <h3 class="text-md font-semibold">Orders Status</h3>
         <div>
-          <h3 class="text-md font-semibold">Orders Status</h3>
-          <div>
-            <!-- Pending Status -->
-        <p class="text-lg">
-          <i class="fas fa-clock mr-2"></i> Pending: <%= pending %>
-        </p>
-        <!-- In Progress Status -->
-        <p class="text-lg">
-          <i class="fas fa-spinner mr-2"></i> In Progress: <%= progress %>
-        </p>
-        <!-- Completed Status -->
-        <p class="text-lg">
-          <i class="fas fa-check-circle mr-2"></i> Completed: <%= completed %>
-        </p>
-        <!-- Cancelled Status -->
-        <p class="text-lg">
-          <i class="fas fa-times-circle mr-2"></i> Cancelled: <%= cancelled %>
-        </p>
-        <!-- Delivered Status -->
-        <p class="text-lg">
-          <i class="fas fa-truck mr-2"></i> Delivered: <%= delivered %>
-        </p>
-          </div>
+          <!-- Pending Status -->
+          <p class="text-lg">
+            <i class="fas fa-clock mr-2"></i> Pending: <%= pending %>
+          </p>
+          <!-- In Progress Status -->
+          <p class="text-lg">
+            <i class="fas fa-spinner mr-2"></i> In Progress: <%= progress %>
+          </p>
+          <!-- Completed Status -->
+          <p class="text-lg">
+            <i class="fas fa-check-circle mr-2"></i> Completed: <%= completed %>
+          </p>
+          <!-- Cancelled Status -->
+          <p class="text-lg">
+            <i class="fas fa-times-circle mr-2"></i> Cancelled: <%= cancelled %>
+          </p>
+          <!-- Delivered Status -->
+          <p class="text-lg">
+            <i class="fas fa-truck mr-2"></i> Delivered: <%= delivered %>
+          </p>
         </div>
       </div>
     </div>
   </div>
+</div>
   
   <!-- Top Users and Feedback -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -136,7 +160,7 @@
           <h3 class="text-md font-semibold">Top Users</h3>
           <ul class="space-y-2">
     
-<% topUsers.forEach(user => { %>
+            <% topUsers.forEach(user => { %>
                 <li class="text-lg"><%= user.fullName %>(<%= user.userId %>) - <%= user.orderCount %> Orders</li>
             <% }) %>
           </ul>
@@ -190,68 +214,84 @@
     </div>
   </div>
   
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-    <div class="bg-blue-100 p-6 rounded-xl shadow-lg text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up">
-      <h3 class="text-lg font-semibold mb-4 text-black">Most Ordered Items (This Week)</h3>
-      <canvas id="weekPieChart"></canvas>
-    </div>
-
-    <div class="bg-green-100 p-6 rounded-xl shadow-lg text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up" data-aos-delay="100">
-      <h3 class="text-lg font-semibold mb-4 text-black">Most Ordered Items (This Month)</h3>
-      <canvas id="monthPieChart"></canvas>
-    </div>
-
-    <div class="bg-green-100 p-6 rounded-xl shadow-lg text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up" data-aos-delay="100">
-      <h3 class="text-lg font-semibold mb-4 text-black">Most Ordered Items (This Year)</h3>
-      <canvas id="yearPieChart"></canvas>
-    </div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+  <!-- Most Ordered Items (This Week) -->
+  <div class="bg-blue-100 p-6 rounded-xl shadow-lg text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up">
+    <h3 class="text-lg font-semibold mb-4 text-black">Most Ordered Items (This Week)</h3>
+    <canvas id="weekPieChart"></canvas>
   </div>
+
+  <!-- Most Ordered Items (This Month) -->
+  <div class="bg-green-100 p-6 rounded-xl shadow-lg text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up" data-aos-delay="100">
+    <h3 class="text-lg font-semibold mb-4 text-black">Most Ordered Items (This Month)</h3>
+    <canvas id="monthPieChart"></canvas>
+  </div>
+
+  <!-- Most Ordered Items (This Year) -->
+  <div class="bg-yellow-100 p-6 rounded-xl shadow-lg text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up" data-aos-delay="200">
+    <h3 class="text-lg font-semibold mb-4 text-black">Most Ordered Items (This Year)</h3>
+    <canvas id="yearPieChart"></canvas>
+  </div>
+</div>
+
 <!-- Order Count Line Charts -->
-  <div class="mb-8">
-    <!-- Daily Order Count Bar Chart -->
-    <div class="bg-purple-100 p-6 rounded-xl shadow-lg text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up">
-      <h3 class="text-lg font-semibold mb-4 text-black">Monthly Order Count</h3>
-      <canvas id="monthlyOrderCountLineChart"></canvas>
-    </div></div>
+  <!-- Order Count Line Charts -->
 <div class="mb-8">
-    <!-- Monthly Order Count Line Chart -->
-    <div class="bg-indigo-50 p-6 rounded-xl shadow-lg text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up" data-aos-delay="100">
-      <h3 class="text-lg font-semibold mb-4 text-black">Yearly Order Count</h3>
-      <canvas id="yearlyOrderCountBarChart"></canvas>
-    </div>
+  <!-- Daily Order Count Line Chart -->
+  <div class="bg-purple-100 p-6 rounded-xl shadow-lg text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up">
+    <h3 class="text-lg font-semibold mb-4 text-black">Monthly Order Count</h3>
+    <canvas id="monthlyOrderCountLineChart"></canvas> <!-- ✅ Matches your JS -->
+  </div>
+</div>
+
+<div class="mb-8">
+  <!-- Yearly Order Count Line Chart -->
+  <div class="bg-indigo-50 p-6 rounded-xl shadow-lg text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up" data-aos-delay="100">
+    <h3 class="text-lg font-semibold mb-4 text-black">Yearly Order Count</h3>
+    <canvas id="yearlyOrderCountLineChart"></canvas> <!-- ✅ Corrected -->
+  </div>
+</div>
+
+
+
+<!-- Order Status Bar Charts -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+  <!-- Daily Order Status Bar Chart -->
+  <div class="bg-yellow-100 p-6 rounded-xl shadow-lg text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up">
+    <h3 class="text-lg font-semibold mb-4 text-black">Daily Order Status</h3>
+    <canvas id="dailyOrderStatusBarChart"></canvas>
   </div>
 
-  <!-- Revenue Line Charts -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
-    <!-- Daily Revenue Line Chart -->
-    <div class="bg-blue-100 p-6 rounded-xl shadow-lg text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up">
-      <h3 class="text-lg font-semibold mb-4 text-black">Daily Revenue</h3>
-      <canvas id="dailyRevenueLineChart"></canvas>
-    </div>
-
-    <!-- Monthly Revenue Line Chart -->
-    <div class="bg-green-100 p-6 rounded-xl shadow-lg text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up" data-aos-delay="100">
-      <h3 class="text-lg font-semibold mb-4 text-black">Monthly Revenue</h3>
-      <canvas id="monthlyRevenueLineChart"></canvas>
-    </div>
+  <!-- Monthly Order Status Bar Chart -->
+  <div class="bg-red-100 p-6 rounded-xl shadow-lg text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up" data-aos-delay="100">
+    <h3 class="text-lg font-semibold mb-4 text-black">Monthly Order Status</h3>
+    <canvas id="monthlyOrderStatusBarChart"></canvas>
   </div>
 
-  <!-- Order Status Bar Charts -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
-    <!-- Daily Order Status Bar Chart -->
-    <div class="bg-yellow-100 p-6 rounded-xl shadow-lg text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up">
-      <h3 class="text-lg font-semibold mb-4 text-black">Daily Order Status</h3>
-      <canvas id="dailyOrderStatusBarChart"></canvas>
-    </div>
-
-    <!-- Monthly Order Status Bar Chart -->
-    <div class="bg-red-100 p-6 rounded-xl shadow-lg text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up" data-aos-delay="100">
-      <h3 class="text-lg font-semibold mb-4 text-black">Monthly Order Status</h3>
-      <canvas id="monthlyOrderStatusBarChart"></canvas>
-    </div>
+  <!-- Yearly Order Status Bar Chart -->
+  <div class="bg-blue-100 p-6 rounded-xl shadow-lg text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up" data-aos-delay="200">
+    <h3 class="text-lg font-semibold mb-4 text-black">Yearly Order Status</h3>
+    <canvas id="yearlyOrderStatusBarChart"></canvas>
   </div>
+</div>
 
-  
+<!-- Revenue Line Charts -->
+<div class="mb-8">
+  <!-- Daily Revenue Line Chart -->
+  <div class="bg-blue-100 p-6 rounded-xl shadow-lg text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up">
+    <h3 class="text-lg font-semibold mb-4 text-black">Daily Revenue</h3>
+    <canvas id="dailyRevenueLineChart"></canvas>
+  </div>
+</div>
+
+<div class="mb-8">
+  <!-- Monthly Revenue Line Chart -->
+  <div class="bg-green-100 p-6 rounded-xl shadow-lg text-white transition-transform transform hover:scale-105 hover:shadow-2xl" data-aos="fade-up" data-aos-delay="100">
+    <h3 class="text-lg font-semibold mb-4 text-black">Monthly Revenue</h3>
+    <canvas id="monthlyRevenueLineChart"></canvas>
+  </div>
+</div>
+
 <!-- Present Orders Table -->
 <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
   <h3 class="text-lg font-semibold mb-4 text-black">Present Orders</h3>
@@ -349,116 +389,174 @@ new Chart(document.getElementById('yearPieChart'), {
 
 
     // Monthly Order Count Data
-    const monthlyOrderCountData = {
-      labels: <%- JSON.stringify(dailyOrderLabels) %>,
-      datasets: [{
-        label: 'Orders',
-        data: <%- JSON.stringify(dailyOrderCounts) %>, 
-        backgroundColor: '#FF5733',
-        borderColor: '#FF5733',
-        borderWidth: 1,
-      }]
-    };
+const monthlyOrderCountData = {
+  labels: <%- JSON.stringify(dailyOrderLabels) %>,
+  datasets: [{
+    label: 'Orders',
+    data: <%- JSON.stringify(dailyOrderCounts) %>, 
+    backgroundColor: 'transparent',
+    borderColor: '#FF5733',
+    borderWidth: 2,
+    fill: false,
+  }]
+};
 
-    // Create the Monthly Order Count Line Chart
-    new Chart(document.getElementById('monthlyOrderCountLineChart'), {
-      type: 'line',
-      data: monthlyOrderCountData,
-      options: chartOptions,
-    });
+// Create the Monthly Order Count Line Chart
+new Chart(document.getElementById('monthlyOrderCountLineChart'), {
+  type: 'line',
+  data: monthlyOrderCountData,
+  options: chartOptions,
+});
 
-    // Yearly Order Count Data
-    const yearlyOrderCountData = {
-      labels: <%- JSON.stringify(monthlyOrderLabels) %>,
-      datasets: [{
-        label: 'Orders',
-        data: <%- JSON.stringify(monthlyOrderCounts) %>, 
-        backgroundColor: '#FF5733',
-        borderColor: '#FF5733',
-        borderWidth: 1,
-      }]
-    };
+// Yearly Order Count Data
+const yearlyOrderCountData = {
+  labels: <%- JSON.stringify(monthlyOrderLabels) %>,
+  datasets: [{
+    label: 'Orders',
+    data: <%- JSON.stringify(monthlyOrderCounts) %>, 
+    backgroundColor: 'transparent',
+    borderColor: '#FF5733',
+    borderWidth: 2,
+    fill: false,
+  }]
+};
 
-    // Create the Yearly Order Count Line Chart
-    new Chart(document.getElementById('yearlyOrderCountLineChart'), {
-      type: 'line',
-      data: yearlyOrderCountData,
-      options: chartOptions,
-    });
+// Create the Yearly Order Count Line Chart
+new Chart(document.getElementById('yearlyOrderCountLineChart'), {
+  type: 'line',
+  data: yearlyOrderCountData,
+  options: chartOptions,
+});
+
   
-    // Sample Data for Line Charts and Bar Charts (Replace with actual data)
-    const dailyRevenueData = {
-      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-      datasets: [{
-        label: 'Revenue (ETB)',
-        data: [50, 70, 40, 90, 80],
-        borderColor: '#FF6384',
-        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-        fill: true,
-      }]
-    };
+    // Daily Revenue Line Chart Data
+const dailyRevenueLineData = {
+  labels: <%- JSON.stringify(dailyRevenueLabels) %>,
+  datasets: [{
+    label: 'Daily Revenue',
+    data: <%- JSON.stringify(dailyRevenueCounts) %>,
+    backgroundColor: '#36A2EB',
+    borderColor: '#36A2EB',
+    fill: true,
+    tension: 0.4, // Smooth curve
+  }]
+};
 
-    const monthlyRevenueData = {
-      labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-      datasets: [{
-        label: 'Revenue (ETB)',
-        data: [200, 220, 180, 250],
-        borderColor: '#36A2EB',
-        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-        fill: true,
-      }]
-    };
+// Create Daily Revenue Line Chart
+new Chart(document.getElementById('dailyRevenueLineChart'), {
+  type: 'line',
+  data: dailyRevenueLineData,
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: true },
+    },
+    scales: {
+      y: { beginAtZero: true }
+    }
+  }
+});
 
-    const dailyOrderStatusData = {
-      labels: ['Pending', 'In Progress', 'Completed', 'Cancelled'],
-      datasets: [{
-        label: 'Orders',
-        data: [10, 5, 8, 3],
-        backgroundColor: '#FF6384',
-        borderColor: '#FF6384',
-        borderWidth: 1,
-      }]
-    };
+// Monthly Revenue Line Chart Data
+const monthlyRevenueLineData = {
+  labels: <%- JSON.stringify(monthlyRevenueLabels) %>,
+  datasets: [{
+    label: 'Monthly Revenue',
+    data: <%- JSON.stringify(monthlyRevenueCounts) %>,
+    backgroundColor: '#4BC0C0',
+    borderColor: '#4BC0C0',
+    fill: true,
+    tension: 0.4, // Smooth curve
+  }]
+};
 
-    const monthlyOrderStatusData = {
-      labels: ['Pending', 'In Progress', 'Completed', 'Cancelled'],
-      datasets: [{
-        label: 'Orders',
-        data: [40, 20, 25, 15],
-        backgroundColor: '#36A2EB',
-        borderColor: '#36A2EB',
-        borderWidth: 1,
-      }]
-    };
+// Create Monthly Revenue Line Chart
+new Chart(document.getElementById('monthlyRevenueLineChart'), {
+  type: 'line',
+  data: monthlyRevenueLineData,
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: true },
+    },
+    scales: {
+      y: { beginAtZero: true }
+    }
+  }
+});
 
-    
 
+    // DAILY ORDER STATUS BAR CHART
+const dailyOrderStatusData = {
+  labels: <%- JSON.stringify(statusLabels) %>,
+  datasets: [{
+    label: 'Daily Orders',
+    data: <%- JSON.stringify(statusCounts) %>,
+    backgroundColor: [
+      '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'
+    ],
+    borderWidth: 1
+  }]
+};
 
-    // Create the Revenue Line Charts
-    new Chart(document.getElementById('dailyRevenueLineChart'), {
-      type: 'line',
-      data: dailyRevenueData,
-      options: chartOptions,
-    });
+new Chart(document.getElementById('dailyOrderStatusBarChart'), {
+  type: 'bar',
+  data: dailyOrderStatusData,
+  options: {
+    responsive: true,
+    scales: {
+      y: { beginAtZero: true }
+    }
+  }
+});
 
-    new Chart(document.getElementById('monthlyRevenueLineChart'), {
-      type: 'line',
-      data: monthlyRevenueData,
-      options: chartOptions,
-    });
+// MONTHLY ORDER STATUS BAR CHART
+const monthlyOrderStatusData = {
+  labels: <%- JSON.stringify(monthStatusLabels) %>,
+  datasets: [{
+    label: 'Monthly Orders',
+    data: <%- JSON.stringify(monthStatusCounts) %>,
+    backgroundColor: [
+      '#FF9F40', '#9966FF', '#C9CBCF', '#FF6384'
+    ],
+    borderWidth: 1
+  }]
+};
 
-    // Create the Order Status Bar Charts
-    new Chart(document.getElementById('dailyOrderStatusBarChart'), {
-      type: 'bar',
-      data: dailyOrderStatusData,
-      options: chartOptions,
-    });
+new Chart(document.getElementById('monthlyOrderStatusBarChart'), {
+  type: 'bar',
+  data: monthlyOrderStatusData,
+  options: {
+    responsive: true,
+    scales: {
+      y: { beginAtZero: true }
+    }
+  }
+});
 
-    new Chart(document.getElementById('monthlyOrderStatusBarChart'), {
-      type: 'bar',
-      data: monthlyOrderStatusData,
-      options: chartOptions,
-    });
+// YEARLY ORDER STATUS BAR CHART
+const yearlyOrderStatusData = {
+  labels: <%- JSON.stringify(yearStatusLabels) %>,
+  datasets: [{
+    label: 'Yearly Orders',
+    data: <%- JSON.stringify(yearStatusCounts) %>,
+    backgroundColor: [
+      '#36A2EB', '#FF6384', '#FFCE56', '#4BC0C0'
+    ],
+    borderWidth: 1
+  }]
+};
+
+new Chart(document.getElementById('yearlyOrderStatusBarChart'), {
+  type: 'bar',
+  data: yearlyOrderStatusData,
+  options: {
+    responsive: true,
+    scales: {
+      y: { beginAtZero: true }
+    }
+  }
+});
 
     
   </script>
