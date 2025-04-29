@@ -179,7 +179,7 @@ const monthlyOrdersThisYear = await Order.findAll({
 });
 
 // Build a map from month number to order count
-const orderCountMap = {};
+orderCountMap = {};
 monthlyOrdersThisYear.forEach(item => {
   orderCountMap[item.get('month')] = parseInt(item.get('orderCount'));
 });
