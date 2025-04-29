@@ -74,7 +74,7 @@ exports.updateOrder = async (req, res, next) => {
             `;
           if (newPrice !== oldPrice) {
             message += `
-<b>Reason for Price Change:</b> ${order.special || 'This could be due to special order adjustments, such as customized items or delivery-related fees.'}
+<b>Reason for Price Change:</b> ${order.specialOrder || 'This could be due to special order adjustments, such as customized items or delivery-related fees.'}
           \n  `;}
 message += `
 <i>If you have any questions or need any updates, feel free to contact us!</i>
@@ -126,10 +126,16 @@ for (const admin of deliveryAdmins) {
 <b>Old Price:</b> ${oldPrice} birr\n
 <b>New Price:</b> ${newPrice} birr\n\n
 <i>Thank you for your patience! Your order has successfully been delivered. We hope everything is to your satisfaction!</i>\n\n
-<b>Reason for Price Change:</b> ${order.special || 'This could be due to special order adjustments, such as customized items or delivery-related fees.'}\n\n
+            `;
+          if (newPrice !== oldPrice) {
+            message += `
+<b>Reason for Price Change:</b> ${order.specialOrder || 'This could be due to special order adjustments, such as customized items or delivery-related fees.'}
+          \n  `;}
+message += `
 🙏 <b>We would love to hear your feedback!</b> 📝\n\n
 <i>Please let us know if you are satisfied with your order, or if there’s anything we can improve. Your feedback helps us serve you better!</i>\n\n
 <i>Feel free to reply to this message or contact us if you need further assistance.</i>
+
             `;
         }
 
