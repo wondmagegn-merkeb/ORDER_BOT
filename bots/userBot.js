@@ -2,8 +2,8 @@ const { Telegraf, Markup } = require('telegraf');
 const LocalSession = require('telegraf-session-local');
 const path = require('path');
 const fs = require('fs');
-const { User, Order, Admin } = require('../models/index'); // Assuming User and Order models are defined in your Sequelize setup
-const { getMenu } = require('./userHandlers/menuHandler');
+const { User, Order, Admin, FoodCategory} = require('../models/index'); // Assuming User and Order models are defined in your Sequelize setup
+const { getMenu ,getMenuByCategory} = require('./userHandlers/menuHandler');
 const {
   placeOrder,
   confirmOrder,
@@ -62,7 +62,7 @@ userBot.start(async (ctx) => {
         parse_mode: 'Markdown',
         ...Markup.keyboard([
           ['view menu', 'last order', 'profile'],
-          ['history'],
+          ['history','search by category'],
         ]).resize(),
       });
     } else {
@@ -81,7 +81,7 @@ userBot.start(async (ctx) => {
         parse_mode: 'Markdown',
         ...Markup.keyboard([
           ['view menu', 'last order', 'profile'],
-          ['history'],
+          ['history','search by category'],
         ]).resize(),
       });
     }
@@ -96,6 +96,31 @@ userBot.hears('view menu', (ctx) => getMenu(ctx));
 userBot.hears('history', (ctx) => handleOrderHistory(ctx));
 userBot.hears('last order', (ctx) => handleLastOrder(ctx));
 userBot.hears('profile', (ctx) => handleUserProfile(ctx));
+userBot.hears('search by category', async (ctx) => {
+  try {
+    const categories = await FoodCategory.findAll({
+      attributes: ['categoryId', 'categoryName']
+    });
+
+    const buttons = categories.map(cat => [
+      { text: cat.categoryName, callback_data: `search_cat_${cat.categoryId}` }
+    ]);
+
+    await ctx.reply('Choose a category:', {
+  reply_markup: {
+    inline_keyboard: [
+      ...buttons,
+      [{ text: '⬅ Back to Menu', callback_data: 'back_to_menu' }]
+    ]
+  }
+});
+
+  } catch (err) {
+    console.error('Error fetching categories:', err);
+    await ctx.reply('Failed to load categories.');
+  }
+});
+
 
 // Handle callback 
 userBot.on('callback_query', async (ctx) => {
@@ -119,7 +144,14 @@ userBot.on('callback_query', async (ctx) => {
       // Send a reply to acknowledge the feedback submission
       await ctx.answerCbQuery('Thanks for your feedback!');
     }
+if (data.startsWith('search_cat_')) {
+    const categoryId = data.split('search_cat_')[1];
+return getMenuByCategory(ctx, categoryId); 
+}
 
+    if (data === 'back_to_menu') {
+    return getMenu(ctx); // replace with your main menu function
+  }
     // Handle ordering action
     if (data.startsWith('order_now_')) {
       const foodId = data.split('_')[2];
