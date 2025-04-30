@@ -8,7 +8,7 @@
   <div class="flex justify-between items-center mb-6">
     <div class="relative w-full max-w-md">
       <input type="text" id="searchInput" placeholder="Search"
-        class="w-full p-2 pl-10 border border-gray-300 rounded transition duration-300 ease-in-out focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        class="w-full p-2 pl-10 border border-gray-300 rounded">
       <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
     </div>
     <% if (permissions.canAdd) { %>
@@ -23,7 +23,7 @@
     <div class="flex space-x-2 w-max">
       <% filters.forEach(filter => { %>
         <button id="<%= filter.id %>FilterBtn" 
-                class="filter-btn whitespace-nowrap px-4 py-2 rounded text-white <%= filter.colorClass %> transition duration-300 ease-in-out hover:bg-opacity-80" 
+                class="filter-btn whitespace-nowrap px-4 py-2 rounded text-white <%= filter.colorClass %>" 
                 data-filter="<%= filter.value.toLowerCase() %>">
           <%= filter.name %>
         </button>
@@ -45,27 +45,28 @@
       <tbody id="tableBody">
         <% models.forEach(model => { %>
           <% const id = model[modelColumns[0].field]; %>
-          <tr class="transition duration-300 ease-in-out hover:bg-gray-100">
+          <tr>
             <% modelColumns.forEach(column => { %>
               <td class="p-3 border-b"><%= model[column.field] %></td>
             <% }); %>
             <td class="p-3 border-b flex space-x-2">
               <% if (permissions.canView) { %>
               <button 
-    class="view-btn text-blue-500 hover:text-blue-600 transition duration-300">
+    class="view-btn text-blue-500 hover:text-blue-600" 
+    data-model='<%= JSON.stringify(model) %>'>
     <i class="fas fa-eye"></i> View
   </button>
               <% } %>
 
               <% if (permissions.canEdit) { %>
-              <a href="/<%= modelNameLower %>/edit/<%= id %>" class="text-yellow-500 hover:text-yellow-600 transition duration-300">
+              <a href="/<%= modelNameLower %>/edit/<%= id %>" class="text-yellow-500 hover:text-yellow-600">
                 <i class="fas fa-edit"></i> Update
               </a>
               <% } %>
 
               <% if (permissions.canDelete) { %>
               <form method="POST" class="delete-form inline" data-id="<%= id %>" data-action="/api/<%= modelNameLower %>/delete">
-                <button type="button" class="open-delete-modal text-red-500 hover:text-red-600 transition duration-300">
+                <button type="button" class="open-delete-modal text-red-500 hover:text-red-600">
                   <i class="fas fa-trash-alt"></i> Delete
                 </button>
               </form>
@@ -85,22 +86,23 @@
 </div>
 
 <!-- View Modal -->
-<div id="viewModal" class="hidden absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 transition-opacity duration-300">
+<div id="viewModal" class="hidden absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
   <div class="bg-white w-11/12 max-w-2xl p-6 rounded-lg shadow-lg relative overflow-y-auto max-h-[70vh]">
     <!-- Close Button -->
     <button 
       id="closeViewModal" 
-      class="absolute top-4 right-24 text-red-500 hover:text-red-700 text-3xl font-bold transition-transform transform hover:scale-110">
+      class="absolute top-4 right-24 text-red-500 hover:text-red-700 text-3xl font-bold">
       &times;
     </button>
     <h2 class="text-2xl font-bold mb-4 text-center text-gray-800">Order Details</h2>
     <!-- Scrollable Content -->
     <div id="modalContent" class="flex-1 max-h-72 overflow-y-auto overflow-x-hidden space-y-6 pr-2">
-      <!-- Dynamic content will go here -->
-    </div>
+  <!-- Dynamic content will go here -->
+</div>
 
   </div>
 </div>
+
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
@@ -174,84 +176,118 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeViewModal = document.getElementById('closeViewModal');
 
   document.querySelectorAll('.view-btn').forEach(button => {
-    button.addEventListener('click', function () {
-      const modelData = JSON.parse(this.dataset.model);
-      const modelName = "<%= modelName %>";
+  button.addEventListener('click', function () {
+    const modelData = JSON.parse(this.dataset.model);
+    const modelName = "<%= modelName %>";
 
-      let modalHTML = `
-        <div class="bg-gray-50 p-4 rounded-lg shadow-md space-y-2">
-          <h3 class="text-xl font-semibold text-gray-800 mb-3">Order Summary</h3>
-          <div class="grid grid-cols-2 gap-4 text-gray-700">
-      `;
+    let modalHTML = `
+      <div class="bg-gray-50 p-4 rounded-lg shadow-md space-y-2">
+        <h3 class="text-xl font-semibold text-gray-800 mb-3">Order Summary</h3>
+        <div class="grid grid-cols-2 gap-4 text-gray-700">
+    `;
 
-      for (const [key, value] of Object.entries(modelData)) {
-        if (key !== 'image' && key !== 'latitude' && key !== 'longitude' && key !== 'oldData' && key !== 'newData') {
-          modalHTML += `
-            <div>
-              <span class="font-semibold text-gray-900">${key}:</span> 
-              <span class="text-blue-600">${value ?? ''}</span>
-            </div>
-          `;
-        }
-      }
-
-      modalHTML += `
+    for (const [key, value] of Object.entries(modelData)) {
+      if (key !== 'image' && key !== 'latitude' && key !== 'longitude' && key !== 'oldData' && key !== 'newData') {
+        modalHTML += `
+          <div>
+            <span class="font-semibold text-gray-900">${key}:</span> 
+            <span class="text-blue-600">${value ?? ''}</span>
           </div>
+        `;
+      }
+    }
+
+    modalHTML += `
+        </div>
+      </div>
+    `;
+
+    if (modelData.oldData) {
+      modalHTML += `
+        <div class="mt-4">
+          <h3 class="text-xl font-bold text-gray-700">Old Data (JSON)</h3>
+          <pre class="bg-gray-100 p-4 rounded-lg text-sm font-mono text-gray-800 whitespace-pre-wrap">
+${JSON.stringify(modelData.oldData, null, 2)}
+          </pre>
         </div>
       `;
+    }
 
-      if (modelData.oldData) {
+    if (modelData.newData) {
+      modalHTML += `
+        <div class="mt-4">
+          <h3 class="text-xl font-bold text-gray-700">New Data (JSON)</h3>
+          <pre class="bg-gray-100 p-4 rounded-lg text-sm font-mono text-gray-800 whitespace-pre-wrap">
+${JSON.stringify(modelData.newData, null, 2)}
+          </pre>
+        </div>
+      `;
+    }
+
+    if (modelName === "Order") {
+      if (modelData.image) {
         modalHTML += `
           <div class="mt-4">
-            <h3 class="text-xl font-bold text-gray-700">Old Data (JSON)</h3>
-            <pre class="bg-gray-100 p-4 rounded-lg text-sm font-mono text-gray-800 whitespace-pre-wrap">
-  ${JSON.stringify(modelData.oldData, null, 2)}
-            </pre>
+            <h2 class="text-xl font-bold mb-2 text-gray-700">Image</h2>
+            <img src="${modelData.image}" alt="Order Image" class="w-full max-h-60 object-cover rounded-md border" />
           </div>
         `;
       }
 
-      if (modelData.newData) {
+      if (modelData.latitude && modelData.longitude) {
+        const mapSrc = `https://www.google.com/maps?q=${modelData.latitude},${modelData.longitude}&hl=es;z=14&output=embed`;
         modalHTML += `
-          <div class="mt-4">
-            <h3 class="text-xl font-bold text-gray-700">New Data (JSON)</h3>
-            <pre class="bg-gray-100 p-4 rounded-lg text-sm font-mono text-gray-800 whitespace-pre-wrap">
-  ${JSON.stringify(modelData.newData, null, 2)}
-            </pre>
+          <div class="bg-gray-50 p-4 rounded-lg shadow-md space-y-4 mt-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-3">Delivery Location</h3>
+            <div class="w-full h-64 overflow-hidden rounded-lg border border-gray-300 shadow-sm">
+              <iframe src="${mapSrc}" width="100%" height="100%" class="rounded-md border" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
           </div>
         `;
       }
+    }
 
-      if (modelName === "Order") {
-        if (modelData.image) {
-          modalHTML += `
-            <div class="mt-4">
-              <h2 class="text-xl font-bold mb-2 text-gray-700">Image</h2>
-              <img src="${modelData.image}" alt="Order Image" class="w-full max-h-60 object-cover rounded-md border" />
-            </div>
-          `;
-        }
+    modalContent.innerHTML = modalHTML;
+    viewModal.classList.remove('hidden');
+  });
+});
 
-        if (modelData.latitude && modelData.longitude) {
-          const mapSrc = `https://www.google.com/maps?q=${modelData.latitude},${modelData.longitude}&hl=es;z=14&output=embed`;
-          modalHTML += `
-            <div class="bg-gray-50 p-4 rounded-lg shadow-md space-y-4 mt-6">
-              <h3 class="text-xl font-semibold text-gray-800 mb-3">Delivery Location</h3>
-              <div class="w-full h-64 overflow-hidden rounded-lg border border-gray-300 shadow-sm">
-                <iframe src="${mapSrc}" width="100%" height="100%" class="rounded-md border" allowfullscreen="" loading="lazy"></iframe>
-              </div>
-            </div>
-          `;
-        }
-      }
+  closeViewModal.addEventListener('click', () => {
+    viewModal.classList.add('hidden');
+  });
 
-      modalContent.innerHTML = modalHTML;
-      viewModal.classList.remove('hidden');
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.filter-btn').forEach(b => {
+        b.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
+      });
+
+      this.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
+
+      const value = this.dataset.filter;
+      const allRows = tableBody.querySelectorAll('tr');
+      allRows.forEach(row => {
+        const match = Array.from(row.cells).some(cell =>
+          cell.textContent.toLowerCase().includes(value)
+        );
+        row.style.display = match ? '' : 'none';
+      });
+
+      currentPage = 1;
+      displayPage(currentPage);
     });
   });
 
-  closeViewModal.addEventListener('click', function () {
-    viewModal.classList.add('hidden');
+  // Confirm Delete Modal
+  document.querySelectorAll('.open-delete-modal').forEach(button => {
+    button.addEventListener('click', function () {
+      if (confirm('Are you sure you want to delete this item?')) {
+        const form = this.closest('form');
+        form.submit();
+      }
+    });
   });
+
+  displayPage(currentPage);
 });
 </script>
