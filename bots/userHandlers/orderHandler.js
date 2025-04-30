@@ -13,12 +13,21 @@ async function placeOrder(ctx, foodId) {
 
     // Check if user exists
     const user = await User.findOne({ where: { telegramId } });
-    if (!user) {
-        return ctx.reply(
-            '👋 <b>We couldn’t find your registration.</b>\n\nPlease type <code>/start</code> to register before placing an order.',
-            { parse_mode: 'HTML' }
-        );
-    }
+
+if (!user) {
+    return ctx.reply(
+        '👋 <b>We couldn’t find your registration.</b>\n\nPlease type <code>/start</code> to register before placing an order.',
+        { parse_mode: 'HTML' }
+    );
+}
+
+if (user.status === 'block') {
+    return ctx.reply(
+        '⛔️ <b>Your access has been restricted.</b>\n\nPlease contact support if you believe this is a mistake.',
+        { parse_mode: 'HTML' }
+    );
+}
+
     
     // Initialize session if necessary
     if (!ctx.session) ctx.session = {};
