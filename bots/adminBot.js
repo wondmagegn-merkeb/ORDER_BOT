@@ -19,16 +19,7 @@ const tempStates = {}; // Temporary in-memory state tracking
 const getAdminRole = async (ctx, telegramId) => {
   try {
     const admin = await Admin.findOne({ where: { telegramId } });
-    const users = await User.findAll();
-    const userTelegramIds = users.map(user => user.telegramId);
-
-    const message = `
-New Food Item Added to the Menu!
-    `;
-
-    for (const telegramId of userTelegramIds) {
-      await sendMessageToUser(telegramId, message);
-    }
+    
     if (!admin) {
       return null;
     }
@@ -151,6 +142,21 @@ adminBot.on('callback_query', async (ctx) => {
             order.updatedBy = adminId;
             order.status = 'progress';
             await order.save();
+          
+          const user = await User.findOne({ where: { userId: order.userId } });
+    
+const oldPrice = oldTotalPrice ? Number(oldTotalPrice).toFixed(2) : 'N/A';
+   const message = `
+✅ <b>Your Order Has Been Accepted</b>\n
+<b>Order ID:</b> ${orderId}\n
+<b>Price:</b> ${oldPrice} birr\n
+<i>Your order is now being prepared, and we are working hard to get it ready. Please be patient while we complete your order.</i>\n
+         <b>Reason for Price Change:</b> ${order.specialOrder || 'This could be due to special order adjustments, such as customized items or delivery-related fees.'}
+          \n   `;
+
+     if (message && user.telegramId) {
+            await sendMessageToUser(user.telegramId, message);
+        }
             return ctx.reply('🚚 Order marked as *In Progress* successfully!', { parse_mode: 'Markdown' });
         } catch (err) {
             console.error('❌ Error updating order:', err);
@@ -168,6 +174,44 @@ adminBot.on('callback_query', async (ctx) => {
             order.updatedBy = adminId;
             order.status = 'completed';
             await order.save();
+          const user = await User.findOne({ where: { userId: order.userId } });
+    const oldPrice = oldTotalPrice ? Number(oldTotalPrice).toFixed(2) : 'N/A';
+        const newPrice = newTotalPrice ? Number(newTotalPrice).toFixed(2) : 'N/A';
+
+
+   const message = `
+🎉 <b>Your Order Has Been Completed</b> 🎉\n
+<b>Order ID:</b> ${orderId}\n
+<i>Thank you for your patience! Your order has now been completed. We truly appreciate your trust in us.</i>
+            `;
+
+     if (message && user.telegramId) {
+            await sendMessageToUser(user.telegramId, message);
+        }
+
+  const deliveryAdmins = await Admin.findAll({
+    where: { role: 'delivery' }
+});
+            // If the admin role is 'delivery', send a message to notify them to address the completed food
+            if (deliveryAdmins) {
+                const deliveryMessage = `
+🚚 <b>Delivery Team, Please Address the Completed Order</b> 🍽️\n
+<b>Order ID:</b> ${orderId}\n
+<i>The food is now ready for delivery. Please ensure to deliver it to the customer promptly. The details are as follows:</i>\n
+<b>Old Price:</b> ${oldPrice} birr\n
+<b>New Price:</b> ${newPrice} birr\n
+<i>Ensure that all items are delivered according to the customer's request and address any special order notes.</i>
+                `;
+            
+                
+
+for (const admin of deliveryAdmins) {
+    if (admin.telegramId) {
+        await adminBot.telegram.sendMessage(admin.telegramId, deliveryMessage, {
+            parse_mode: 'HTML'
+        });
+    }
+}
             return ctx.reply('✅ Order marked as *Completed* successfully!', { parse_mode: 'Markdown' });
         } catch (err) {
             console.error('❌ Error updating order status to completed:', err);
@@ -185,6 +229,39 @@ adminBot.on('callback_query', async (ctx) => {
             order.updatedBy = adminId;
             order.status = 'delivered';
             await order.save();
+          const user = await User.findOne({ where: { userId: order.userId } });
+    const oldPrice = oldTotalPrice ? Number(oldTotalPrice).toFixed(2) : 'N/A';
+        const newPrice = newTotalPrice ? Number(newTotalPrice).toFixed(2) : 'N/A';
+
+ let message = `
+✅ <b>Your Order Has Been Accepted</b>\n
+<b>Order ID:</b> ${orderId}\n
+<b>Price:</b> ${oldPrice} birr\n
+<i>Your order is now being prepared, and we are working hard to get it ready. Please be patient while we complete your order.</i>\n
+            `;
+          if (newPrice !== oldPrice) {
+            message = `
+✅ <b>Your Order Has Been Accepted</b>\n
+<b>Order ID:</b> ${orderId}\n
+<b>Old Price:</b> ${oldPrice} birr\n
+<b>New Price:</b> ${newPrice} birr\n
+<i>Your order is now being prepared, and we are working hard to get it ready. Please be patient while we complete your order.</i>\n
+            `;
+            message += `
+<b>Reason for Price Change:</b> ${order.specialOrder || 'This could be due to special order adjustments, such as customized items or delivery-related fees.'}
+          \n  `;
+          }
+message += `
+🙏 <b>We would love to hear your feedback!</b> 📝\n\n
+<i>Please let us know if you are satisfied with your order, or if there’s anything we can improve. Your feedback helps us serve you better!</i>\n\n
+<i>Feel free to reply to this message or contact us if you need further assistance.</i>
+
+            `;
+        
+
+     if (message && user.telegramId) {
+            await sendMessageToUser(user.telegramId, message);
+        }
             return ctx.reply('✅ Order marked as *Delivered* successfully!', { parse_mode: 'Markdown' });
         } catch (err) {
             console.error('❌ Error updating order status to delivered:', err);
@@ -218,6 +295,19 @@ adminBot.on('callback_query', async (ctx) => {
             order.updatedBy = adminId;
             order.status = 'cancelled';
             await order.save();
+          const user = await User.findOne({ where: { userId: order.userId } });
+    
+
+   const message = `
+❌ <b>Your Order Has Been Cancelled</b>\n
+<b>Order ID:</b> ${orderId}\n
+<i>We regret to inform you that your order has been cancelled. We understand this might be disappointing and sincerely apologize for any inconvenience caused.</i>\n
+<i>If you need more information or would like to discuss any concerns, please don’t hesitate to contact our support team.</i>
+            `;
+
+     if (message && user.telegramId) {
+            await sendMessageToUser(user.telegramId, message);
+        }
             return ctx.reply('✅ Order has been successfully cancelled.', { parse_mode: 'Markdown' });
         } catch (err) {
             console.error('❌ Error cancelling order:', err);
@@ -251,7 +341,26 @@ adminBot.on('text', async (ctx) => {
       await order.save();
 
       delete tempStates[userId];
+const user = await User.findOne({ where: { userId: order.userId } });
+    
+const oldPrice = oldTotalPrice ? Number(oldTotalPrice).toFixed(2) : 'N/A';
+        const newPrice = newTotalPrice ? Number(newTotalPrice).toFixed(2) : 'N/A';
 
+   const message = `
+✅ <b>Your Order Has Been Accepted</b>\n
+<b>Order ID:</b> ${orderId}\n
+<b>Old Price:</b> ${oldPrice} birr\n
+<b>New Price:</b> ${newPrice} birr\n
+<i>Your order is now being prepared, and we are working hard to get it ready. Please be patient while we complete your order.</i>\n
+
+<b>Reason for Price Change:</b> ${order.specialOrder || 'This could be due to special order adjustments, such as customized items or delivery-related fees.'}
+          \n 
+<i>If you have any questions or need any updates, feel free to contact us!</i>
+            `;
+
+     if (message && user.telegramId) {
+            await sendMessageToUser(user.telegramId, message);
+        }
       return ctx.reply(`✅ Order price updated to *${newPrice}* and marked as *In Progress*!`, {
         parse_mode: 'Markdown'
       });
