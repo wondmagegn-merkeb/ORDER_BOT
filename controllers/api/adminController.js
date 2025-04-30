@@ -273,11 +273,13 @@ exports.updateAdmin = async (req, res, next) => {
     
     if (referer.includes('/admin/edit')) {
       res.locals.success = 'Admin updated successfully!';
-      return res.redirect(`/admin/edit/${adminId}`);
+      //return res.redirect(`/admin/edit/${adminId}`);
     } else if (referer.includes('/admin/profile')) {
       res.locals.success = 'Profile updated successfully!';
-      return res.redirect(`/admin/profile`);
+    //  return res.redirect(`/admin/profile`);
     }
+
+    
   } catch (err) {
     console.error("Admin update error:", err); // Log the actual cause
     next(new InternalServerError('Failed to update admin', err));
