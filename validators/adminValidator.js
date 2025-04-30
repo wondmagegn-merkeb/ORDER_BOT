@@ -11,13 +11,16 @@ exports.loginSchema = Joi.object({
   password: Joi.string().required()
 });
 
+exports.updateAdminProfileSchema = Joi.object({
+  username: Joi.string().min(3).required(), // Made optional
+  password: Joi.string().min(6).allow(null, '').required(), // Made optional, allows null or empty string
+});
+
 exports.updateAdminSchema = Joi.object({
-  username: Joi.string().min(3).optional(), // Made optional
-  email: Joi.string().email().optional(), // Made optional
-  password: Joi.string().min(6).allow(null, '').optional(), // Made optional, allows null or empty string
-  telegramId: Joi.string().optional(), // Made optional
-  role: Joi.string().valid('admin', 'manager', 'delivery').optional(), // Made optional
-  states: Joi.string().optional() // Made optional
+  email: Joi.string().email().required(), // Made optional
+  telegramId: Joi.string().required(), // Made optional
+  role: Joi.string().valid('admin', 'manager', 'delivery').required(), // Made optional
+  states: Joi.string().required() // Made optional
 });
 
 exports.forgotPasswordSchema = Joi.object({
