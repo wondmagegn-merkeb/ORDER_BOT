@@ -6,8 +6,29 @@ const crypto = require('crypto');
 const { Op } = require('sequelize');
 const sendMail = require('../../utils/mailer');
 const { createAdminSchema, loginSchema, updateAdminSchema, forgotPasswordSchema, resetPasswordSchema } = require('../../validators/adminValidator');
+const { adminBot } = require('../../bots/adminBot'); 
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
+// Helper to generate user update message
+const generateAdminUpdateMessage = (user, role, states) => {
+  let message = '';
+
+  if (role) {
+    message += user.role === 'admin'
+      ? '⚠️ You are now an <b>Admin</b> with system access.\n'
+      : user.role === 'manager'
+        ? '✅ You are now a <b>Manager</b> and can use the system.\n'
+        : 'ℹ️ Your role has been updated.\n';
+  }
+
+  if (states) {
+    message += user.states === 'inactive'
+      ? '⚠️ You have been <b>Blocked</b> from accessing the system.'
+      : '✅ You are now <b>Active</b> and can use the system.';
+  }
+
+  return message;
+};
 
 // ✅ Create Admin
 exports.createAdmin = async (req, res, next) => {
@@ -222,14 +243,26 @@ exports.updateAdmin = async (req, res, next) => {
     if (credentialsChangedUsername && credentialsChangedPassword) {
       admin.mustChangeCredentials = true;
     }
-    
-    if (states) admin.states = states;
-    if (role) admin.role = role;
+    let statesBool = false;
+    let roleBool = false;
+    if (states) {
+      admin.states = states;
+      statesBool = true;
+    }
+    if (role){
+      admin.role = role;
+      roleBool =true;
+    }
 
     admin.updatedBy = req.admin.adminId;
 
     await admin.save();
-    console.log(6);
+    if (role || states){
+      const message = generateUserUpdateMessage(admin,roleBool,statesBool);
+      await adminBot.telegram.sendMessage(admin.telegramId, message, {
+            parse_mode: 'HTML'
+        });
+    }
     const referer = req.headers.referer || '';
     console.log(referer);
     if (referer.includes('/admins/edit')) {
