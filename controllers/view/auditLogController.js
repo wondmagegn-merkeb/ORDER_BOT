@@ -49,7 +49,7 @@ const getAdminLogs = async (req, res, next) => {
 const getOrderLogs = async (req, res, next) => {
   try {
     const models = await OrderUpdateLog.findAll();
-    actionFilters = []; // No filters for orders
+    
     res.render('admin/logs/orderLog-list', {
       title: 'Order Logs',
       models,
@@ -73,7 +73,7 @@ const getOrderLogs = async (req, res, next) => {
 const getUserLogs = async (req, res, next) => {
   try {
     const models = await UserUpdateLog.findAll();
-    actionFilters = []; // No filters for users
+    
     res.render('admin/logs/userLog-list', {
       title: 'User Logs',
       models,
