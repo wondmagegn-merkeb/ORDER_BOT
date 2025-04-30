@@ -58,7 +58,7 @@ exports.createAdmin = async (req, res, next) => {
     } else if (role === 'manager') {
       username = `manager_${Date.now()}`;  // Auto-generated username
       password = `manager_password_${Date.now()}`;  // Unique password for manager
-    } else if (role === 'user') {
+    } else if (role === 'delivery') {
       username = `user_${Date.now()}`;  // Auto-generated username
       password = `user_password_${Date.now()}`;  // Unique password for user
     } else {
@@ -250,15 +250,14 @@ exports.updateAdmin = async (req, res, next) => {
     if (credentialsChangedUsername && credentialsChangedPassword) {
       admin.mustChangeCredentials = true;
     }
-    let statesBool = false;
-    let roleBool = false;
+    let statesBool = admin.states === states;
+    let roleBool = admin.role === role;
     if (states) {
       admin.states = states;
-      statesBool = true;
     }
     if (role){
       admin.role = role;
-      roleBool =true;
+      
     }
 
     admin.updatedBy = req.admin.adminId;
@@ -271,13 +270,13 @@ exports.updateAdmin = async (req, res, next) => {
         });
     }
     const referer = req.headers.referer || '';
-    console.log(referer);
-    if (referer.includes('/admins/edit')) {
+    
+    if (referer.includes('/admin/edit')) {
       res.locals.success = 'Admin updated successfully!';
-      return res.redirect(`/admins/edit/${adminId}`);
-    } else if (referer.includes('/admins/profile')) {
+      return res.redirect(`/admin/edit/${adminId}`);
+    } else if (referer.includes('/admin/profile')) {
       res.locals.success = 'Profile updated successfully!';
-      return res.redirect(`/admins/profile`);
+      return res.redirect(`/admin/profile`);
     }
   } catch (err) {
     console.error("Admin update error:", err); // Log the actual cause
@@ -305,7 +304,7 @@ exports.login = async (req, res, next) => {
     // Sign JWT token
     const token = jwt.sign(
       { adminId: admin.adminId, role: admin.role },
-      process.env.JWT_SECRET || 'your_jwt_secret',
+      process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
 
@@ -338,9 +337,8 @@ exports.forgotPassword = async (req, res, next) => {
     await admin.save();
 
      const baseUrl = process.env.ADMIN_BASE_URL;
-const resetLink = `${baseUrl}/reset-password?token=${token}`;
-
-
+     const resetLink = `${baseUrl}/reset-password?token=${token}`;
+    
     await sendMail({
       to: admin.email,
       subject: 'Reset Your Password',
