@@ -15,10 +15,10 @@ exports.listAdmins = async (req, res,next) => {
     ];
 
 const filters = [
-  { id: 'admin', name: 'Admin', value: 'admin', colorClass: 'bg-violet-400 hover:bg-violet-500' },
-  { id: 'manager', name: 'Manager', value: 'manager', colorClass: 'bg-sky-400 hover:bg-sky-500' },
-  { id: 'delivery', name: 'Delivery Staff', value: 'delivery', colorClass: 'bg-lime-400 hover:bg-lime-500' },
-  { id: 'active', name: 'Active', value: 'Active', colorClass: 'bg-teal-400 hover:bg-teal-500' },
+  { id: 'admin', name: 'Admin', value: 'admin', colorClass: 'bg-yellow-500 hover:bg-yellow-600' },
+  { id: 'manager', name: 'Manager', value: 'manager', colorClass: 'bg-indigo-600 hover:bg-indigo-700' },
+  { id: 'delivery', name: 'Delivery Staff', value: 'delivery', colorClass: 'bg-blue-600 hover:bg-blue-700'  },
+  { id: 'active', name: 'Active', value: 'Active', colorClass: 'bg-green-500 hover:bg-green-600' },
   { id: 'inactive', name: 'Inactive', value: 'Inactive', colorClass: 'bg-pink-400 hover:bg-pink-500' }
 ];
 
