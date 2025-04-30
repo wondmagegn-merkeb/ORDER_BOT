@@ -25,8 +25,8 @@ exports.listUsers = async (req, res, next) => {
       { id: 'guest', name: 'Guest', value: 'guest', colorClass: 'bg-yellow-500 hover:bg-yellow-600' },
       { id: 'vip', name: 'VIP', value: 'vip', colorClass: 'bg-indigo-600 hover:bg-indigo-700' }, // Changed to indigo for better contrast
       { id: 'customer', name: 'Customer', value: 'customer', colorClass: 'bg-blue-600 hover:bg-blue-700' },
-      { id: 'active', name: 'Active', value: 'active', colorClass: 'bg-emerald-600 hover:bg-emerald-700' }, // Changed to emerald for a more vibrant green
-      { id: 'inactive', name: 'Inactive', value: 'inactive', colorClass: 'bg-rose-600 hover:bg-rose-700' }, // Changed to rose for a softer red
+      { id: 'active', name: 'Active', value: 'active', colorClass: 'bg-green-500 hover:bg-pink-600' }, // Changed to emerald for a more vibrant green
+      { id: 'inactive', name: 'Inactive', value: 'inactive', colorClass: 'bg-pink-500 hover:bg-pink-600' }, // Changed to rose for a softer red
     ];
 
     res.render('admin/user/list-user', {
