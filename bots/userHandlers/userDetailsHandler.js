@@ -14,7 +14,7 @@ async function handleFullName(ctx) {
     Markup.keyboard([
       [Markup.button.contactRequest('📲 Share Phone Number')],
       ['view menu', 'last order', 'profile'],
-      ['history']
+      ['history','search by category'],
     ]).resize()
   );
 }
@@ -35,7 +35,7 @@ async function handlePhoneNumberOne(ctx) {
     return ctx.reply('📞 Now, please type your *secondary phone number* (Phone 2), or type "no" to skip:',Markup.keyboard([
       
       ['view menu', 'last order', 'profile'],
-      ['history']
+      ['history','search by category'],
     ]).resize() );
 }
 
@@ -104,7 +104,7 @@ async function handleAddress(ctx) {
     Markup.keyboard([
       [Markup.button.locationRequest('📍 Send Location')],
       ['view menu', 'last order', 'profile'],
-      ['history']
+      ['history','search by category'],
     ]).resize()
   );
 }
@@ -123,7 +123,7 @@ async function handleLocation(ctx) {
     await ctx.reply('✅ Location received!', 
         Markup.keyboard([
             ['view menu', 'last order', 'profile'],
-            ['history']
+            ['history','search by category'],
         ]).resize()
     );
 
