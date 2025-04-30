@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const { Op } = require('sequelize');
 const sendMail = require('../../utils/mailer');
-const { createAdminSchema, loginSchema, updateAdminSchema, forgotPasswordSchema, resetPasswordSchema } = require('../../validators/adminValidator');
+const { createAdminSchema, loginSchema, updateAdminSchema, forgotPasswordSchema, resetPasswordSchema,updateAdminProfileSchema} = require('../../validators/adminValidator');
 const { adminBot } = require('../../bots/adminBot'); 
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
@@ -186,11 +186,69 @@ exports.getAdminById = async (adminId) => {
   }
 };
 
+exports.updateAdminProfile = async (req, res, next) => {
+  try {
+    const adminId = req.params.id;
+    const { username, password } = req.body;
+
+    const admin = await Admin.findOne({ where: { adminId } });
+
+    const { error } = updateAdminProfileSchema.validate(req.body);
+
+    if (!admin) return next(new NotFoundError('Admin not found'));
+    if (error) {
+      res.locals.error = error.details[0].message;
+      return res.render('admin/profile-admin', {
+      admin,
+      title: 'Admin Profile'
+    });
+    }
+    
+    let credentialsChangedUsername = false;  // To track if both username and password are changed
+    let credentialsChangedPassword = false;  
+    
+    // Only update password if it's not an empty string
+    if (password && password.trim() !== '') {
+      admin.password = password; // Hash here if needed
+      credentialsChangedPassword = true;
+    }
+
+    // Only update username if it's not the same as the current one
+    if (username && username !== admin.username) {
+      admin.username = username;
+      credentialsChangedUsername = true;
+    }
+
+    // Set mustChangeCredentials flag if both username and password are updated
+    if (credentialsChangedUsername && credentialsChangedPassword) {
+      admin.mustChangeCredentials = true;
+    }
+
+    admin.updatedBy = req.admin.adminId;
+    
+        
+    if (credentialsChangedUsername || credentialsChangedPassword) {
+      await admin.save();
+      res.locals.success = 'Profile updated successfully!';
+      return res.render('admin/profile-admin', {
+      admin,
+      title: 'Admin Profile'
+    });
+    }
+     return res.redirect(`/admin/profile`);
+    
+  } catch (err) {
+    console.error("Admin update error:", err); // Log the actual cause
+    next(new InternalServerError('Failed to update admin', err));
+  }
+}
+
+
 // ✅ Update Admin
 exports.updateAdmin = async (req, res, next) => {
   try {
     const adminId = req.params.id;
-    const { username, email, password, telegramId, role, states } = req.body;
+    const { telegramId, role, states ,email} = req.body;
 
     const admin = await Admin.findOne({ where: { adminId } });
 
@@ -203,7 +261,6 @@ exports.updateAdmin = async (req, res, next) => {
         admin,
         title: 'Edit Admin'
       });
-    }
 
     // Check if the new telegramId already exists for another admin
     if (telegramId) {
@@ -231,25 +288,7 @@ exports.updateAdmin = async (req, res, next) => {
       admin.email = email;
     }
 
-    let credentialsChangedUsername = false;  // To track if both username and password are changed
-    let credentialsChangedPassword = false;  
     
-    // Only update password if it's not an empty string
-    if (password && password.trim() !== '') {
-      admin.password = password; // Hash here if needed
-      credentialsChangedPassword = true;
-    }
-
-    // Only update username if it's not the same as the current one
-    if (username && username !== admin.username) {
-      admin.username = username;
-      credentialsChangedUsername = true;
-    }
-
-    // Set mustChangeCredentials flag if both username and password are updated
-    if (credentialsChangedUsername && credentialsChangedPassword) {
-      admin.mustChangeCredentials = true;
-    }
     let statesBool = admin.states === states;
     let roleBool = admin.role === role;
     if (states) {
@@ -262,22 +301,25 @@ exports.updateAdmin = async (req, res, next) => {
 
     admin.updatedBy = req.admin.adminId;
 
-    await admin.save();
     if (roleBool || statesBool){
+      await admin.save();
       const message = generateAdminUpdateMessage(admin,roleBool,statesBool);
       await adminBot.telegram.sendMessage(admin.telegramId, message, {
             parse_mode: 'HTML'
         });
-    }
-    const referer = req.headers.referer || '';
-    
-    if (referer.includes('/admin/edit')) {
+
       res.locals.success = 'Admin updated successfully!';
-      //return res.redirect(`/admin/edit/${adminId}`);
-    } else if (referer.includes('/admin/profile')) {
-      res.locals.success = 'Profile updated successfully!';
-    //  return res.redirect(`/admin/profile`);
+      return res.render('admin/update-admin', {
+        admin,
+        title: 'Edit Admin'
+      });
+
     }
+  
+    return res.render('admin/update-admin', {
+        admin,
+        title: 'Edit Admin'
+      });
 
     
   } catch (err) {
