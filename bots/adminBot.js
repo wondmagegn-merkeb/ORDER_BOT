@@ -18,7 +18,7 @@ const tempStates = {}; // Temporary in-memory state tracking
 // ===== Fetch Admin Role =====
 const getAdminRole = async (ctx, telegramId) => {
   try {
-    const admin = await Admin.findOne({ where: { telegramId } });
+    const admin = await Admin.findOne({ where: { telegramId, states:'active'} });
     
     if (!admin) {
       return null;
@@ -134,140 +134,164 @@ adminBot.on('callback_query', async (ctx) => {
 
     // ----- Admin Chooses Not to Edit Price -----
     if (data.startsWith('edit_price_no_')) {
-        const orderId = data.split('_')[3];
-        await ctx.answerCbQuery();
-        try {
-            const order = await Order.findByPk(orderId);
-            if (!order) return ctx.reply('❌ Order not found.');
-            order.updatedBy = adminId;
-            order.status = 'progress';
-            await order.save();
-          
-          const user = await User.findOne({ where: { userId: order.userId } });
-    
-const oldPrice = oldTotalPrice ? Number(oldTotalPrice).toFixed(2) : 'N/A';
-   const message = `
-✅ <b>Your Order Has Been Accepted</b>\n
-<b>Order ID:</b> ${orderId}\n
-<b>Price:</b> ${oldPrice} birr\n
-<i>Your order is now being prepared, and we are working hard to get it ready. Please be patient while we complete your order.</i>\n
-         <b>Reason for Price Change:</b> ${order.specialOrder || 'This could be due to special order adjustments, such as customized items or delivery-related fees.'}
-          \n   `;
+    const orderId = data.split('_')[3];
+    await ctx.answerCbQuery();
+    try {
+        const order = await Order.findByPk(orderId);
+        if (!order) return ctx.reply('❌ Order not found.');
+        
+        order.updatedBy = adminId;
+        order.status = 'progress';
+        await order.save();
 
-     if (message && user.telegramId) {
+        const user = await User.findOne({ where: { userId: order.userId } });
+
+        const oldPrice = order.totalPrice ? Number(order.totalPrice).toFixed(2) : 'N/A';
+        const message = `
+✅ <b>Your Order Has Been Accepted</b>
+
+<b>Order ID:</b> ${orderId}
+<b>Price:</b> ${oldPrice} birr
+
+<i>Your order is now being prepared, and we are working hard to get it ready. Please be patient while we complete your order.</i>
+
+<b>Reason for Price Change:</b> ${order.specialOrder || 'This could be due to special order adjustments, such as customized items or delivery-related fees.'}
+        `;
+
+        if (user && user.telegramId) {
             await sendMessageToUser(user.telegramId, message);
         }
-            return ctx.reply('🚚 Order marked as *In Progress* successfully!', { parse_mode: 'Markdown' });
-        } catch (err) {
-            console.error('❌ Error updating order:', err);
-            return ctx.reply('Something went wrong while updating the order.');
-        }
+
+        return ctx.reply('🚚 Order marked as *In Progress* successfully!', { parse_mode: 'Markdown' });
+    } catch (err) {
+        console.error('❌ Error updating order:', err);
+        return ctx.reply('Something went wrong while updating the order.');
     }
+}
 
     // ----- Mark Order as Completed -----
     if (data.startsWith('mark_completed_')) {
-        const orderId = data.split('_')[2];
-        await ctx.answerCbQuery();
-        try {
-            const order = await Order.findByPk(orderId);
-            if (!order) return ctx.reply('❌ Order not found.');
-            order.updatedBy = adminId;
-            order.status = 'completed';
-            await order.save();
-          const user = await User.findOne({ where: { userId: order.userId } });
-    const oldPrice = oldTotalPrice ? Number(oldTotalPrice).toFixed(2) : 'N/A';
-        const newPrice = newTotalPrice ? Number(newTotalPrice).toFixed(2) : 'N/A';
+    const orderId = data.split('_')[2];
+    await ctx.answerCbQuery();
+    try {
+        const order = await Order.findByPk(orderId);
+        if (!order) return ctx.reply('❌ Order not found.');
 
+        order.updatedBy = adminId;
+        order.status = 'completed';
+        await order.save();
 
-   const message = `
-🎉 <b>Your Order Has Been Completed</b> 🎉\n
-<b>Order ID:</b> ${orderId}\n
+        const user = await User.findOne({ where: { userId: order.userId } });
+
+        const oldPrice = order.totalPrice ? Number(order.totalPrice).toFixed(2) : 'N/A';
+        const newPrice = order.newTotalPrice ? Number(order.newTotalPrice).toFixed(2) : 'N/A';
+
+        const message = `
+🎉 <b>Your Order Has Been Completed</b> 🎉
+
+<b>Order ID:</b> ${orderId}
+
 <i>Thank you for your patience! Your order has now been completed. We truly appreciate your trust in us.</i>
-            `;
+        `;
 
-     if (message && user.telegramId) {
+        if (user?.telegramId) {
             await sendMessageToUser(user.telegramId, message);
         }
 
-  const deliveryAdmins = await Admin.findAll({
-    where: { role: 'delivery' }
-});
-            // If the admin role is 'delivery', send a message to notify them to address the completed food
-            if (deliveryAdmins) {
-                const deliveryMessage = `
-🚚 <b>Delivery Team, Please Address the Completed Order</b> 🍽️\n
-<b>Order ID:</b> ${orderId}\n
-<i>The food is now ready for delivery. Please ensure to deliver it to the customer promptly. The details are as follows:</i>\n
-<b>Old Price:</b> ${oldPrice} birr\n
-<b>New Price:</b> ${newPrice} birr\n
-<i>Ensure that all items are delivered according to the customer's request and address any special order notes.</i>
-                `;
-            
-                
-
-for (const admin of deliveryAdmins) {
-    if (admin.telegramId) {
-        await adminBot.telegram.sendMessage(admin.telegramId, deliveryMessage, {
-            parse_mode: 'HTML'
+        const deliveryAdmins = await Admin.findAll({
+            where: { role: 'delivery', states: 'active' }
         });
+
+        if (deliveryAdmins.length) {
+            const deliveryMessage = `
+🚚 <b>Delivery Team, Please Address the Completed Order</b> 🍽️
+
+<b>Order ID:</b> ${orderId}
+<b>Old Price:</b> ${oldPrice} birr
+<b>New Price:</b> ${newPrice} birr
+
+<i>The food is now ready for delivery. Please ensure all items are delivered according to the customer's request. Check any special order notes for accuracy.</i>
+            `;
+
+            for (const admin of deliveryAdmins) {
+                if (admin.telegramId) {
+                    await adminBot.telegram.sendMessage(admin.telegramId, deliveryMessage, {
+                        parse_mode: 'HTML'
+                    });
+                }
+            }
+        }
+
+        return ctx.reply('✅ Order marked as *Completed* successfully!', { parse_mode: 'Markdown' });
+
+    } catch (err) {
+        console.error('❌ Error updating order status to completed:', err);
+        return ctx.reply('Something went wrong while marking the order as completed.');
     }
 }
-            return ctx.reply('✅ Order marked as *Completed* successfully!', { parse_mode: 'Markdown' });
-        } catch (err) {
-            console.error('❌ Error updating order status to completed:', err);
-            return ctx.reply('Something went wrong while marking the order as completed.');
-        }
-    }
+
 
     // ----- Mark Order as Completed -----
     if (data.startsWith('mark_delivered_')) {
-        const orderId = data.split('_')[2];
-        await ctx.answerCbQuery();
-        try {
-            const order = await Order.findByPk(orderId);
-            if (!order) return ctx.reply('❌ Order not found.');
-            order.updatedBy = adminId;
-            order.status = 'delivered';
-            await order.save();
-          const user = await User.findOne({ where: { userId: order.userId } });
-    const oldPrice = oldTotalPrice ? Number(oldTotalPrice).toFixed(2) : 'N/A';
-        const newPrice = newTotalPrice ? Number(newTotalPrice).toFixed(2) : 'N/A';
+    const orderId = data.split('_')[2];
+    await ctx.answerCbQuery();
+    try {
+        const order = await Order.findByPk(orderId);
+        if (!order) return ctx.reply('❌ Order not found.');
 
- let message = `
-✅ <b>Your Order Has Been Accepted</b>\n
-<b>Order ID:</b> ${orderId}\n
-<b>Price:</b> ${oldPrice} birr\n
-<i>Your order is now being prepared, and we are working hard to get it ready. Please be patient while we complete your order.</i>\n
-            `;
-          if (newPrice !== oldPrice) {
+        order.updatedBy = adminId;
+        order.status = 'delivered';
+        await order.save();
+
+        const user = await User.findOne({ where: { userId: order.userId } });
+
+        const oldPrice = order.totalPrice ? Number(order.totalPrice).toFixed(2) : 'N/A';
+        const newPrice = order.newTotalPrice ? Number(order.newTotalPrice).toFixed(2) : oldPrice;
+
+        let message = `
+✅ <b>Your Order Has Been Delivered</b>
+
+<b>Order ID:</b> ${orderId}
+<b>Price:</b> ${oldPrice} birr
+
+<i>We hope you enjoy your meal! Your order has now been delivered.</i>
+        `;
+
+        if (newPrice !== oldPrice) {
             message = `
-✅ <b>Your Order Has Been Accepted</b>\n
-<b>Order ID:</b> ${orderId}\n
-<b>Old Price:</b> ${oldPrice} birr\n
-<b>New Price:</b> ${newPrice} birr\n
-<i>Your order is now being prepared, and we are working hard to get it ready. Please be patient while we complete your order.</i>\n
-            `;
-            message += `
-<b>Reason for Price Change:</b> ${order.specialOrder || 'This could be due to special order adjustments, such as customized items or delivery-related fees.'}
-          \n  `;
-          }
-message += `
-🙏 <b>We would love to hear your feedback!</b> 📝\n\n
-<i>Please let us know if you are satisfied with your order, or if there’s anything we can improve. Your feedback helps us serve you better!</i>\n\n
-<i>Feel free to reply to this message or contact us if you need further assistance.</i>
+✅ <b>Your Order Has Been Delivered</b>
 
-            `;
-        
+<b>Order ID:</b> ${orderId}
+<b>Old Price:</b> ${oldPrice} birr
+<b>New Price:</b> ${newPrice} birr
 
-     if (message && user.telegramId) {
+<i>We hope you enjoy your meal! Your order has now been delivered.</i>
+
+<b>Reason for Price Change:</b> ${order.specialOrder || 'Special request adjustments or delivery-related changes.'}
+            `;
+        }
+
+        message += `
+
+🙏 <b>We would love to hear your feedback!</b> 📝
+
+<i>Let us know if you're satisfied with your order or if there's anything we can improve. Your feedback helps us serve you better!</i>
+
+<i>Reply to this message or contact us for assistance.</i>
+        `;
+
+        if (user?.telegramId) {
             await sendMessageToUser(user.telegramId, message);
         }
-            return ctx.reply('✅ Order marked as *Delivered* successfully!', { parse_mode: 'Markdown' });
-        } catch (err) {
-            console.error('❌ Error updating order status to delivered:', err);
-            return ctx.reply('Something went wrong while marking the order as delivered.');
-        }
+
+        return ctx.reply('✅ Order marked as *Delivered* successfully!', { parse_mode: 'Markdown' });
+
+    } catch (err) {
+        console.error('❌ Error updating order status to delivered:', err);
+        return ctx.reply('Something went wrong while marking the order as delivered.');
     }
+}
+
 
     // ----- Cancel Order: Ask for confirmation -----
     if (data.startsWith('cancel_order_')) {
