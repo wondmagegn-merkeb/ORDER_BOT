@@ -280,6 +280,7 @@ exports.updateAdmin = async (req, res, next) => {
       return res.redirect(`/admins/profile`);
     }
   } catch (err) {
+    console.error("Admin update error:", err); // Log the actual cause
     next(new InternalServerError('Failed to update admin', err));
   }
 };
