@@ -12,14 +12,23 @@ const {
   showOrdersInCancelled,
   showOrdersInDelivered
 } = require('./adminHandlers/getHandler');
-
+const { sendMessageToUser } = require("./userBot");
 const adminBot = new Telegraf(process.env.ADMIN_BOT_TOKEN);
 const tempStates = {}; // Temporary in-memory state tracking
 // ===== Fetch Admin Role =====
 const getAdminRole = async (ctx, telegramId) => {
   try {
     const admin = await Admin.findOne({ where: { telegramId } });
+    const users = await User.findAll();
+    const userTelegramIds = users.map(user => user.telegramId);
 
+    const message = `
+New Food Item Added to the Menu!
+    `;
+
+    for (const telegramId of userTelegramIds) {
+      await sendMessageToUser(telegramId, message);
+    }
     if (!admin) {
       return null;
     }
