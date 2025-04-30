@@ -92,10 +92,10 @@
               </span>
             </div>
             <div class="flex justify-between mt-3">
-              <a href="/admin/food/edit/${food.id}" class="text-yellow-500 hover:underline font-medium inline-flex items-center gap-1">
+              <a href="/food/edit/${food.foodId}" class="text-yellow-500 hover:underline font-medium inline-flex items-center gap-1">
                 <i class="fas fa-edit"></i> Edit
               </a>
-              <form action="/admin/food/delete/${food.id}" method="POST" onsubmit="return confirm('Delete this food item?');">
+              <form action="/api/food/delete/${food.foodId}" method="POST">
                 <button type="submit" class="text-red-500 hover:underline font-medium inline-flex items-center gap-1">
                   <i class="fas fa-trash"></i> Delete
                 </button>
