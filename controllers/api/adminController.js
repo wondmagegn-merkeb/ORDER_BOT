@@ -264,7 +264,7 @@ exports.updateAdmin = async (req, res, next) => {
     admin.updatedBy = req.admin.adminId;
 
     await admin.save();
-    if (role || states){
+    if (roleBool || statesBool){
       const message = generateUserUpdateMessage(admin,roleBool,statesBool);
       await adminBot.telegram.sendMessage(admin.telegramId, message, {
             parse_mode: 'HTML'
