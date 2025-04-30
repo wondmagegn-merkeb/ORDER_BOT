@@ -14,21 +14,28 @@ const generateAdminUpdateMessage = (user, role, states) => {
   let message = '';
 
   if (role) {
-    message += user.role === 'admin'
-      ? '⚠️ You are now an <b>Admin</b> with system access.\n'
-      : user.role === 'manager'
-        ? '✅ You are now a <b>Manager</b> and can use the system.\n'
-        : 'ℹ️ Your role has been updated.\n';
+    if (user.role === 'admin') {
+      message += '✅ You are now an <b>Admin</b> and have full access to the system.\n';
+    } else if (user.role === 'manager') {
+      message += '✅ You are now a <b>Manager</b> and can manage the system.\n';
+    } else if (user.role === 'delivery') {
+      message += '✅ You are now a <b>Delivery Personnel</b> and can handle delivery tasks.\n';
+    } else {
+      message += 'ℹ️ Your role has been updated.\n';
+    }
   }
 
   if (states) {
-    message += user.states === 'inactive'
-      ? '⚠️ You have been <b>Blocked</b> from accessing the system.'
-      : '✅ You are now <b>Active</b> and can use the system.';
+    if (user.states === 'inactive') {
+      message += '⚠️ Your account has been <b>Blocked</b> from accessing the system.';
+    } else {
+      message += '✅ Your account is now <b>Active</b> and you can use the system.';
+    }
   }
 
   return message;
 };
+
 
 // ✅ Create Admin
 exports.createAdmin = async (req, res, next) => {
