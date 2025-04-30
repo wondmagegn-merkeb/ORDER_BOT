@@ -192,79 +192,75 @@ exports.updateAdminProfile = async (req, res, next) => {
     const { username, password } = req.body;
 
     const admin = await Admin.findOne({ where: { adminId } });
+    if (!admin) return next(new NotFoundError('Admin not found'));
 
     const { error } = updateAdminProfileSchema.validate(req.body);
-
-    if (!admin) return next(new NotFoundError('Admin not found'));
     if (error) {
       res.locals.error = error.details[0].message;
       return res.render('admin/profile-admin', {
-      admin,
-      title: 'Admin Profile'
-    });
+        admin,
+        title: 'Admin Profile'
+      });
     }
-    
-    let credentialsChangedUsername = false;  // To track if both username and password are changed
-    let credentialsChangedPassword = false;  
-    
-    // Only update password if it's not an empty string
+
+    let credentialsChangedUsername = false;
+    let credentialsChangedPassword = false;
+
     if (password && password.trim() !== '') {
-      admin.password = password; // Hash here if needed
+      admin.password = password; // Hash password if required
       credentialsChangedPassword = true;
     }
 
-    // Only update username if it's not the same as the current one
     if (username && username !== admin.username) {
       admin.username = username;
       credentialsChangedUsername = true;
     }
 
-    // Set mustChangeCredentials flag if both username and password are updated
     if (credentialsChangedUsername && credentialsChangedPassword) {
       admin.mustChangeCredentials = true;
     }
 
     admin.updatedBy = req.admin.adminId;
-    
-        
+
     if (credentialsChangedUsername || credentialsChangedPassword) {
       await admin.save();
       res.locals.success = 'Profile updated successfully!';
-      return res.render('admin/profile-admin', {
+    }
+
+    return res.render('admin/profile-admin', {
       admin,
       title: 'Admin Profile'
     });
-    }
-     return res.redirect(`/admin/profile`);
-    
+
   } catch (err) {
-    console.error("Admin update error:", err); // Log the actual cause
+    console.error("Admin profile update error:", err);
     next(new InternalServerError('Failed to update admin', err));
   }
-}
-
+};
 
 // ✅ Update Admin
 exports.updateAdmin = async (req, res, next) => {
   try {
     const adminId = req.params.id;
-    const { telegramId, role, states ,email} = req.body;
+    const { telegramId, role, states, email } = req.body;
 
     const admin = await Admin.findOne({ where: { adminId } });
+    if (!admin) return next(new NotFoundError('Admin not found'));
 
     const { error } = updateAdminSchema.validate(req.body);
-
-    if (!admin) return next(new NotFoundError('Admin not found'));
     if (error) {
       res.locals.error = error.details[0].message;
       return res.render('admin/update-admin', {
         admin,
         title: 'Edit Admin'
       });
+    }
 
-    // Check if the new telegramId already exists for another admin
-    if (telegramId) {
-      const existingTelegramId = await Admin.findOne({ where: { telegramId, adminId: { [Op.ne]: adminId } } });
+    // Validate telegramId uniqueness
+    if (telegramId && telegramId !== admin.telegramId) {
+      const existingTelegramId = await Admin.findOne({
+        where: { telegramId, adminId: { [Op.ne]: adminId } }
+      });
       if (existingTelegramId) {
         res.locals.error = 'Telegram ID already in use';
         return res.render('admin/update-admin', {
@@ -275,7 +271,7 @@ exports.updateAdmin = async (req, res, next) => {
       admin.telegramId = telegramId;
     }
 
-    // Check if email already exists (if changed)
+    // Validate email uniqueness
     if (email && email !== admin.email) {
       const existingEmail = await Admin.findOne({ where: { email } });
       if (existingEmail) {
@@ -288,46 +284,45 @@ exports.updateAdmin = async (req, res, next) => {
       admin.email = email;
     }
 
-    
-    let statesBool = admin.states === states;
-    let roleBool = admin.role === role;
-    if (states) {
+    const originalRole = admin.role;
+    const originalStates = admin.states;
+
+    if (states && states !== admin.states) {
       admin.states = states;
     }
-    if (role){
+
+    if (role && role !== admin.role) {
       admin.role = role;
-      
     }
 
     admin.updatedBy = req.admin.adminId;
 
-    if (roleBool || statesBool){
+    const roleChanged = originalRole !== admin.role;
+    const statesChanged = originalStates !== admin.states;
+
+    if (roleChanged || statesChanged || telegramId || email) {
       await admin.save();
-      const message = generateAdminUpdateMessage(admin,roleBool,statesBool);
-      await adminBot.telegram.sendMessage(admin.telegramId, message, {
-            parse_mode: 'HTML'
+
+      if (admin.telegramId && (roleChanged || statesChanged)) {
+        const message = generateAdminUpdateMessage(admin, roleChanged, statesChanged);
+        await adminBot.telegram.sendMessage(admin.telegramId, message, {
+          parse_mode: 'HTML'
         });
+      }
 
       res.locals.success = 'Admin updated successfully!';
-      return res.render('admin/update-admin', {
-        admin,
-        title: 'Edit Admin'
-      });
-
     }
-  
-    return res.render('admin/update-admin', {
-        admin,
-        title: 'Edit Admin'
-      });
 
-    
+    return res.render('admin/update-admin', {
+      admin,
+      title: 'Edit Admin'
+    });
+
   } catch (err) {
-    console.error("Admin update error:", err); // Log the actual cause
+    console.error("Admin update error:", err);
     next(new InternalServerError('Failed to update admin', err));
   }
 };
-
 
 
 // ✅ Admin login
