@@ -49,7 +49,7 @@ async function viewOrderDetails(ctx, orderId) {
 
 async function showOrdersByStatus(ctx, status, label) {
   try {
-    if (ctx.state.role === 'delivery' && (status !== 'completed' && status !== 'progress')) {
+    if (ctx.state.role === 'delivery' && (status !== 'completed' && status !== 'delivered')) {
       return ctx.reply('❌ You are not allowed to access this section.');
     }
 
