@@ -229,7 +229,9 @@ exports.updateAdmin = async (req, res, next) => {
     admin.updatedBy = req.admin.adminId;
 
     await admin.save();
+    console.log(6);
     const referer = req.headers.referer || '';
+    console.log(referer);
     if (referer.includes('/admins/edit')) {
       res.locals.success = 'Admin updated successfully!';
       return res.redirect(`/admins/edit/${adminId}`);
