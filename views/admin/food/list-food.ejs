@@ -72,7 +72,7 @@
       `).join('');
 
       renderPagination(filtered.length);
-     noResults.classList.toggle('hidden', visibleRows.length > 0);
+     noResults.classList.toggle('hidden', filtered.length > 0);
     }
 
     function renderPagination(totalItems) {
