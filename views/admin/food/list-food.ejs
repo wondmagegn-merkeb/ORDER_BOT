@@ -19,7 +19,7 @@
 
     <!-- Food Cards -->
     <div id="foodContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-
+    <div id="noResults" class="hidden text-center text-gray-500 py-6">No results found.</div>
     <!-- Pagination -->
     <div id="paginationContainer" class="mt-10 flex justify-center flex-wrap gap-2"></div>
   </div>
@@ -29,7 +29,7 @@
     const foodContainer = document.getElementById('foodContainer');
     const searchInput = document.getElementById('searchInput');
     const paginationContainer = document.getElementById('paginationContainer');
-
+    const noResults = document.getElementById('noResults');
     const itemsPerPage = 3;
     let currentPage = 1;
 
@@ -45,7 +45,7 @@
 
       foodContainer.innerHTML = paginated.map(food => `
         <div class="bg-white shadow-md rounded-lg overflow-hidden">
-          <img src="${food.imageUrl || 'https://via.placeholder.com/400x250?text=No+Image'}" alt="${food.name}" class="w-full h-80 object-cover">
+          <img src="${food.imageUrl || 'https://via.placeholder.com/400x250?text=No+Image'}" alt="${food.name}" class="w-full h-64 object-cover">
           <div class="p-4">
             <h2 class="text-xl font-semibold text-gray-800 mb-1">${food.name}</h2>
             <p class="text-sm text-gray-500 mb-1"><i class="fas fa-tag mr-1 text-blue-600"></i> ${food.FoodCategory?.categoryName || 'Uncategorized'}</p>
@@ -72,6 +72,7 @@
       `).join('');
 
       renderPagination(filtered.length);
+     noResults.classList.toggle('hidden', visibleRows.length > 0);
     }
 
     function renderPagination(totalItems) {
