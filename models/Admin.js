@@ -48,8 +48,7 @@ const Admin = sequelize.define('Admin', {
   },
   endpoint: {
     type: DataTypes.STRING,
-    allowNull: false,
-    unique: true
+    allowNull: true
   },
   expirationTime: {
     type: DataTypes.DATE,
