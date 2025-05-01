@@ -2,6 +2,8 @@ const { Food, FoodCategory} = require('../../models/index');
 
 // Display the menu (external image URLs only, using Telegram HTML formatting)
 async function getMenu(ctx) {
+    ctx.session.waitingForPhone2 = false;
+  ctx.session.waitingForFullName = false;
     try {
         const foods = await Food.findAll({
             where: { isAvailable: true },
