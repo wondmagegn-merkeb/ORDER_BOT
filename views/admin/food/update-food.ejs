@@ -21,7 +21,7 @@
     Update Food
   </h2>
 
-  <form action="/api/food/<%= food.id %>?_method=PUT" method="POST" enctype="multipart/form-data" class="space-y-5">
+  <form action="/api/food/<%= food.foodId %>" method="POST" enctype="multipart/form-data" class="space-y-5">
 
     <div class="transition duration-300 transform hover:scale-[1.01]">
       <label class="block mb-1 text-gray-700 font-medium">Food Name</label>
@@ -63,8 +63,8 @@
 
     <div class="transition duration-300 transform hover:scale-[1.01]">
       <label class="block mb-1 text-gray-700 font-medium">Image</label>
-      <% if (food.image) { %>
-        <img src="<%= food.image %>" alt="Current Image" class="w-24 h-24 object-cover rounded mb-2 shadow">
+      <% if (food.imageUrl) { %>
+        <img src="<%= food.imageUrl %>" alt="Current Image" class="w-24 h-24 object-cover rounded mb-2 shadow">
       <% } %>
       <input type="file" name="image" accept="image/*" class="block w-full border border-gray-300 p-2 rounded">
     </div>
