@@ -13,8 +13,10 @@ const formatDate = (date) =>
 // Order History Handler
 async function handleOrderHistory(ctx) {
   const telegramId = ctx.from.id.toString();
-
+ctx.session.waitingForPhone2 = false;
+  ctx.session.waitingForFullName = false;
   try {
+    
     // Fetch the user based on telegramId
     const user = await User.findOne({ where: { telegramId } });
 
@@ -138,7 +140,8 @@ const feedbackButtons = needsFeedback
 // Last Order Handler
 async function handleLastOrder(ctx) {
   const telegramId = ctx.from.id.toString();
-
+ctx.session.waitingForPhone2 = false;
+  ctx.session.waitingForFullName = false;
   try {
     const user = await User.findOne({ where: { telegramId } });
     const lastOrder = await Order.findOne({
@@ -257,7 +260,8 @@ const feedbackButtons = needsFeedback
 // User Profile Handler
 async function handleUserProfile(ctx) {
   const telegramId = ctx.from.id.toString();
-
+ctx.session.waitingForPhone2 = false;
+  ctx.session.waitingForFullName = false;
   try {
     const user = await User.findOne({ where: { telegramId } });
 
