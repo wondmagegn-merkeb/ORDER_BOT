@@ -159,11 +159,11 @@ exports.deleteFood = async (req, res, next) => {
     }
 
     const relatedOrder = await Order.findOne({ where: { foodId } });
-
+const categories = await getAllCategories();
     if (relatedOrder) {
       res.locals.error = 'Cannot delete food. It is referenced in orders.';
       const foods = await Food.findAll({ include: { model: FoodCategory, attributes: ['categoryName'] } });
-      return res.render('admin/food/food-list', { title: 'Food List', foods });
+      return res.render('admin/food/food-list', { title: 'Food List', foods, categories});
     }
 
     if (food.cloudinaryPublicId) {
@@ -174,7 +174,7 @@ exports.deleteFood = async (req, res, next) => {
 
     res.locals.success = 'Food deleted successfully';
     const foods = await Food.findAll({ include: { model: FoodCategory, attributes: ['categoryName'] } });
-    return res.render('admin/food/food-list', { title: 'Food List', foods });
+    return res.render('admin/food/food-list', { title: 'Food List', foods,categories });
 
   } catch (err) {
     console.error("Error in deleteFood:", err);
