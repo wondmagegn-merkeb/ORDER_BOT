@@ -133,8 +133,6 @@ userBot.on('callback_query', async (ctx) => {
       // Split the data to extract orderId and reaction
       const [, orderId, reaction] = data.split('_');
 
-      // Log the feedback (you can save it to DB here)
-      console.log(`Feedback for order ${orderId}: ${reaction}`);
       const order = await Order.findByPk(orderId);
             if (!order) return ctx.reply('❌ Order not found.');
             
@@ -152,6 +150,31 @@ return getMenuByCategory(ctx, categoryId);
     if (data === 'back_to_menu') {
     return getMenu(ctx); // replace with your main menu function
   }
+  
+  if (data === 'edit_profile') {
+    await ctx.answerCbQuery();
+    await ctx.reply('What would you like to update?', {
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: '📝 Full Name', callback_data: 'edit_full_name' }],
+          [{ text: '📱 Phone 2', callback_data: 'edit_phone2' }]
+        ]
+      }
+    });
+  }
+
+  if (data === 'edit_full_name') {
+    await ctx.answerCbQuery();
+    ctx.session.waitingForFullName = true;
+    await ctx.reply('📝 Please send your new full name.');
+  }
+
+  if (data === 'edit_phone2') {
+    await ctx.answerCbQuery();
+    ctx.session.waitingForPhone2 = true;
+    await ctx.reply('📱 Please send your new Phone 2 number.');
+  }
+
     // Handle ordering action
     if (data.startsWith('order_now_')) {
       const foodId = data.split('_')[2];
