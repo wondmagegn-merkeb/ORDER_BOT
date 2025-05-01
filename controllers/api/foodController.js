@@ -105,10 +105,10 @@ exports.updateFood = async (req, res, next) => {
     if (!food) {
       throw new NotFoundError("Food item not found.");
     }
-
+const categories = await getAllCategories();
     if (error) {
       res.locals.error = error.details[0].message;
-      return res.render('admin/food/update-food', { title: 'Update Food', food });
+      return res.render('admin/food/update-food', { title: 'Update Food', food, categories});
     }
 
     if (req.file) {
@@ -141,7 +141,7 @@ exports.updateFood = async (req, res, next) => {
     });
 
     res.locals.success = "Food updated successfully";
-    return res.render('admin/food/update-food', { title: 'Update Food', food });
+    return res.render('admin/food/update-food', { title: 'Update Food', food ,categories});
 
   } catch (err) {
     console.error("Error in updateFood:", err);
@@ -159,11 +159,11 @@ exports.deleteFood = async (req, res, next) => {
     }
 
     const relatedOrder = await Order.findOne({ where: { foodId } });
-const categories = await getAllCategories();
+
     if (relatedOrder) {
       res.locals.error = 'Cannot delete food. It is referenced in orders.';
       const foods = await Food.findAll({ include: { model: FoodCategory, attributes: ['categoryName'] } });
-      return res.render('admin/food/food-list', { title: 'Food List', foods, categories});
+      return res.render('admin/food/food-list', { title: 'Food List', foods});
     }
 
     if (food.cloudinaryPublicId) {
@@ -174,7 +174,7 @@ const categories = await getAllCategories();
 
     res.locals.success = 'Food deleted successfully';
     const foods = await Food.findAll({ include: { model: FoodCategory, attributes: ['categoryName'] } });
-    return res.render('admin/food/food-list', { title: 'Food List', foods,categories });
+    return res.render('admin/food/food-list', { title: 'Food List', foods });
 
   } catch (err) {
     console.error("Error in deleteFood:", err);
