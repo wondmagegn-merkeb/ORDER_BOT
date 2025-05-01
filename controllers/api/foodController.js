@@ -89,7 +89,7 @@ exports.getFoodById = async (foodId) => {
     }
     return food;
   } catch (err) {
-    console.error("Error in getFoodById:", err);
+    console.error("Error in getFoodById:"+foodId, err);
     throw new InternalServerError("Failed to fetch food.", err);
   }
 };
