@@ -98,6 +98,8 @@ userBot.hears('last order', (ctx) => handleLastOrder(ctx));
 userBot.hears('profile', (ctx) => handleUserProfile(ctx));
 userBot.hears('search by category', async (ctx) => {
   try {
+    ctx.session.waitingForPhone2 = false;
+  ctx.session.waitingForFullName = false;
     const categories = await FoodCategory.findAll({
       attributes: ['categoryId', 'categoryName']
     });
@@ -217,6 +219,26 @@ userBot.on('location', (ctx) => {
 });
 
 userBot.on('text', async (ctx) => {
+  if (ctx.session.waitingForFullName) {
+    const fullName = ctx.message.text;
+    await User.update({ fullName }, { where: { telegramId: ctx.from.id.toString() } });
+    ctx.session.waitingForFullName = false;
+    await ctx.reply('✅ Full name updated successfully!');
+    await handleUserProfile(ctx);
+  }
+
+  if (ctx.session.waitingForPhone2) {
+    const phone2 = ctx.message.text;
+    const phoneRegex = /^(09|07)\d{8}$/;
+    if (!phoneRegex.test(phone2)) {
+        return ctx.reply('❌ Invalid number. Enter a 10-digit number starting with 09 or 07.');
+    }
+    await User.update({ phoneNumber2: phone2 }, { where: { telegramId: ctx.from.id.toString() } });
+    ctx.session.waitingForPhone2 = false;
+    await ctx.reply('✅ Phone 2 updated successfully!');
+    await handleUserProfile(ctx);
+  }
+  
   if (!ctx.session.orderData) return;
   if (!ctx.session.orderData.fullName) return handleFullName(ctx);
   if (!ctx.session.orderData.phoneNumberOne) return handlePhoneNumberOne(ctx);
