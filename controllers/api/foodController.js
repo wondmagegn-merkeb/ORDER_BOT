@@ -30,7 +30,11 @@ exports.createFood = async (req, res) => {
 
     const result = await cloudinary.uploader.upload(dataUri, { folder: "foods" });
 
-    const last = await Food.findOne({ order: [['createdAt', 'DESC']] });
+    const last = await Food.findOne({
+  order: [['createdAt', 'DESC']],
+  paranoid: false  // <-- include soft-deleted rows
+});
+
     const newIdNumber = last?.foodId ? parseInt(last.foodId.replace('FOOD', '')) + 1 : 1;
     const foodId = `FOOD${String(newIdNumber).padStart(3, '0')}`;
 
