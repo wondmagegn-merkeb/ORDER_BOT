@@ -46,6 +46,19 @@ const Admin = sequelize.define('Admin', {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
   },
+  endpoint: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true
+  },
+  expirationTime: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  keys: {
+    type: DataTypes.JSON,
+    allowNull: true
+  },
   resetToken: {
     type: DataTypes.STRING,
     allowNull: true,
