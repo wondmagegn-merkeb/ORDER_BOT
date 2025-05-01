@@ -274,7 +274,14 @@ async function handleUserProfile(ctx) {
       `🌟 <b>Status:</b> ${user.status || 'No status set'}`;
 
 
-    await ctx.replyWithHTML(caption);
+    await ctx.replyWithHTML(caption, {
+  reply_markup: {
+    inline_keyboard: [
+      [{ text: '✏️ Edit Profile', callback_data: 'edit_profile' }]
+    ]
+  }
+});
+
   } catch (err) {
     console.error('Error fetching profile:', err);
     ctx.reply('Sorry, there was an issue fetching your profile. Please try again later.');
