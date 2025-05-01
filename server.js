@@ -7,7 +7,7 @@ const cookieParser = require('cookie-parser');
 const compression = require('compression');
 const expressLayouts = require('express-ejs-layouts');
 const session = require('express-session');
-const webpush = require('web-push');
+//const webpush = require('web-push');
 require('dotenv').config();
 
 const { globalErrorHandler, notFoundHandler } = require('./controllers/errorController');
@@ -123,9 +123,9 @@ app.get('/logout', (req, res) => {
 // Generate a new set of VAPID keys (public and private) for Web Push notifications
 // These keys are needed to authenticate the server with push services (like Chrome, Firefox)
 // You typically run this ONCE and then save the keys in your backend config or .env file
-const vapidKeys = webpush.generateVAPIDKeys();
+//const vapidKeys = webpush.generateVAPIDKeys();
 
-console.log(vapidKeys); // Prints the generated public and private VAPID keys to the console
+/console/.log(vapidKeys); // Prints the generated public and private VAPID keys to the console
 
 // ======= Error Handlers =======
 app.use(notFoundHandler);
