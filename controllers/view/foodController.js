@@ -26,8 +26,10 @@ exports.renderCreateForm = async (req, res) => {
 exports.renderUpdateForm = async (req, res) => {
   try {
     const foodId =req.params.id;
-    const categories = await getFoodById(foodId);
-    res.render('admin/food/update-food', { categories,title:'Food Update' });
+    const food = await getFoodById(foodId);
+    const categories = await getAllCategories();
+    res.render('admin/food/list-food', { foods ,title:'Food List'});
+  //  res.render('admin/food/update-food', { categories,food,title:'Food Update' });
   } catch (err) {
     next(new InternalServerError('Error loading edit form.', err));
   }
