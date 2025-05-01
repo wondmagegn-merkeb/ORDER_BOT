@@ -169,9 +169,8 @@ exports.deleteFood = async (req, res, next) => {
 
     // 1. Check if food is referenced in Orders or FoodUpdateLogs
     const relatedOrder = await Order.findOne({ where: { foodId } });
-    const relatedUpdateLog = await FoodUpdateLog.findOne({ where: { foodId } });
 
-    if (relatedOrder || relatedUpdateLog) {
+    if (relatedOrder) {
       return res.locals.error = 'Cannot delete food. It is referenced in orders or update logs.';
     }
 
