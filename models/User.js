@@ -38,7 +38,7 @@ const User = sequelize.define('User', {
   },
   userType: {
     type: DataTypes.STRING,
-    defaultValue: 'customer' // customer, guest, VIP, etc.
+    defaultValue: 'guest' // customer, guest, VIP, etc.
   },
   updatedBy: {
     type: DataTypes.STRING,
