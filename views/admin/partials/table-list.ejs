@@ -119,6 +119,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function displayPage(page) {
     const visibleRows = getVisibleRows();
+console.log(visibleRows);
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
 
