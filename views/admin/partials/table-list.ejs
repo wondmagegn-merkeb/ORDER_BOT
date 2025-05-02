@@ -113,18 +113,23 @@ document.addEventListener("DOMContentLoaded", () => {
   const rowsPerPage = 5;
   let currentPage = 1;
 
-  function getVisibleRows() {
-    return Array.from(tableBody.querySelectorAll('tr')).filter(row => row.style.display !== 'none');
-  }
 
   function displayPage(page) {
-    const visibleRows = tableBody.querySelectorAll('tr');
-console.log(visibleRows);
     
+    const query = searchInput.value.toLowerCase();
+    const allRows = tableBody.querySelectorAll('tr');
+
+    allRows.forEach(row => {
+      const match = Array.from(row.cells).some(cell =>
+        cell.textContent.toLowerCase().includes(query)
+      );
+      row.style.display = match ? '' : 'none';
+    });
+
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
 
-    visibleRows.forEach((row, index) => {
+    allRows.forEach((row, index) => {
       row.style.display = (index >= start && index < end) ? '' : 'none';
     });
 
@@ -159,16 +164,6 @@ console.log(visibleRows);
   }
 
   searchInput.addEventListener('input', function () {
-    const query = this.value.toLowerCase();
-    const allRows = tableBody.querySelectorAll('tr');
-
-    allRows.forEach(row => {
-      const match = Array.from(row.cells).some(cell =>
-        cell.textContent.toLowerCase().includes(query)
-      );
-      row.style.display = match ? '' : 'none';
-    });
-
     currentPage = 1;
     displayPage(currentPage);
   });
