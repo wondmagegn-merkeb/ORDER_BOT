@@ -43,7 +43,7 @@ exports.createCategory = async (req, res, next) => {
     }
 
     // Generate unique category ID
-    const last = await FoodCategory.findOne({ order: [['createdAt', 'DESC']] });
+    const last = await FoodCategory.findOne({ order: [['createdAt', 'DESC']], paranoid: false});
     let newIdNumber = 1;
     if (last && last.categoryId) {
       const lastNumber = parseInt(last.categoryId.replace('CAT', ''));
