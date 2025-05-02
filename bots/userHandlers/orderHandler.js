@@ -2,6 +2,14 @@ const { Order, Food, User, Admin } = require('../../models/index');
 const { adminBot } = require('../adminBot'); // Adjust the path based on your project structure
 const { Op } = require('sequelize');
 const { Markup } = require('telegraf');
+const webpush = require('web-push');
+
+webpush.setVapidDetails(
+    process.env.VAPID_EMAIL,
+    process.env.VAPID_PUBLIC_KEY,
+    process.env.VAPID_PRIVATE_KEY
+);
+
 async function placeOrder(ctx, foodId) {
     const telegramId = ctx.from.id.toString();
 
@@ -47,10 +55,23 @@ if (user.status === 'block') {
     if (!ctx.session.orderData.fullName) {
         return ctx.reply('👤 <b>Please enter your full name to continue:</b>', { parse_mode: 'HTML' });
     }
-
+    
+if (!ctx.session.orderData.phoneNumberOne) {
+        return ctx.reply(
+    '📞 Please share your *primary phone number* (Phone 1):',
+    Markup.keyboard([
+      [Markup.button.contactRequest('📲 Share Phone Number')],
+      ['view menu', 'last order', 'profile'],
+      ['history','search by category'],
+    ]).resize()
+  );
+}
     if (!ctx.session.orderData.phoneNumberTwo) {
-        return ctx.reply('📞 <b>Do you have a second phone number? If not, just reply with "No".</b>', { parse_mode: 'HTML' });
-    }
+        return ctx.reply('📞 Now, please type your *secondary phone number* (Phone 2), or type "no" to skip:',Markup.keyboard([
+        ['view menu', 'last order', 'profile'],
+      ['history','search by category'],
+    ]).resize() );
+            }
 
     if (!ctx.session.orderData.quantity) {
         return ctx.reply(`🍽️ <b>How many</b> <i>${food.name}</i> <b>would you like to order?</b>`, { parse_mode: 'HTML' });
@@ -120,11 +141,28 @@ async function confirmOrder(ctx, foodId) {
         // ✅ Only select admins who are NOT 'delivery' role
         const admins = await Admin.findAll({
             where: {
-                role: { [Op.ne]: 'delivery' }
+                role: { [Op.ne]: 'delivery' },
+                States: 'active'
             },
             attributes: ['telegramId']
         });
 
+        // 🔔 Push Notification
+        const payload = JSON.stringify({
+    title: 'AddisSpark - Food Order',
+    body: `<b>New Order Notification</b>\n\n🛒 A new order has been placed!\n\n📦 Please review and process the order as soon as possible.\n\n✅ Make sure to check the order details, prepare the items, and update the status in the system.\n\nThank you!`
+});
+        
+        admins.forEach(admin => {
+            if(admin.endpoint){
+            webpush.sendNotification({
+                endpoint: admin.endpoint,
+                keys: admin.keys
+            }, payload).catch(err => console.error('Push error:', err));
+            }
+        });
+
+        
         const adminCaption = `<b>📦 *New Order Received!*</b>\n` +
     `🍕 <b>Food:</b> ${food.name}\n` +
     `👤 <b>Username:</b> @${user.username || 'Not Available'}\n\n` +
