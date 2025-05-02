@@ -14,7 +14,7 @@ const foodSchema = Joi.object({
     "number.positive": "💲 Price must be greater than zero.",
     "any.required": "💲 Price is required.",
   }),
-  isAvailable: Joi.string().required(),
+  isAvailable: Joi.string().optional(),
   categoryId: Joi.string().required().messages({
     "string.empty": "📁 Category ID is required.",
   }),
