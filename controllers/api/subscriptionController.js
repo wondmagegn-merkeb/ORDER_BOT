@@ -1,3 +1,5 @@
+const { Admin } = require('../../models/index');
+
 exports.subscription = async (req, res) => {
     const { endpoint, expirationTime, keys } = req.body;
 
