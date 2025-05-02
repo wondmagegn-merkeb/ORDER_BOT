@@ -278,16 +278,6 @@ ${JSON.stringify(modelData.newData, null, 2)}
     });
   });
 
-  // Confirm Delete Modal
-  document.querySelectorAll('.open-delete-modal').forEach(button => {
-    button.addEventListener('click', function () {
-      if (confirm('Are you sure you want to delete this item?')) {
-        const form = this.closest('form');
-        form.submit();
-      }
-    });
-  });
-
   displayPage(currentPage);
 });
 </script>
