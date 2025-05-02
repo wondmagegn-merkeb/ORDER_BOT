@@ -125,7 +125,7 @@ app.get('/logout', (req, res) => {
 // You typically run this ONCE and then save the keys in your backend config or .env file
 //const vapidKeys = webpush.generateVAPIDKeys();
 
-/console/.log(vapidKeys); // Prints the generated public and private VAPID keys to the console
+//console.log(vapidKeys); // Prints the generated public and private VAPID keys to the console
 
 // ======= Error Handlers =======
 app.use(notFoundHandler);
