@@ -6,7 +6,6 @@ async function getMenu(ctx) {
   ctx.session.waitingForFullName = false;
     try {
         const foods = await Food.findAll({
-            where: { isAvailable: true },
             include: {
                 model: FoodCategory,
                 attributes: ['categoryName'],
@@ -58,7 +57,7 @@ if (food.imageUrl && food.imageUrl.startsWith('http')) {
 async function getMenuByCategory(ctx,categoryId) {
     try {
         const foods = await Food.findAll({
-            where: { isAvailable: true, categoryId},
+            
             include: {
                 model: FoodCategory,
                 attributes: ['categoryName'],
@@ -77,14 +76,17 @@ async function getMenuByCategory(ctx,categoryId) {
 📂 <i>Category:</i> ${category}
 💰 <i>Price:</i> ${food.price} birr
 📝 <i>Description:</i> ${food.description || 'No description'}
-✅ <i>Available</i>
-            `.trim();
+${food.isAvailable ? '✅ <i>Available</i>' : '❌ <i>Not available</i>'}
+`.trim();
 
-            const keyboard = {
-                inline_keyboard: [
-                    [{ text: '🛒 Order Now', callback_data: `order_now_${food.foodId}` }]
-                ]
-            };
+const keyboard = food.isAvailable
+  ? {
+      inline_keyboard: [
+        [{ text: '🛒 Order Now', callback_data: `order_now_${food.foodId}` }]
+      ]
+    }
+  : undefined;
+
 
             if (food.imageUrl && food.imageUrl.startsWith('http')) {
                 await ctx.replyWithPhoto(food.imageUrl, {
