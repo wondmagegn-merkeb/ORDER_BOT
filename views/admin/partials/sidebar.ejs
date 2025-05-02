@@ -11,11 +11,15 @@
         <i class="fas fa-receipt mr-3"></i> Orders
       </a>
     </li>
+<% if (role === 'admin') { %>
+      
+    
     <li>
       <a href="/admin" class="flex items-center text-lg py-2 px-4 rounded hover:bg-blue-700 <%= currentPath === '/admin' ? 'bg-blue-700 font-semibold' : '' %>">
         <i class="fas fa-user-shield mr-3"></i> Admins
       </a>
     </li>
+<% } %>
     <li>
       <a href="/food" class="flex items-center text-lg py-2 px-4 rounded hover:bg-blue-700 <%= currentPath === '/food-items' ? 'bg-blue-700 font-semibold' : '' %>">
         <i class="fas fa-hamburger mr-3"></i> Food Items
@@ -31,7 +35,7 @@
         <i class="fas fa-users mr-3"></i> Users
       </a>
     </li>
-
+<% if (role === 'admin') { %>
     <!-- Logs Dropdown -->
     <li>
       <div class="text-white font-semibold mt-4 mb-1 px-4 text-sm uppercase opacity-70">Logs</div>
@@ -63,6 +67,7 @@
         </li>
       </ul>
     </li>
+<% } %>
 <li>
   <a href="/admin/profile" class="flex items-center text-lg py-2 px-4 rounded hover:bg-blue-700 <%= currentPath === '/profile' ? 'bg-blue-700 font-semibold' : '' %>">
     <i class="fas fa-user-circle mr-3"></i> Profile
