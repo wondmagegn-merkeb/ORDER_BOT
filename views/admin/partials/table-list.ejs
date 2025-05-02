@@ -142,17 +142,28 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (totalPages > 0) {
-      paginationContainer.appendChild(createBtn('&laquo;', currentPage === 1, () => { currentPage = 1; displayPage(currentPage); }));
-      paginationContainer.appendChild(createBtn('&lsaquo;', currentPage === 1, () => { currentPage--; displayPage(currentPage); }));
+  paginationContainer.appendChild(createBtn('&laquo;', currentPage === 1, () => { currentPage = 1; displayPage(currentPage); }));
+  paginationContainer.appendChild(createBtn('&lsaquo;', currentPage === 1, () => { currentPage--; displayPage(currentPage); }));
 
-      for (let i = 1; i <= totalPages; i++) {
-        paginationContainer.appendChild(createBtn(i, false, () => { currentPage = i; displayPage(currentPage); }, i === currentPage));
-      }
+  const maxVisiblePages = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+  let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
 
-      paginationContainer.appendChild(createBtn('&rsaquo;', currentPage === totalPages, () => { currentPage++; displayPage(currentPage); }));
-      paginationContainer.appendChild(createBtn('&raquo;', currentPage === totalPages, () => { currentPage = totalPages; displayPage(currentPage); }));
-    }
+  // Adjust start if near the end
+  if (endPage - startPage < maxVisiblePages - 1) {
+    startPage = Math.max(1, endPage - maxVisiblePages + 1);
   }
+
+  for (let i = startPage; i <= endPage; i++) {
+    paginationContainer.appendChild(
+      createBtn(i, false, () => { currentPage = i; displayPage(currentPage); }, i === currentPage)
+    );
+  }
+
+  paginationContainer.appendChild(createBtn('&rsaquo;', currentPage === totalPages, () => { currentPage++; displayPage(currentPage); }));
+  paginationContainer.appendChild(createBtn('&raquo;', currentPage === totalPages, () => { currentPage = totalPages; displayPage(currentPage); }));
+}
+}
 
   searchInput.addEventListener('input', function () {
      const query = this.value.toLowerCase();
@@ -253,27 +264,27 @@ ${JSON.stringify(modelData.newData, null, 2)}
     viewModal.classList.add('hidden');
   });
 
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', function () {
-      document.querySelectorAll('.filter-btn').forEach(b => {
+  btn.addEventListener('click', function () {
+    document.querySelectorAll('.filter-btn').forEach(b => {
         b.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
-      });
+    });
 
-      this.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
+    this.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
 
-      const value = this.dataset.filter;
-      allVisibleRows = tableBody.querySelectorAll('tr');
-      allVisibleRows.forEach(row => {
+    const value = this.dataset.filter.toLowerCase();
+    const allRows = tableBody.querySelectorAll('tr');
+
+    allRows.forEach(row => {
         const match = Array.from(row.cells).some(cell =>
-          cell.textContent.toLowerCase().includes(value)
+            cell.textContent.toLowerCase().includes(value)
         );
         row.style.display = match ? '' : 'none';
-      });
-
-      currentPage = 1;
-      displayPage(currentPage);
     });
-  });
+
+    currentPage = 1;
+    displayPage(currentPage);
+});
+
 
   displayPage(currentPage);
 });
