@@ -14,7 +14,10 @@ exports.showDashBoard = async (req, res, next) => {
       }
     });
     const totalOnlineUsers = await User.count({ where: { status: 'active' } });
-
+    const vipUsers = await User.count({ where: { userType: 'vip' } });
+    const customers = await User.count({ where: { userType: 'customer' } });
+    const guests = await User.count({ where: { userType: 'guest' } });
+    
     const pending = await Order.count({ where: { status: 'pending' } });
     const progress = await Order.count({ where: { status: 'progress' } });
     const completed = await Order.count({ where: { status: 'completed' } });
@@ -36,7 +39,8 @@ exports.showDashBoard = async (req, res, next) => {
       where: {
         status: ['progress', 'pending', 'cancelled', 'completed', 'delivered']
       },
-      order: [['createdAt', 'DESC']]
+      order: [['createdAt', 'DESC']],
+      limit: 5
     });
 
     const minOrderValue = await Order.min('totalPrice') || 0;
@@ -382,6 +386,10 @@ allStatuses.forEach(status => {
       totalRevenue,
       totalRevenueDelivered,
       totalOnlineUsers,
+      
+      vipUsers, 
+      customers,
+      guests,
       
       pending,
       progress,
