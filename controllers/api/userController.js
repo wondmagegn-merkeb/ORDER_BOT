@@ -5,7 +5,7 @@ const { sendMessageToUser } = require('../../bots/userBot');
 
 // Helper to generate user update message
 const generateUserUpdateMessage = (user) => {
-  const statusNote = user.status === 'inactive'
+  const statusNote = user.status === 'block'
     ? '⚠️ You are now <b>blocked</b> from accessing the system.'
     : '✅ You are now <b>active</b> and can use the system.';
 
@@ -47,7 +47,7 @@ exports.getUserById = async (userId, res, next) => {
 // ✅ Update user
 exports.updateUser = async (req, res, next) => {
   try {
-    req.body.status = req.body.status || 'inactive';
+    req.body.status = req.body.status || 'block';
     const { status, userType } = req.body;
     const userId = req.params.id;
 
