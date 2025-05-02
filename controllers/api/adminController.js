@@ -485,11 +485,6 @@ exports.deleteAdmin = async (req, res, next) => {
   try {
     const adminId = req.params.id;
     const admin = await Admin.findByPk(adminId);
-    const admins = await Admin.findAll({
-      attributes: ['adminId', 'username', 'email', 'role', 'states'],
-      order: [['createdAt', 'DESC']],
-    });
-    const models = admins;
 
     const modelColumns = [
       { name: 'Admin ID', field: 'adminId', index: 0 },
