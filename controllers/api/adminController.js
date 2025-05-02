@@ -81,7 +81,7 @@ if (existingTelegramId) {
 }
 
     // Generate a new admin ID
-    const lastAdmin = await Admin.findOne({ order: [['createdAt', 'DESC']] });
+    const lastAdmin = await Admin.findOne({ order: [['createdAt', 'DESC']],paranoid: false });
     let newIdNumber = 1;
     if (lastAdmin && lastAdmin.adminId) {
       const lastNumber = parseInt(lastAdmin.adminId.replace('ADM', ''));
