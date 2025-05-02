@@ -138,57 +138,57 @@ async function confirmOrder(ctx, foodId) {
             longitude: location.longitude
         });
 
-        // ✅ Only select admins who are NOT 'delivery' role
-        const admins = await Admin.findAll({
-            where: {
-                role: { [Op.ne]: 'delivery' },
-                States: 'active'
-            },
-            attributes: ['telegramId']
-        });
+        // ✅ Only select admins who are NOT in 'delivery' role and are active
+const admins = await Admin.findAll({
+    where: {
+        role: { [Op.ne]: 'delivery' },
+        States: 'active'
+    },
+    attributes: ['telegramId', 'endpoint', 'keys'] // added missing fields
+});
 
-        // 🔔 Push Notification
-        const payload = JSON.stringify({
+// 🔔 Push Notification payload
+const payload = JSON.stringify({
     title: 'AddisSpark - Food Order',
     body: `<b>New Order Notification</b>\n\n🛒 A new order has been placed!\n\n📦 Please review and process the order as soon as possible.\n\n✅ Make sure to check the order details, prepare the items, and update the status in the system.\n\nThank you!`
 });
-        
-        admins.forEach(admin => {
-            if(admin.endpoint){
-            webpush.sendNotification({
-                endpoint: admin.endpoint,
-                keys: admin.keys
-            }, payload).catch(err => console.error('Push error:', err));
-            }
-        });
 
-        
-        const adminCaption = `<b>📦 *New Order Received!*</b>\n` +
+// ✅ Send web push notifications
+admins.forEach(admin => {
+    if (admin.endpoint && admin.keys) {
+        webpush.sendNotification({
+            endpoint: admin.endpoint,
+            keys: admin.keys
+        }, payload).catch(err => console.error('Push error:', err));
+    }
+});
+
+// 📦 Admin message caption
+const adminCaption = `<b>📦 New Order Received!</b>\n` +
     `🍕 <b>Food:</b> ${food.name}\n` +
     `👤 <b>Username:</b> @${user.username || 'Not Available'}\n\n` +
     `💰 <b>Total Price:</b> ${totalPrice} birr\n` +
-    `📝 <b>Special Order:</b> ${specialOrder || 'None'}\n\n` +  // Added special order for admin
-    `<b>📝 Please review this order! 📋</b>`;
+    `📝 <b>Special Order:</b> ${specialOrder || 'None'}\n\n` +
+    `📝 Please review this order! 📋`;
 
-
-        // Send to all admins
-        for (const admin of admins) {
-  try {
-    const chat = await adminBot.telegram.getChat(admin.telegramId);
-    if (chat) {
-      await adminBot.telegram.sendPhoto(admin.telegramId, food.imageUrl, {
-        caption: adminCaption,
-        parse_mode: 'HTML',
-        reply_markup: {
-          inline_keyboard: [
-            [{ text: "📋 View Details", callback_data: `view_order_${orderId}` }]
-          ]
+// ✅ Send Telegram photo + message to all admins
+for (const admin of admins) {
+    try {
+        const chat = await adminBot.telegram.getChat(admin.telegramId);
+        if (chat) {
+            await adminBot.telegram.sendPhoto(admin.telegramId, food.imageUrl, {
+                caption: adminCaption,
+                parse_mode: 'HTML',
+                reply_markup: {
+                    inline_keyboard: [
+                        [{ text: "📋 View Details", callback_data: `view_order_${orderId}` }]
+                    ]
+                }
+            });
         }
-      });
+    } catch (error) {
+        console.error(`❌ Could not message admin ${admin.telegramId}:`, error.message);
     }
-  } catch (error) {
-    console.error(`❌ Could not message admin ${admin.telegramId}:`, error.message);
-  }
 }
 
         // Confirmation to the user
