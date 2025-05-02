@@ -3,7 +3,7 @@ const Joi = require('joi');
 // User validation schema
 const userValidationSchema = Joi.object({
   status: Joi.string()
-    .valid('active', 'inactive')
+    .valid('active', 'block')
     .required()
     .messages({
       'string.base': 'Status must be a string',
