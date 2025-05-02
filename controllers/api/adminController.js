@@ -485,7 +485,10 @@ exports.deleteAdmin = async (req, res, next) => {
   try {
     const adminId = req.params.id;
     const admin = await Admin.findByPk(adminId);
-    const admins = await getAllAdmins();
+    const admins = await Admin.findAll({
+      attributes: ['adminId', 'username', 'email', 'role', 'states'],
+      order: [['createdAt', 'DESC']],
+    });
     const models = admins;
 
     const modelColumns = [
@@ -535,6 +538,11 @@ exports.deleteAdmin = async (req, res, next) => {
       foodCreated || foodUpdated || foodCategoryCreated || foodCategoryUpdated ||
       foodUpdateLog || foodCategoryUpdateLog || orderUpdated || adminAuditLog || orderUpdateLog
     ) {
+      const admins = await Admin.findAll({
+      attributes: ['adminId', 'username', 'email', 'role', 'states'],
+      order: [['createdAt', 'DESC']],
+    });
+    const models = admins;
       res.locals.error = 'Cannot delete admin. Admin is referenced in other records.';
       return res.render('admin/list-admin', {
         title: 'Admin List',
@@ -555,7 +563,11 @@ exports.deleteAdmin = async (req, res, next) => {
     // No references, safe to delete
     admin.updatedBy = req.admin.adminId;
     await admin.destroy();
-
+    const admins = await Admin.findAll({
+      attributes: ['adminId', 'username', 'email', 'role', 'states'],
+      order: [['createdAt', 'DESC']],
+    });
+    const models = admins;
     res.locals.success = 'Admin deleted successfully!';
     return res.render('admin/list-admin', {
       title: 'Admin List',
