@@ -95,7 +95,7 @@ app.use('/api/users', authenticateAndAuthorize('admin', 'manager'), apiUserRoute
 app.use('/api/orders', authenticateAndAuthorize('admin', 'manager'), apiOrderRoutes);
 app.use('/api/food', authenticateAndAuthorize('admin','manager'), require('./routes/api/foodRoutes'));
 app.use('/food',authenticateAndAuthorize('admin', 'manager'), require('./routes/view/foodRoutes'));
-app.use('/subscription',authenticateAndAuthorize('admin', 'manager'), apiSubscriptionRoutes);
+app.use('/subscribe',authenticateAndAuthorize('admin', 'manager'), apiSubscriptionRoutes);
 app.use('/dashboard',authenticateAndAuthorize('admin', 'manager'), viewDashboardRoutes);
 // Login / Password Reset
 app.get('/login', (req, res) => {
@@ -137,7 +137,7 @@ app.use(globalErrorHandler);
     await sequelize.authenticate();
     console.log('✅ Database connected');
 
-    await sequelize.sync({ force : true });
+    await sequelize.sync({ alter : true });
 
     const PORT = process.env.PORT || 8080;
 
