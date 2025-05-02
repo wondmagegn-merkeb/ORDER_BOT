@@ -8,6 +8,7 @@ const { InternalServerError, NotFoundError } = require("../../utils/customError"
 
 exports.createFood = async (req, res, next) => {
   try {
+    req.body.isAvailable = req.body.isAvailable || 'off';
     const categories = await getAllCategories();
     const { error, value } = foodSchema.validate(req.body, { abortEarly: false });
 
@@ -96,7 +97,7 @@ exports.getFoodById = async (foodId) => {
 
 exports.updateFood = async (req, res, next) => {
   try {
-    
+    req.body.isAvailable = req.body.isAvailable || 'off';
     const { name, description, price, isAvailable, categoryId } = req.body;
     const foodId = req.params.id;
 
@@ -106,7 +107,7 @@ exports.updateFood = async (req, res, next) => {
     if (!food) {
       throw new NotFoundError("Food item not found.");
     }
-const categories = await getAllCategories();
+    const categories = await getAllCategories();
     if (error) {
       res.locals.error = error.details[0].message;
       return res.render('admin/food/update-food', { title: 'Update Food', food, categories});
