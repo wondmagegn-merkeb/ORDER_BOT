@@ -158,6 +158,7 @@ exports.deleteCategory = async (req, res, next) => {
       },
     });
   } catch (error) {
+    console.log(error)
     next(new InternalServerError('Failed to delete category', error));
   }
 };
