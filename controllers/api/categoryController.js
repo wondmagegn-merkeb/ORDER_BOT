@@ -102,7 +102,7 @@ exports.deleteCategory = async (req, res, next) => {
   try {
     const categoryId = req.params.id;
     const category = await FoodCategory.findByPk(categoryId);
-    const categories = await getAllCategories();
+    const categories = await FoodCategory.findAll();
     const models = categories;
 
     const modelColumns = [
