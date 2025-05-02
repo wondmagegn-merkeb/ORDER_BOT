@@ -206,14 +206,27 @@ exports.updateAdminProfile = async (req, res, next) => {
     let credentialsChangedUsername = false;
     let credentialsChangedPassword = false;
 
-    if (password && password.trim() !== '') {
-      admin.password = password; // Hash password if required
-      credentialsChangedPassword = true;
-    }
-
+    // Check if username is taken by another admin
     if (username && username !== admin.username) {
+      const existingUser = await Admin.findOne({
+        where: { username, adminId: { [Op.ne]: adminId } } // exclude self
+      });
+
+      if (existingUser) {
+        res.locals.error = 'Username is already taken by another admin.';
+        return res.render('admin/profile-admin', {
+          admin,
+          title: 'Admin Profile'
+        });
+      }
+
       admin.username = username;
       credentialsChangedUsername = true;
+    }
+
+    if (password && password.trim() !== '') {
+      admin.password = password; // Don’t forget to hash the password if needed!
+      credentialsChangedPassword = true;
     }
 
     if (credentialsChangedUsername && credentialsChangedPassword) {
@@ -237,6 +250,7 @@ exports.updateAdminProfile = async (req, res, next) => {
     next(new InternalServerError('Failed to update admin', err));
   }
 };
+
 
 // ✅ Update Admin
 exports.updateAdmin = async (req, res, next) => {
