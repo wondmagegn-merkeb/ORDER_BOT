@@ -27,7 +27,7 @@
         <label class="block mb-1 text-gray-700 font-medium">Email</label>
         <div class="flex items-center border border-gray-300 p-2 rounded bg-gray-100">
           <i class="fas fa-envelope text-gray-400 mr-2"></i> <!-- Correct email icon -->
-          <input type="text" name="email" class="w-full bg-gray-100 focus:outline-none" value="<%= admin.email %>" readonly>
+          <input type="text" class="w-full bg-gray-100 focus:outline-none" value="<%= admin.email %>" readonly>
         </div>
       </div>
 
@@ -36,7 +36,7 @@
         <label class="block mb-1 text-gray-700 font-medium">Telegram ID</label>
         <div class="flex items-center border border-gray-300 p-2 rounded bg-gray-100">
           <i class="fab fa-telegram text-gray-400 mr-2"></i>
-          <input type="text" name="telegramId" class="w-full bg-gray-100 focus:outline-none" value="<%= admin.telegramId %>" readonly>
+          <input type="text" class="w-full bg-gray-100 focus:outline-none" value="<%= admin.telegramId %>" readonly>
         </div>
       </div>
 
@@ -46,7 +46,7 @@
         <label class="block mb-1 text-gray-700 font-medium">Role</label>
         <div class="flex items-center border border-gray-300 p-2 rounded bg-gray-100">
           <i class="fas fa-user-tag text-gray-400 mr-2"></i>
-          <select name="role" class="w-full bg-gray-100 focus:outline-none" disabled>
+          <select class="w-full bg-gray-100 focus:outline-none" disabled>
             <option value="admin" <%= admin.role === 'admin' ? 'selected' : '' %>>Admin (Owner)</option>
             <option value="manager" <%= admin.role === 'manager' ? 'selected' : '' %>>Manager</option>
             <option value="delivery" <%= admin.role === 'delivery' ? 'selected' : '' %>>Delivery Boy/Girl</option>
