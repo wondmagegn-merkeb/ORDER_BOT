@@ -102,26 +102,64 @@ exports.deleteCategory = async (req, res, next) => {
   try {
     const categoryId = req.params.id;
     const category = await FoodCategory.findByPk(categoryId);
+    const categories = await getAllCategories();
+    const models = categories;
+
+    const modelColumns = [
+      { name: 'Category ID', field: 'categoryId', index: 0 },
+      { name: 'Category Name', field: 'categoryName', index: 1 },
+      { name: 'Description', field: 'description', index: 2 },
+    ];
+
+    const filters = [];
 
     if (!category) {
       return next(new NotFoundError('Category not found'));
     }
 
     // Check if any Food is using this category
-    const foodLinked = await Food.findOne({ where: { categoryId: categoryId } });
+    const foodLinked = await Food.findOne({ where: { categoryId } });
 
     if (foodLinked) {
-      return res.locals.error ='Cannot delete category because it is used by existing foods.';
+      res.locals.error = 'Cannot delete category because it is used by existing foods.';
+      return res.render('admin/category/list-category', {
+        title: 'Category List',
+        models,
+        modelColumns,
+        filters,
+        modelName: 'Category',
+        modelNameLower: 'categories',
+        permissions: {
+          canView: false,
+          canAdd: true,
+          canEdit: true,
+          canDelete: true,
+        },
+      });
     }
 
     // Safe to delete
     category.updatedBy = req.admin.adminId;
     await category.destroy();
-    
-    res.locals.success = 'Category deleted successfully!';
 
+    res.locals.success = 'Category deleted successfully!';
+    return res.render('admin/category/list-category', {
+      title: 'Category List',
+      models,
+      modelColumns,
+      filters,
+      modelName: 'Category',
+      modelNameLower: 'categories',
+      permissions: {
+        canView: false,
+        canAdd: true,
+        canEdit: true,
+        canDelete: true,
+      },
+    });
   } catch (error) {
     next(new InternalServerError('Failed to delete category', error));
   }
 };
+
 
