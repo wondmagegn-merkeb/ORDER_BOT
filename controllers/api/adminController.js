@@ -26,7 +26,7 @@ const generateAdminUpdateMessage = (user, role, states) => {
   }
 
   if (states) {
-    if (user.states === 'block) {
+    if (user.states === 'block') {
       message += '⚠️ Your account has been <b>Blocked</b> from accessing the system.';
     } else {
       message += '✅ Your account is now <b>Active</b> and you can use the system.';
