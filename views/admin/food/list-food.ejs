@@ -16,7 +16,23 @@
         <i class="fas fa-plus"></i> Add
       </a>
     </div>
-
+  <!-- Filters -->
+  <div class="mb-6 overflow-x-auto">
+    <div class="flex space-x-2 w-max">
+      
+<button id="availableFilterBtn" 
+                class="filter-btn whitespace-nowrap px-4 py-2 rounded text-white bg-green-500 hover:bg-green-600" 
+                data-filter="true">
+          Available
+        </button>
+        <button id="notAvailableFilterBtn" 
+                class="filter-btn whitespace-nowrap px-4 py-2 rounded text-white bg-pink-400 hover:bg-pink-500" 
+                data-filter="false">
+          Not Available
+        </button>
+      
+    </div>
+  </div>
     <!-- Food Cards -->
     <div id="foodContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
     <div id="noResults" class="hidden text-center text-gray-500 py-6">No results found.</div>
