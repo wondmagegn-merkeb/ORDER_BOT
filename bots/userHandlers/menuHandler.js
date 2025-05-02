@@ -25,27 +25,30 @@ async function getMenu(ctx) {
 📂 <i>Category:</i> ${category}
 💰 <i>Price:</i> ${food.price} birr
 📝 <i>Description:</i> ${food.description || 'No description'}
-✅ <i>Available</i>
-            `.trim();
+${food.isAvailable ? '✅ <i>Available</i>' : '❌ <i>Not available</i>'}
+`.trim();
 
-            const keyboard = {
-                inline_keyboard: [
-                    [{ text: '🛒 Order Now', callback_data: `order_now_${food.foodId}` }]
-                ]
-            };
+const keyboard = food.isAvailable
+  ? {
+      inline_keyboard: [
+        [{ text: '🛒 Order Now', callback_data: `order_now_${food.foodId}` }]
+      ]
+    }
+  : undefined;
 
-            if (food.imageUrl && food.imageUrl.startsWith('http')) {
-                await ctx.replyWithPhoto(food.imageUrl, {
-                    caption: foodDetails,
-                    parse_mode: 'HTML',
-                    reply_markup: keyboard
-                });
-            } else {
-                await ctx.reply(foodDetails, {
-                    parse_mode: 'HTML',
-                    reply_markup: keyboard
-                });
-            }
+if (food.imageUrl && food.imageUrl.startsWith('http')) {
+  await ctx.replyWithPhoto(food.imageUrl, {
+    caption: foodDetails,
+    parse_mode: 'HTML',
+    reply_markup: keyboard
+  });
+} else {
+  await ctx.reply(foodDetails, {
+    parse_mode: 'HTML',
+    reply_markup: keyboard
+  });
+}
+
         }
     } catch (error) {
         console.error('❌ Error displaying menu:', error);
