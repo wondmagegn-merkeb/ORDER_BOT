@@ -31,12 +31,16 @@ async function handlePhoneNumberOne(ctx) {
     const rawPhone = ctx.message.contact.phone_number;
     const cleanedPhone = rawPhone.replace(/\D/g, '').slice(-10); // Extract last 10 digits
     ctx.session.orderData.phoneNumberOne = cleanedPhone;
-
-    return ctx.reply('📞 Now, please type your *secondary phone number* (Phone 2), or type "no" to skip:',Markup.keyboard([
+if (!ctx.session.orderData.phoneNumberTwo) {
+       return ctx.reply('📞 Now, please type your *secondary phone number* (Phone 2), or type "no" to skip:',Markup.keyboard([
       
       ['view menu', 'last order', 'profile'],
       ['history','search by category'],
     ]).resize() );
+}else{
+return ctx.reply('✅ Phone 2 saved! How many items would you like to order?');
+}
+    
 }
 
 async function handlePhoneNumber(ctx) {
@@ -57,7 +61,7 @@ async function handlePhoneNumber(ctx) {
     }
 
     ctx.session.orderData.phoneNumberTwo = input;
-    return ctx.reply('✅ Phone 2 saved! How many items would you like to order?');
+      return ctx.reply(`🍽️ <b>How many</b> <i>${ctx.session.orderData.food.name}</i> <b>would you like to order?</b>`, { parse_mode: 'HTML' });
 }
 
 async function handleQuantity(ctx) {
