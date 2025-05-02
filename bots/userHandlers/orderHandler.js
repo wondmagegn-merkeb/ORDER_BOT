@@ -174,8 +174,7 @@ const adminCaption = `<b>📦 New Order Received!</b>\n` +
 // ✅ Send Telegram photo + message to all admins
 for (const admin of admins) {
     try {
-        const chat = await adminBot.telegram.getChat(admin.telegramId);
-        if (chat) {
+        
             await adminBot.telegram.sendPhoto(admin.telegramId, food.imageUrl, {
                 caption: adminCaption,
                 parse_mode: 'HTML',
@@ -185,7 +184,7 @@ for (const admin of admins) {
                     ]
                 }
             });
-        }
+        
     } catch (error) {
         console.error(`❌ Could not message admin ${admin.telegramId}:`, error.message);
     }
