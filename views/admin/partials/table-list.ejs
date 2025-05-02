@@ -113,28 +113,19 @@ document.addEventListener("DOMContentLoaded", () => {
   const rowsPerPage = 5;
   let currentPage = 1;
 
+  let allVisibleRows = tableBody.querySelectorAll('tr');
 
   function displayPage(page) {
     
-    const query = searchInput.value.toLowerCase();
-    const allRows = tableBody.querySelectorAll('tr');
-
-    allRows.forEach(row => {
-      const match = Array.from(row.cells).some(cell =>
-        cell.textContent.toLowerCase().includes(query)
-      );
-      row.style.display = match ? '' : 'none';
-    });
-
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
 
-    allRows.forEach((row, index) => {
+    allVisibleRows.forEach((row, index) => {
       row.style.display = (index >= start && index < end) ? '' : 'none';
     });
 
-    renderPagination(visibleRows.length);
-    noResults.classList.toggle('hidden', visibleRows.length > 0);
+    renderPagination(allVisibleRows.length);
+    noResults.classList.toggle('hidden', allVisibleRows.length > 0);
   }
 
   function renderPagination(totalRows) {
@@ -164,6 +155,15 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   searchInput.addEventListener('input', function () {
+     const query = this.value.toLowerCase();
+     allVisibleRows = tableBody.querySelectorAll('tr');
+
+    allVisibleRows.forEach(row => {
+      const match = Array.from(row.cells).some(cell =>
+        cell.textContent.toLowerCase().includes(query)
+      );
+      row.style.display = match ? '' : 'none';
+    });
     currentPage = 1;
     displayPage(currentPage);
   });
@@ -262,8 +262,8 @@ ${JSON.stringify(modelData.newData, null, 2)}
       this.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
 
       const value = this.dataset.filter;
-      const allRows = tableBody.querySelectorAll('tr');
-      allRows.forEach(row => {
+      allVisibleRows = tableBody.querySelectorAll('tr');
+      allVisibleRows.forEach(row => {
         const match = Array.from(row.cells).some(cell =>
           cell.textContent.toLowerCase().includes(value)
         );
