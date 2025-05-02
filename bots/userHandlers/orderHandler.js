@@ -170,11 +170,11 @@ const adminCaption = `<b>📦 New Order Received!</b>\n` +
     `💰 <b>Total Price:</b> ${totalPrice} birr\n` +
     `📝 <b>Special Order:</b> ${specialOrder || 'None'}\n\n` +
     `📝 Please review this order! 📋`;
-
+console.log(admins)
 // ✅ Send Telegram photo + message to all admins
 for (const admin of admins) {
     try {
-        
+        console.log(admins)
             await adminBot.telegram.sendPhoto(admin.telegramId, food.imageUrl, {
                 caption: adminCaption,
                 parse_mode: 'HTML',
