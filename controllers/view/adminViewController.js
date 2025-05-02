@@ -19,7 +19,7 @@ const filters = [
   { id: 'manager', name: 'Manager', value: 'manager', colorClass: 'bg-indigo-600 hover:bg-indigo-700' },
   { id: 'delivery', name: 'Delivery Staff', value: 'delivery', colorClass: 'bg-blue-600 hover:bg-blue-700'  },
   { id: 'active', name: 'Active', value: 'Active', colorClass: 'bg-green-500 hover:bg-green-600' },
-  { id: 'inactive', name: 'Inactive', value: 'Inactive', colorClass: 'bg-pink-400 hover:bg-pink-500' }
+  { id: 'block', name: 'Block', value: 'block', colorClass: 'bg-pink-400 hover:bg-pink-500' }
 ];
 
 
