@@ -102,9 +102,7 @@ exports.deleteCategory = async (req, res, next) => {
   try {
     const categoryId = req.params.id;
     const category = await FoodCategory.findByPk(categoryId);
-    const categories = await FoodCategory.findAll();
-    const models = categories;
-
+    
     const modelColumns = [
       { name: 'Category ID', field: 'categoryId', index: 0 },
       { name: 'Category Name', field: 'categoryName', index: 1 },
@@ -121,6 +119,8 @@ exports.deleteCategory = async (req, res, next) => {
     const foodLinked = await Food.findOne({ where: { categoryId } });
 
     if (foodLinked) {
+      const categories = await FoodCategory.findAll();
+      const models = categories;
       res.locals.error = 'Cannot delete category because it is used by existing foods.';
       return res.render('admin/category/list-category', {
         title: 'Category List',
@@ -141,7 +141,8 @@ exports.deleteCategory = async (req, res, next) => {
     // Safe to delete
     category.updatedBy = req.admin.adminId;
     await category.destroy();
-
+    const categories = await FoodCategory.findAll();
+    const models = categories;
     res.locals.success = 'Category deleted successfully!';
     return res.render('admin/category/list-category', {
       title: 'Category List',
