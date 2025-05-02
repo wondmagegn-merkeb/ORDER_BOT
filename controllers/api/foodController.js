@@ -96,6 +96,7 @@ exports.getFoodById = async (foodId) => {
 
 exports.updateFood = async (req, res, next) => {
   try {
+    
     const { name, description, price, isAvailable, categoryId } = req.body;
     const foodId = req.params.id;
 
