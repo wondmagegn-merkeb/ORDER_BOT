@@ -296,7 +296,7 @@
             <% if(order.status === 'delivered') { %> text-teal-500 <% } %>
           "><%= order.status %></td>
           <td class="py-3 px-4">ETB <%= order.totalPrice %></td>
-          <td class="py-3 px-4"><%= order.createdAt %></td>
+          <td class="py-3 px-4"><%= new Date(order.createdAt).toLocaleString() %></td>
         </tr>
       <% }) %>
     </tbody>
