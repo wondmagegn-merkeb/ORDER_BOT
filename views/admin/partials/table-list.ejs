@@ -116,7 +116,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let allVisibleRows = tableBody.querySelectorAll('tr');
 
   function displayPage(page) {
-    
+    allVisibleRows = tableBody.querySelectorAll('tr');
+
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
 
