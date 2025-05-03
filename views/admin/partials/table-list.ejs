@@ -114,16 +114,16 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentPage = 1;
 
   let allVisibleRows = tableBody.querySelectorAll('tr');
-
+console.log(allVisibleRows);
   function displayPage(page) {
     
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
-
+console.log(allVisibleRows);
     allVisibleRows.forEach((row, index) => {
       row.style.display = (index >= start && index < end) ? '' : 'none';
     });
-
+console.log(allVisibleRows)
     renderPagination(allVisibleRows.length);
     noResults.classList.toggle('hidden', allVisibleRows.length > 0);
   }
@@ -157,7 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
   searchInput.addEventListener('input', function () {
      const query = this.value.toLowerCase();
      allVisibleRows = tableBody.querySelectorAll('tr');
-
+console.log(allVisibleRows)
     allVisibleRows.forEach(row => {
       const match = Array.from(row.cells).some(cell =>
         cell.textContent.toLowerCase().includes(query)
@@ -167,7 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
     currentPage = 1;
     displayPage(currentPage);
   });
-
+console.log(allVisibleRows)
   const viewModal = document.getElementById('viewModal');
   const modalContent = document.getElementById('modalContent');
   const closeViewModal = document.getElementById('closeViewModal');
@@ -269,7 +269,7 @@ ${JSON.stringify(modelData.newData, null, 2)}
         );
         row.style.display = match ? '' : 'none';
       });
-
+console.log(allVisibleRows)
       currentPage = 1;
       displayPage(currentPage);
     });
