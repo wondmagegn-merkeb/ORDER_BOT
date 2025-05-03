@@ -113,20 +113,28 @@ document.addEventListener("DOMContentLoaded", () => {
   const rowsPerPage = 5;
   let currentPage = 1;
 
-  let allVisibleRows = tableBody.querySelectorAll('tr');
 
   function displayPage(page) {
-    allVisibleRows = tableBody.querySelectorAll('tr');
+    
+    const query = searchInput.value.toLowerCase();
+    const allRows = tableBody.querySelectorAll('tr');
+
+    allRows.forEach(row => {
+      const match = Array.from(row.cells).some(cell =>
+        cell.textContent.toLowerCase().includes(query)
+      );
+      row.style.display = match ? '' : 'none';
+    });
 
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
 
-    allVisibleRows.forEach((row, index) => {
+    allRows.forEach((row, index) => {
       row.style.display = (index >= start && index < end) ? '' : 'none';
     });
 
-    renderPagination(allVisibleRows.length);
-    noResults.classList.toggle('hidden', allVisibleRows.length > 0);
+    renderPagination(visibleRows.length);
+    noResults.classList.toggle('hidden', visibleRows.length > 0);
   }
 
   function renderPagination(totalRows) {
@@ -143,39 +151,19 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (totalPages > 0) {
-  paginationContainer.appendChild(createBtn('&laquo;', currentPage === 1, () => { currentPage = 1; displayPage(currentPage); }));
-  paginationContainer.appendChild(createBtn('&lsaquo;', currentPage === 1, () => { currentPage--; displayPage(currentPage); }));
+      paginationContainer.appendChild(createBtn('&laquo;', currentPage === 1, () => { currentPage = 1; displayPage(currentPage); }));
+      paginationContainer.appendChild(createBtn('&lsaquo;', currentPage === 1, () => { currentPage--; displayPage(currentPage); }));
 
-  const maxVisiblePages = 5;
-  let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-  let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+      for (let i = 1; i <= totalPages; i++) {
+        paginationContainer.appendChild(createBtn(i, false, () => { currentPage = i; displayPage(currentPage); }, i === currentPage));
+      }
 
-  // Adjust start if near the end
-  if (endPage - startPage < maxVisiblePages - 1) {
-    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+      paginationContainer.appendChild(createBtn('&rsaquo;', currentPage === totalPages, () => { currentPage++; displayPage(currentPage); }));
+      paginationContainer.appendChild(createBtn('&raquo;', currentPage === totalPages, () => { currentPage = totalPages; displayPage(currentPage); }));
+    }
   }
-
-  for (let i = startPage; i <= endPage; i++) {
-    paginationContainer.appendChild(
-      createBtn(i, false, () => { currentPage = i; displayPage(currentPage); }, i === currentPage)
-    );
-  }
-
-  paginationContainer.appendChild(createBtn('&rsaquo;', currentPage === totalPages, () => { currentPage++; displayPage(currentPage); }));
-  paginationContainer.appendChild(createBtn('&raquo;', currentPage === totalPages, () => { currentPage = totalPages; displayPage(currentPage); }));
-}
-}
 
   searchInput.addEventListener('input', function () {
-     const query = this.value.toLowerCase();
-     allVisibleRows = tableBody.querySelectorAll('tr');
-
-    allVisibleRows.forEach(row => {
-      const match = Array.from(row.cells).some(cell =>
-        cell.textContent.toLowerCase().includes(query)
-      );
-      row.style.display = match ? '' : 'none';
-    });
     currentPage = 1;
     displayPage(currentPage);
   });
@@ -265,27 +253,27 @@ ${JSON.stringify(modelData.newData, null, 2)}
     viewModal.classList.add('hidden');
   });
 
-  btn.addEventListener('click', function () {
-    document.querySelectorAll('.filter-btn').forEach(b => {
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.filter-btn').forEach(b => {
         b.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
-    });
+      });
 
-    this.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
+      this.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
 
-    const value = this.dataset.filter.toLowerCase();
-    const allRows = tableBody.querySelectorAll('tr');
-
-    allRows.forEach(row => {
+      const value = this.dataset.filter;
+      const allRows = tableBody.querySelectorAll('tr');
+      allRows.forEach(row => {
         const match = Array.from(row.cells).some(cell =>
-            cell.textContent.toLowerCase().includes(value)
+          cell.textContent.toLowerCase().includes(value)
         );
         row.style.display = match ? '' : 'none';
+      });
+
+      currentPage = 1;
+      displayPage(currentPage);
     });
-
-    currentPage = 1;
-    displayPage(currentPage);
-});
-
+  });
 
   displayPage(currentPage);
 });
