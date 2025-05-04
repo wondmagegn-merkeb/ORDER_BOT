@@ -91,7 +91,7 @@
     <!-- Close Button -->
     <button 
       id="closeViewModal" 
-      class="absolute top-4 right-4 text-red-500 hover:text-red-700 text-3xl font-bold">
+      class="absolute top-4 right-24 text-red-500 hover:text-red-700 text-3xl font-bold">
       &times;
     </button>
     <h2 class="text-2xl font-bold mb-4 text-center text-gray-800">Order Details</h2>
@@ -107,74 +107,66 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.getElementById('searchInput');
-const tableBodyRows = Array.from(document.getElementById('tableBody').querySelectorAll('tr'));
-const paginationContainer = document.getElementById('paginationContainer');
-const noResults = document.getElementById('noResults');
-const rowsPerPage = 5;
-let currentPage = 1;
-let filteredRows = [...tableBodyRows];
+  const tableBody = document.getElementById('tableBody');
+  const paginationContainer = document.getElementById('paginationContainer');
+  const noResults = document.getElementById('noResults');
+  const rowsPerPage = 5;
+  let currentPage = 1;
 
-function displayPage(page) {
-  const start = (page - 1) * rowsPerPage;
-  const end = start + rowsPerPage;
+  let allVisibleRows = tableBody.querySelectorAll('tr');
 
-  filteredRows.forEach((row, index) => {
-    row.style.display = (index >= start && index < end) ? '' : 'none';
-  });
+  function displayPage(page) {
+    
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
 
-  renderPagination(filteredRows.length);
-  noResults.classList.toggle('hidden', filteredRows.length > 0);
-}
+    allVisibleRows.forEach((row, index) => {
+      row.style.display = (index >= start && index < end) ? '' : 'none';
+    });
 
-function renderPagination(totalRows) {
-  paginationContainer.innerHTML = '';
-  const totalPages = Math.ceil(totalRows / rowsPerPage);
-
-  function createBtn(html, disabled, onClick, active = false) {
-    const btn = document.createElement('button');
-    btn.innerHTML = html;
-    btn.className = `px-4 py-2 rounded-md text-sm border transition ${disabled ? 'bg-gray-300 cursor-not-allowed' : active ? 'bg-blue-500 text-white font-bold border-blue-500' : 'bg-white text-gray-700 border-gray-300 hover:bg-blue-100'}`;
-    btn.disabled = disabled;
-    if (!disabled) btn.addEventListener('click', onClick);
-    return btn;
+    renderPagination(allVisibleRows.length);
+    noResults.classList.toggle('hidden', allVisibleRows.length > 0);
   }
 
-  if (totalPages > 0) {
-    paginationContainer.appendChild(createBtn('&laquo;', currentPage === 1, () => { currentPage = 1; displayPage(currentPage); }));
-    paginationContainer.appendChild(createBtn('&lsaquo;', currentPage === 1, () => { currentPage--; displayPage(currentPage); }));
+  function renderPagination(totalRows) {
+    paginationContainer.innerHTML = '';
+    const totalPages = Math.ceil(totalRows / rowsPerPage);
 
-    for (let i = 1; i <= totalPages; i++) {
-      paginationContainer.appendChild(createBtn(i, false, () => { currentPage = i; displayPage(currentPage); }, i === currentPage));
+    function createBtn(html, disabled, onClick, active = false) {
+      const btn = document.createElement('button');
+      btn.innerHTML = html;
+      btn.className = `px-4 py-2 rounded-md text-sm border transition ${disabled ? 'bg-gray-300 cursor-not-allowed' : active ? 'bg-blue-500 text-white font-bold border-blue-500' : 'bg-white text-gray-700 border-gray-300 hover:bg-blue-100'}`;
+      btn.disabled = disabled;
+      if (!disabled) btn.addEventListener('click', onClick);
+      return btn;
     }
 
-    paginationContainer.appendChild(createBtn('&rsaquo;', currentPage === totalPages, () => { currentPage++; displayPage(currentPage); }));
-    paginationContainer.appendChild(createBtn('&raquo;', currentPage === totalPages, () => { currentPage = totalPages; displayPage(currentPage); }));
+    if (totalPages > 0) {
+      paginationContainer.appendChild(createBtn('&laquo;', currentPage === 1, () => { currentPage = 1; displayPage(currentPage); }));
+      paginationContainer.appendChild(createBtn('&lsaquo;', currentPage === 1, () => { currentPage--; displayPage(currentPage); }));
+
+      for (let i = 1; i <= totalPages; i++) {
+        paginationContainer.appendChild(createBtn(i, false, () => { currentPage = i; displayPage(currentPage); }, i === currentPage));
+      }
+
+      paginationContainer.appendChild(createBtn('&rsaquo;', currentPage === totalPages, () => { currentPage++; displayPage(currentPage); }));
+      paginationContainer.appendChild(createBtn('&raquo;', currentPage === totalPages, () => { currentPage = totalPages; displayPage(currentPage); }));
+    }
   }
-}
 
-// Debounce utility to reduce rapid search calls
-function debounce(func, wait) {
-  let timeout;
-  return function (...args) {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func.apply(this, args), wait);
-  };
-}
+  searchInput.addEventListener('input', function () {
+     const query = this.value.toLowerCase();
+     allVisibleRows = tableBody.querySelectorAll('tr');
 
-searchInput.addEventListener('input', debounce(function () {
-  const query = this.value.toLowerCase().trim();
-  filteredRows = tableBodyRows.filter(row =>
-    Array.from(row.cells).some(cell =>
-      cell.textContent.toLowerCase().includes(query)
-    )
-  );
-  currentPage = 1;
-  displayPage(currentPage);
-}, 300));
-
-// Initialize first page
-displayPage(currentPage);
-
+    allVisibleRows.forEach(row => {
+      const match = Array.from(row.cells).some(cell =>
+        cell.textContent.toLowerCase().includes(query)
+      );
+      row.style.display = match ? '' : 'none';
+    });
+    currentPage = 1;
+    displayPage(currentPage);
+  });
 
   const viewModal = document.getElementById('viewModal');
   const modalContent = document.getElementById('modalContent');
@@ -270,7 +262,7 @@ ${JSON.stringify(modelData.newData, null, 2)}
       this.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
 
       const value = this.dataset.filter;
-      allVisibleRows = tableBody;
+      allVisibleRows = tableBody.querySelectorAll('tr');
       allVisibleRows.forEach(row => {
         const match = Array.from(row.cells).some(cell =>
           cell.textContent.toLowerCase().includes(value)
