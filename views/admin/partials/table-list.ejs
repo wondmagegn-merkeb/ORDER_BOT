@@ -1,5 +1,5 @@
 <div class="container mx-auto px-4 py-4">
-  <h1 class="text-3xl font-bold text-center mb-8 text-gray-800 flex justify-center items-center">
+  <h1 class="text-3xl font-bold text-center mb-8 text-gray-800 flex justify-center items-center dark:text-white">
     <i class="fas fa-cogs mr-3 text-blue-600"></i>
     <%= modelName %> Management
   </h1>
@@ -7,10 +7,10 @@
   <!-- Search & Add -->
   <div class="flex justify-between items-center mb-6">
     <div class="relative w-full max-w-md">
-      <input type="text" id="searchInput" placeholder="Search"
-        class="w-full p-2 pl-10 border border-gray-300 rounded">
-      <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-    </div>
+       <input type="text" id="searchInput" placeholder="Search"
+    class="w-full p-2 pl-10 pr-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:focus:ring-blue-500 dark:focus:border-blue-500">
+  <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+</div>
     <% if (permissions.canAdd) { %>
     <a href="/<%= modelNameLower %>/add" class="ml-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition inline-flex items-center gap-2">
       <i class="fas fa-plus"></i> Add
@@ -33,40 +33,40 @@
 
   <!-- Table -->
   <div class="relative overflow-x-auto">
-    <table class="min-w-full bg-white border border-gray-300 rounded-md shadow-md">
-      <thead>
+      <table class="min-w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-md">
+  <thead>
         <tr>
           <% modelColumns.forEach(column => { %>
-            <th class="p-3 border-b text-left"><%= column.name %></th>
+            <th class="p-3 text-left text-gray-700 dark:text-gray-300"><%= column.name %></th>
           <% }); %>
-          <th class="p-3 border-b text-left">Actions</th>
-        </tr>
+          <th class"p-3 text-left text-gray-700 dark:text-gray-300">Actions</th>
+  </tr>
       </thead>
       <tbody id="tableBody">
         <% models.forEach(model => { %>
           <% const id = model[modelColumns[0].field]; %>
-          <tr>
+          <tr class="border-b border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">
             <% modelColumns.forEach(column => { %>
-              <td class="p-3 border-b"><%= model[column.field] %></td>
+              <td class="p-3"><%= model[column.field] %></td>
             <% }); %>
-            <td class="p-3 border-b flex space-x-2">
+            <td class="p-3 flex flex-wrap gap-2">
               <% if (permissions.canView) { %>
               <button 
-    class="view-btn text-blue-500 hover:text-blue-600" 
+    class="view-btn text-blue-500 hover:text-blue-600 flex items-center space-x-1" 
     data-model='<%= JSON.stringify(model) %>'>
     <i class="fas fa-eye"></i> View
   </button>
               <% } %>
 
               <% if (permissions.canEdit) { %>
-              <a href="/<%= modelNameLower %>/edit/<%= id %>" class="text-yellow-500 hover:text-yellow-600">
+              <a href="/<%= modelNameLower %>/edit/<%= id %>" class="text-yellow-500 hover:text-yellow-600 flex items-center space-x-1">
                 <i class="fas fa-edit"></i> Update
               </a>
               <% } %>
 
               <% if (permissions.canDelete) { %>
               <form method="POST" class="delete-form inline" data-id="<%= id %>" data-action="/api/<%= modelNameLower %>/delete">
-                <button type="button" class="open-delete-modal text-red-500 hover:text-red-600">
+                <button type="button" class="open-delete-modal text-red-500 hover:text-red-600 flex items-center space-x-1">
                   <i class="fas fa-trash-alt"></i> Delete
                 </button>
               </form>
@@ -78,8 +78,9 @@
     </table>
 
     <!-- No Results Message -->
-    <div id="noResults" class="hidden text-center text-gray-500 py-6">No results found.</div>
-  </div>
+     <div id="noResults" class="hidden text-center py-6 text-gray-500 dark:text-gray-300 bg-white dark:bg-gray-800">
+  No results found.
+</div>
 
   <!-- Pagination -->
   <div class="mt-6 flex justify-center items-center space-x-2" id="paginationContainer"></div>
@@ -87,21 +88,22 @@
 
 <!-- View Modal -->
 <div id="viewModal" class="hidden absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-  <div class="bg-white w-11/12 max-w-2xl p-6 rounded-lg shadow-lg relative overflow-y-auto max-h-[70vh]">
+  <div class="bg-white dark:bg-gray-800 w-11/12 max-w-2xl p-6 rounded-lg shadow-lg relative overflow-y-auto max-h-[70vh]">
     <!-- Close Button -->
     <button 
       id="closeViewModal" 
-      class="absolute top-4 right-4 text-red-500 hover:text-red-700 text-3xl font-bold">
+      class="absolute top-4 right-4 text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-600 text-3xl font-bold">
       &times;
     </button>
-    <h2 class="text-2xl font-bold mb-4 text-center text-gray-800">Order Details</h2>
+    <h2 class="text-2xl font-bold mb-4 text-center text-gray-800 dark:text-white">Order Details</h2>
+    
     <!-- Scrollable Content -->
     <div id="modalContent" class="flex-1 max-h-72 overflow-y-auto overflow-x-hidden space-y-6 pr-2">
-  <!-- Dynamic content will go here -->
-</div>
-
+      <!-- Dynamic content will go here -->
+    </div>
   </div>
 </div>
+
 
 
 <script>
@@ -136,16 +138,41 @@ function renderPagination(totalRows) {
   const maxVisiblePages = 5;
   function createBtn(html, disabled, onClick, active = false) {
     const btn = document.createElement('button');
-    btn.innerHTML = html;
     
-    btn.className = `px-4 py-2 rounded-md text-sm border transition 
-      ${disabled ? 'bg-gray-300 cursor-not-allowed' : 
-        active ? 'bg-blue-500 text-white font-bold border-blue-500' :
-        'bg-white text-gray-700 border-gray-300 hover:bg-blue-100'}`;
+    // Use innerText for plain text or innerHTML if you need HTML content inside the button
+    btn.innerHTML = html;
+
+    // Add basic styles and conditional styles
+    btn.classList.add('px-4', 'py-2', 'rounded-md', 'text-sm', 'border', 'transition');
+
+    // Light mode styles
+    if (disabled) {
+        btn.classList.add('bg-gray-300', 'cursor-not-allowed', 'text-gray-500');
+    } else if (active) {
+        btn.classList.add('bg-blue-500', 'text-white', 'font-bold', 'border-blue-500');
+    } else {
+        btn.classList.add('bg-white', 'text-gray-700', 'border-gray-300', 'hover:bg-blue-100');
+    }
+
+    // Dark mode styles
+    if (disabled) {
+        btn.classList.add('dark:bg-gray-600', 'dark:text-gray-400');
+    } else if (active) {
+        btn.classList.add('dark:bg-blue-600', 'dark:text-white', 'dark:border-blue-500');
+    } else {
+        btn.classList.add('dark:bg-gray-800', 'dark:text-gray-300', 'dark:border-gray-600', 'dark:hover:bg-blue-700');
+    }
+
+    // Disable the button if 'disabled' flag is true
     btn.disabled = disabled;
-    if (!disabled) btn.addEventListener('click', onClick);
+
+    // If the button is not disabled, attach the onClick event listener
+    if (!disabled && onClick) {
+        btn.addEventListener('click', onClick);
+    }
+    
     return btn;
-  }
+}
 
   if (totalPages > 0) {
     paginationContainer.appendChild(
@@ -201,16 +228,17 @@ searchInput.addEventListener('input', filterRows);
     const modelName = "<%= modelName %>";
 
     let modalHTML = `
-      <div class="bg-gray-50 p-4 rounded-lg shadow-md space-y-2">
-        <h3 class="text-xl font-semibold text-gray-800 mb-3">Order Summary</h3>
-        <div class="grid grid-cols-2 gap-4 text-gray-700">
+      <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg shadow-md space-y-2">
+        <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-3">Order Summary</h3>
+        <div class="grid grid-cols-2 gap-4 text-gray-700 dark:text-gray-300">
     `;
 
+    // Display model data except image, latitude, longitude, oldData, and newData
     for (const [key, value] of Object.entries(modelData)) {
       if (key !== 'image' && key !== 'latitude' && key !== 'longitude' && key !== 'oldData' && key !== 'newData') {
         modalHTML += `
           <div>
-            <span class="font-semibold text-gray-900">${key}:</span> 
+            <span class="font-semibold text-gray-900 dark:text-gray-100">${key}:</span> 
             <span class="text-blue-600">${value ?? ''}</span>
           </div>
         `;
@@ -222,33 +250,36 @@ searchInput.addEventListener('input', filterRows);
       </div>
     `;
 
+    // Display old data if it exists
     if (modelData.oldData) {
       modalHTML += `
         <div class="mt-4">
-          <h3 class="text-xl font-bold text-gray-700">Old Data (JSON)</h3>
-          <pre class="bg-gray-100 p-4 rounded-lg text-sm font-mono text-gray-800 whitespace-pre-wrap">
+          <h3 class="text-xl font-bold text-gray-700 dark:text-gray-200">Old Data (JSON)</h3>
+          <pre class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg text-sm font-mono text-gray-800 dark:text-gray-300 whitespace-pre-wrap">
 ${JSON.stringify(modelData.oldData, null, 2)}
           </pre>
         </div>
       `;
     }
 
+    // Display new data if it exists
     if (modelData.newData) {
       modalHTML += `
         <div class="mt-4">
-          <h3 class="text-xl font-bold text-gray-700">New Data (JSON)</h3>
-          <pre class="bg-gray-100 p-4 rounded-lg text-sm font-mono text-gray-800 whitespace-pre-wrap">
+          <h3 class="text-xl font-bold text-gray-700 dark:text-gray-200">New Data (JSON)</h3>
+          <pre class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg text-sm font-mono text-gray-800 dark:text-gray-300 whitespace-pre-wrap">
 ${JSON.stringify(modelData.newData, null, 2)}
           </pre>
         </div>
       `;
     }
 
+    // If the model is "Order", check for additional fields
     if (modelName === "Order") {
       if (modelData.image) {
         modalHTML += `
           <div class="mt-4">
-            <h2 class="text-xl font-bold mb-2 text-gray-700">Image</h2>
+            <h2 class="text-xl font-bold mb-2 text-gray-700 dark:text-gray-200">Image</h2>
             <img src="${modelData.image}" alt="Order Image" class="w-full max-h-60 object-cover rounded-md border" />
           </div>
         `;
@@ -257,9 +288,9 @@ ${JSON.stringify(modelData.newData, null, 2)}
       if (modelData.latitude && modelData.longitude) {
         const mapSrc = `https://www.google.com/maps?q=${modelData.latitude},${modelData.longitude}&hl=es;z=14&output=embed`;
         modalHTML += `
-          <div class="bg-gray-50 p-4 rounded-lg shadow-md space-y-4 mt-6">
-            <h3 class="text-xl font-semibold text-gray-800 mb-3">Delivery Location</h3>
-            <div class="w-full h-64 overflow-hidden rounded-lg border border-gray-300 shadow-sm">
+          <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg shadow-md space-y-4 mt-6">
+            <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-3">Delivery Location</h3>
+            <div class="w-full h-64 overflow-hidden rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm">
               <iframe src="${mapSrc}" width="100%" height="100%" class="rounded-md border" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
             </div>
           </div>
@@ -267,8 +298,10 @@ ${JSON.stringify(modelData.newData, null, 2)}
       }
     }
 
+    // Insert the modal content into the modal container
     modalContent.innerHTML = modalHTML;
     viewModal.classList.remove('hidden');
+    
   });
 });
 
