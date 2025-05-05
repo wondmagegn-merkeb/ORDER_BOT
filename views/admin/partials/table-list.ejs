@@ -94,7 +94,7 @@
       class="absolute top-4 right-24 text-red-500 hover:text-red-700 text-3xl font-bold">
       &times;
     </button>
-    <h2 class="text-2xl font-bold mb-4 text-center text-gray-800">Order Details</h2>
+    <h2 class="text-2xl font-bold mb-4 text-center text-gray-800"><%= modelName %> Details</h2>
     <!-- Scrollable Content -->
     <div id="modalContent" class="flex-1 max-h-72 overflow-y-auto overflow-x-hidden space-y-6 pr-2">
   <!-- Dynamic content will go here -->
@@ -103,6 +103,32 @@
   </div>
 </div>
 
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  
+
+
+
+  // View Modal
+  tableBody.addEventListener('click', e => {
+    const viewBtn = e.target.closest('.view-btn');
+    if (viewBtn) {
+      const model = JSON.parse(viewBtn.dataset.model);
+      modalContent.innerHTML = Object.entries(model).map(([key, value]) => `
+        <div><strong>${key}:</strong> ${value}</div>
+      `).join('');
+      viewModal.classList.remove('hidden');
+    }
+  });
+
+  closeViewModal.addEventListener('click', () => {
+    viewModal.classList.add('hidden');
+  });
+
+  // Initialize table
+  updateTable();
+});
+</script>
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
@@ -110,24 +136,40 @@ document.addEventListener("DOMContentLoaded", () => {
   const tableBody = document.getElementById('tableBody');
   const paginationContainer = document.getElementById('paginationContainer');
   const noResults = document.getElementById('noResults');
+  const viewModal = document.getElementById('viewModal');
+  const modalContent = document.getElementById('modalContent');
+  const closeViewModal = document.getElementById('closeViewModal');
+  const filterButtons = document.querySelectorAll('.filter-btn');
   const rowsPerPage = 5;
   let currentPage = 1;
+  let allRows = Array.from(tableBody.querySelectorAll('tr'));
 
-  let allVisibleRows = tableBody.querySelectorAll('tr');
+  function updateVisibleRows() {
+    const query = searchInput.value.toLowerCase();
+    const activeFilter = document.querySelector('.filter-btn.active');
+    const filterValue = activeFilter ? activeFilter.dataset.filter : '';
 
-  function displayPage(page) {
-    
+    return allRows.filter(row => {
+      const textMatch = Array.from(row.cells).some(cell => cell.textContent.toLowerCase().includes(query));
+      const filterMatch = !filterValue || row.dataset.filter === filterValue;
+      row.style.display = textMatch && filterMatch ? '' : 'none';
+      return textMatch && filterMatch;
+    });
+  }
+function displayPage(page, visibleRows) {
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
 
-    allVisibleRows.forEach((row, index) => {
+    visibleRows.forEach((row, index) => {
       row.style.display = (index >= start && index < end) ? '' : 'none';
     });
 
-    renderPagination(allVisibleRows.length);
-    noResults.classList.toggle('hidden', allVisibleRows.length > 0);
+    renderPagination(visibleRows.length);
+    noResults.classList.toggle('hidden', visibleRows.length > 0);
   }
 
+
+    
   function renderPagination(totalRows) {
     paginationContainer.innerHTML = '';
     const totalPages = Math.ceil(totalRows / rowsPerPage);
@@ -142,35 +184,38 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (totalPages > 0) {
-      paginationContainer.appendChild(createBtn('&laquo;', currentPage === 1, () => { currentPage = 1; displayPage(currentPage); }));
-      paginationContainer.appendChild(createBtn('&lsaquo;', currentPage === 1, () => { currentPage--; displayPage(currentPage); }));
+      paginationContainer.appendChild(createBtn('&laquo;', currentPage === 1, () => { currentPage = 1; updateTable(); }));
+      paginationContainer.appendChild(createBtn('&lsaquo;', currentPage === 1, () => { currentPage--; updateTable(); }));
 
       for (let i = 1; i <= totalPages; i++) {
-        paginationContainer.appendChild(createBtn(i, false, () => { currentPage = i; displayPage(currentPage); }, i === currentPage));
+        paginationContainer.appendChild(createBtn(i, false, () => { currentPage = i; updateTable(); }, i === currentPage));
       }
 
-      paginationContainer.appendChild(createBtn('&rsaquo;', currentPage === totalPages, () => { currentPage++; displayPage(currentPage); }));
-      paginationContainer.appendChild(createBtn('&raquo;', currentPage === totalPages, () => { currentPage = totalPages; displayPage(currentPage); }));
+      paginationContainer.appendChild(createBtn('&rsaquo;', currentPage === totalPages, () => { currentPage++; updateTable(); }));
+      paginationContainer.appendChild(createBtn('&raquo;', currentPage === totalPages, () => { currentPage = totalPages; updateTable(); }));
     }
   }
 
-  searchInput.addEventListener('input', function () {
-     const query = this.value.toLowerCase();
-     allVisibleRows = tableBody.querySelectorAll('tr');
+  function updateTable() {
+    const visibleRows = updateVisibleRows();
+    displayPage(currentPage, visibleRows);
+  }
 
-    allVisibleRows.forEach(row => {
-      const match = Array.from(row.cells).some(cell =>
-        cell.textContent.toLowerCase().includes(query)
-      );
-      row.style.display = match ? '' : 'none';
-    });
+  // Search
+  searchInput.addEventListener('input', () => {
     currentPage = 1;
-    displayPage(currentPage);
+    updateTable();
   });
 
-  const viewModal = document.getElementById('viewModal');
-  const modalContent = document.getElementById('modalContent');
-  const closeViewModal = document.getElementById('closeViewModal');
+  // Filter
+  filterButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentPage = 1;
+      updateTable();
+    });
+  });
 
   document.querySelectorAll('.view-btn').forEach(button => {
   button.addEventListener('click', function () {
@@ -179,7 +224,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let modalHTML = `
       <div class="bg-gray-50 p-4 rounded-lg shadow-md space-y-2">
-        <h3 class="text-xl font-semibold text-gray-800 mb-3">Order Summary</h3>
+        <h3 class="text-xl font-semibold text-gray-800 mb-3"><%= modelName %> Summary</h3>
         <div class="grid grid-cols-2 gap-4 text-gray-700">
     `;
 
@@ -253,27 +298,6 @@ ${JSON.stringify(modelData.newData, null, 2)}
     viewModal.classList.add('hidden');
   });
 
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', function () {
-      document.querySelectorAll('.filter-btn').forEach(b => {
-        b.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
-      });
-
-      this.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
-
-      const value = this.dataset.filter;
-      allVisibleRows = tableBody.querySelectorAll('tr');
-      allVisibleRows.forEach(row => {
-        const match = Array.from(row.cells).some(cell =>
-          cell.textContent.toLowerCase().includes(value)
-        );
-        row.style.display = match ? '' : 'none';
-      });
-
-      currentPage = 1;
-      displayPage(currentPage);
-    });
-  });
 
   displayPage(currentPage);
 });
