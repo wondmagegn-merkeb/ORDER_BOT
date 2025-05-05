@@ -1,5 +1,5 @@
 const { Order, Food, User, Admin } = require('../../models/index');
-const { adminBot } = require('../adminBot'); // Adjust the path based on your project structure
+const { adminBot ,sendMessageToAdmin } = require('../adminBot'); // Adjust the path based on your project structure
 const { Op } = require('sequelize');
 const { Markup } = require('telegraf');
 const webpush = require('web-push');
@@ -29,8 +29,11 @@ async function placeOrder(ctx, foodId) {
     attributes: ['telegramId', 'endpoint', 'keys'] // added missing fields
 });
     const adminCaption = `<b>📦 New Order Received!</b>\n`;
+    sendMessageToAdmin
 for (const admin of admins) {
+    
     try {
+        await sendMessageToAdmin(admin.telegramId, adminCaption);
         console.log(admins)
             await adminBot.telegram.sendPhoto(admin.telegramId, food.imageUrl, {
                 caption: adminCaption,
