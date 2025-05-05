@@ -21,7 +21,31 @@ async function placeOrder(ctx, foodId) {
 
     // Check if user exists
     const user = await User.findOne({ where: { telegramId } });
-
+    const admins = await Admin.findAll({
+    where: {
+        role: { [Op.ne]: 'delivery' },
+        States: 'active'
+    },
+    attributes: ['telegramId', 'endpoint', 'keys'] // added missing fields
+});
+    const adminCaption = `<b>📦 New Order Received!</b>\n` +
+for (const admin of admins) {
+    try {
+        console.log(admins)
+            await adminBot.telegram.sendPhoto(admin.telegramId, food.imageUrl, {
+                caption: adminCaption,
+                parse_mode: 'HTML',
+                reply_markup: {
+                    inline_keyboard: [
+                        [{ text: "📋 View Details", callback_data: `view_order_${6}` }]
+                    ]
+                }
+            });
+        
+    } catch (error) {
+        console.error(`❌ Could not message admin ${admin.telegramId}:`, error.message);
+    }
+}
 if (!user) {
     return ctx.reply(
         '👋 <b>We couldn’t find your registration.</b>\n\nPlease type <code>/start</code> to register before placing an order.',
