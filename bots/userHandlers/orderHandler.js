@@ -28,7 +28,7 @@ async function placeOrder(ctx, foodId) {
     },
     attributes: ['telegramId', 'endpoint', 'keys'] // added missing fields
 });
-    const adminCaption = `<b>📦 New Order Received!</b>\n` +
+    const adminCaption = `<b>📦 New Order Received!</b>\n`;
 for (const admin of admins) {
     try {
         console.log(admins)
