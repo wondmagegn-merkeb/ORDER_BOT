@@ -107,66 +107,89 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.getElementById('searchInput');
-  const tableBody = document.getElementById('tableBody');
-  const paginationContainer = document.getElementById('paginationContainer');
-  const noResults = document.getElementById('noResults');
-  const rowsPerPage = 5;
-  let currentPage = 1;
+const tableBody = document.getElementById('tableBody');
+const paginationContainer = document.getElementById('paginationContainer');
+const noResults = document.getElementById('noResults');
+const rowsPerPage = 5;
+let currentPage = 1;
 
-  let allVisibleRows = tableBody.querySelectorAll('tr');
+let allRows = Array.from(tableBody.querySelectorAll('tr'));
+let filteredRows = [...allRows];  // start with all rows
 
-  function displayPage(page) {
+function displayPage(page) {
+  const start = (page - 1) * rowsPerPage;
+  const end = start + rowsPerPage;
+
+  // First hide ALL rows
+  allRows.forEach(row => row.style.display = 'none');
+
+  // Then show only filtered + paginated rows
+  filteredRows.slice(start, end).forEach(row => row.style.display = '');
+
+  renderPagination(filteredRows.length);
+  noResults.classList.toggle('hidden', filteredRows.length > 0);
+}
+
+function renderPagination(totalRows) {
+  paginationContainer.innerHTML = '';
+  const totalPages = Math.ceil(totalRows / rowsPerPage);
+  const maxVisiblePages = 5;
+  function createBtn(html, disabled, onClick, active = false) {
+    const btn = document.createElement('button');
+    btn.innerHTML = html;
     
-    const start = (page - 1) * rowsPerPage;
-    const end = start + rowsPerPage;
-
-    allVisibleRows.forEach((row, index) => {
-      row.style.display = (index >= start && index < end) ? '' : 'none';
-    });
-
-    renderPagination(allVisibleRows.length);
-    noResults.classList.toggle('hidden', allVisibleRows.length > 0);
+    btn.className = `px-4 py-2 rounded-md text-sm border transition 
+      ${disabled ? 'bg-gray-300 cursor-not-allowed' : 
+        active ? 'bg-blue-500 text-white font-bold border-blue-500' :
+        'bg-white text-gray-700 border-gray-300 hover:bg-blue-100'}`;
+    btn.disabled = disabled;
+    if (!disabled) btn.addEventListener('click', onClick);
+    return btn;
   }
 
-  function renderPagination(totalRows) {
-    paginationContainer.innerHTML = '';
-    const totalPages = Math.ceil(totalRows / rowsPerPage);
+  if (totalPages > 0) {
+    paginationContainer.appendChild(
+      createBtn('&laquo;', currentPage === 1, () => { currentPage = 1; displayPage(currentPage); })
+    );
+    paginationContainer.appendChild(
+      createBtn('&lsaquo;', currentPage === 1, () => { currentPage--; displayPage(currentPage); })
+    );
+// Calculate sliding window
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = startPage + maxVisiblePages - 1;
 
-    function createBtn(html, disabled, onClick, active = false) {
-      const btn = document.createElement('button');
-      btn.innerHTML = html;
-      btn.className = `px-4 py-2 rounded-md text-sm border transition ${disabled ? 'bg-gray-300 cursor-not-allowed' : active ? 'bg-blue-500 text-white font-bold border-blue-500' : 'bg-white text-gray-700 border-gray-300 hover:bg-blue-100'}`;
-      btn.disabled = disabled;
-      if (!disabled) btn.addEventListener('click', onClick);
-      return btn;
+    if (endPage > totalPages) {
+      endPage = totalPages;
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
 
-    if (totalPages > 0) {
-      paginationContainer.appendChild(createBtn('&laquo;', currentPage === 1, () => { currentPage = 1; displayPage(currentPage); }));
-      paginationContainer.appendChild(createBtn('&lsaquo;', currentPage === 1, () => { currentPage--; displayPage(currentPage); }));
-
-      for (let i = 1; i <= totalPages; i++) {
-        paginationContainer.appendChild(createBtn(i, false, () => { currentPage = i; displayPage(currentPage); }, i === currentPage));
-      }
-
-      paginationContainer.appendChild(createBtn('&rsaquo;', currentPage === totalPages, () => { currentPage++; displayPage(currentPage); }));
-      paginationContainer.appendChild(createBtn('&raquo;', currentPage === totalPages, () => { currentPage = totalPages; displayPage(currentPage); }));
-    }
-  }
-
-  searchInput.addEventListener('input', function () {
-     const query = this.value.toLowerCase();
-     allVisibleRows = tableBody.querySelectorAll('tr');
-
-    allVisibleRows.forEach(row => {
-      const match = Array.from(row.cells).some(cell =>
-        cell.textContent.toLowerCase().includes(query)
+    for (let i = startPage; i <= endPage; i++) {
+      paginationContainer.appendChild(
+        createBtn(i, false, () => { currentPage = i; displayPage(currentPage); }, i === currentPage)
       );
-      row.style.display = match ? '' : 'none';
-    });
-    currentPage = 1;
-    displayPage(currentPage);
-  });
+    }
+
+    paginationContainer.appendChild(
+      createBtn('&rsaquo;', currentPage === totalPages, () => { currentPage++; displayPage(currentPage); })
+    );
+    paginationContainer.appendChild(
+      createBtn('&raquo;', currentPage === totalPages, () => { currentPage = totalPages; displayPage(currentPage); })
+    );
+  }
+}
+
+function filterRows() {
+  const query = searchInput.value.toLowerCase();
+  filteredRows = allRows.filter(row =>
+    Array.from(row.cells).some(cell =>
+      cell.textContent.toLowerCase().includes(query)
+    )
+  );
+  currentPage = 1;
+  displayPage(currentPage);
+}
+
+searchInput.addEventListener('input', filterRows);
 
   const viewModal = document.getElementById('viewModal');
   const modalContent = document.getElementById('modalContent');
@@ -262,16 +285,14 @@ ${JSON.stringify(modelData.newData, null, 2)}
       this.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
 
       const value = this.dataset.filter;
-      allVisibleRows = tableBody.querySelectorAll('tr');
-      allVisibleRows.forEach(row => {
-        const match = Array.from(row.cells).some(cell =>
-          cell.textContent.toLowerCase().includes(value)
-        );
-        row.style.display = match ? '' : 'none';
-      });
-
-      currentPage = 1;
-      displayPage(currentPage);
+      
+      filteredRows = allRows.filter(row =>
+    Array.from(row.cells).some(cell =>
+      cell.textContent.toLowerCase().includes(value)
+    )
+  );
+  currentPage = 1;
+  displayPage(currentPage);
     });
   });
 
