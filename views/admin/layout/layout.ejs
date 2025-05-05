@@ -34,21 +34,15 @@
       <%- include('../partials/header') %>
 
       <!-- Main Section -->
-      <main class="relative mt-14 p-6 flex-1 overflow-auto bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+      <main class="relative mt-12 p-6 flex-1 overflow-auto bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors duration-300">
         <%- include('../partials/notification') %>
         <%- include('../partials/deleteModal') %>
         <%- body %>
-
       </main>
-
       <!-- Footer -->
-      <footer class="bg-white dark:bg-gray-800 text-center text-gray-500 dark:text-gray-400 text-sm border-t border-gray-200 dark:border-gray-700">
-        <%- include('../partials/footer') %>
-      </footer>
-
+      <%- include('../partials/footer') %>
     </div>
   </div>
-
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/eruda" defer></script>
@@ -132,9 +126,6 @@ function urlBase64ToUint8Array(base64String) {
 document.getElementById('notifyButton').addEventListener('click', () => {
     subscribeUser();
 });
-
-
-
     const body = document.getElementById('body');
     const darkModeToggle = document.getElementById('darkModeToggle');
     const icon = darkModeToggle ? darkModeToggle.querySelector('i') : null;
