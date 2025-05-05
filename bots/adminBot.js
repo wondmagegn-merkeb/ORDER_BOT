@@ -396,5 +396,14 @@ const oldPrice = oldTotalPrice ? Number(oldTotalPrice).toFixed(2) : 'N/A';
 
   // If no state, let the bot ignore or handle other inputs normally
 });
-
-module.exports = { adminBot };
+async function sendMessageToAdmin(telegramId,message, parseMode = 'HTML') {
+    try {
+        await userBot.telegram.sendMessage(telegramId, message, {
+            parse_mode: parseMode
+        });
+        console.log(`✅ Message sent to user ${telegramId}`);
+    } catch (error) {
+        console.error(`❌ Failed to send message to user ${telegramId}:`, error);
+    }
+}
+module.exports = { adminBot,sendMessageToAdmin };
