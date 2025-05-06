@@ -1,5 +1,4 @@
-
-  <style>
+<style>
   @keyframes fadeInUp {
     0% {
       opacity: 0;
@@ -10,74 +9,101 @@
       transform: translateY(0);
     }
   }
-
   .animate-fade-in-up {
     animation: fadeInUp 0.6s ease-out;
   }
+  .spinner {
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #fff;
+    border-right: 2px solid #fff;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
 </style>
 
-  <div class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md animate-fade-in-up">
-    <h2 class="text-3xl font-extrabold mb-6 text-gray-800 text-center flex items-center justify-center gap-2 transition duration-500">    
-      <i class="fas fa-user-circle text-purple-600"></i> Profile
-    </h2>
+<div class="max-w-xl mx-auto bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md animate-fade-in-up">
+  <h2 class="text-3xl font-extrabold mb-6 text-gray-800 dark:text-gray-100 text-center flex items-center justify-center gap-2 transition duration-500">    
+    <i class="fas fa-user-circle text-purple-600"></i> Profile
+  </h2>
+  
+  <form action="/api/admin/profile/<%= admin.adminId %>" method="POST" class="space-y-5" onsubmit="showSpinner(event)">
+    <!-- Email (readonly) -->
+    <div class="transition duration-300 transform hover:scale-[1.01]">
+      <label class="block mb-1 text-gray-700 dark:text-gray-200 font-medium">Email</label>
+      <div class="flex items-center border border-gray-300 dark:border-gray-600 p-2 rounded bg-gray-100 dark:bg-gray-700">
+        <i class="fas fa-envelope text-gray-400 dark:text-gray-300 mr-2"></i>
+        <input type="text" class="w-full bg-gray-100 dark:bg-gray-700 focus:outline-none text-gray-900 dark:text-gray-100" value="<%= admin.email %>" readonly>
+      </div>
+    </div>
+
+    <!-- Telegram ID (readonly) -->
+    <div class="transition duration-300 transform hover:scale-[1.01]">
+      <label class="block mb-1 text-gray-700 dark:text-gray-200 font-medium">Telegram ID</label>
+      <div class="flex items-center border border-gray-300 dark:border-gray-600 p-2 rounded bg-gray-100 dark:bg-gray-700">
+        <i class="fab fa-telegram text-gray-400 dark:text-gray-300 mr-2"></i>
+        <input type="text" class="w-full bg-gray-100 dark:bg-gray-700 focus:outline-none text-gray-900 dark:text-gray-100" value="<%= admin.telegramId %>" readonly>
+      </div>
+    </div>
+
+    <!-- Role (readonly) -->
+    <div class="transition duration-300 transform hover:scale-[1.01]">
+      <label class="block mb-1 text-gray-700 dark:text-gray-200 font-medium">Role</label>
+      <div class="flex items-center border border-gray-300 dark:border-gray-600 p-2 rounded bg-gray-100 dark:bg-gray-700">
+        <i class="fas fa-user-tag text-gray-400 dark:text-gray-300 mr-2"></i>
+        <select class="w-full bg-gray-100 dark:bg-gray-700 focus:outline-none text-gray-900 dark:text-gray-100" disabled>
+          <option value="admin" <%= admin.role === 'admin' ? 'selected' : '' %>>Admin (Owner)</option>
+          <option value="manager" <%= admin.role === 'manager' ? 'selected' : '' %>>Manager</option>
+          <option value="delivery" <%= admin.role === 'delivery' ? 'selected' : '' %>>Delivery Boy/Girl</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Username -->
+    <div class="transition duration-300 transform hover:scale-[1.01]">
+      <label class="block mb-1 text-gray-700 dark:text-gray-200 font-medium">Username</label>
+      <div class="flex items-center border border-gray-300 dark:border-gray-600 p-2 rounded focus-within:ring-2 focus-within:ring-purple-400">
+        <i class="fas fa-user text-gray-400 dark:text-gray-300 mr-2"></i>
+        <input type="text" name="username" class="w-full bg-white dark:bg-gray-700 focus:outline-none text-gray-900 dark:text-gray-100" value="<%= admin.username %>">
+      </div>
+    </div>
     
-    <form action="/api/admin/profile/<%= admin.adminId %>" method="POST" class="space-y-5">
-      <!-- Email (readonly) -->
-      <div class="transition duration-300 transform hover:scale-[1.01]">
-        <label class="block mb-1 text-gray-700 font-medium">Email</label>
-        <div class="flex items-center border border-gray-300 p-2 rounded bg-gray-100">
-          <i class="fas fa-envelope text-gray-400 mr-2"></i> <!-- Correct email icon -->
-          <input type="text" class="w-full bg-gray-100 focus:outline-none" value="<%= admin.email %>" readonly>
-        </div>
+    <!-- New Password -->
+    <div class="transition duration-300 transform hover:scale-[1.01]">
+      <label class="block mb-1 text-gray-700 dark:text-gray-200 font-medium">New Password</label>
+      <div class="flex items-center border border-gray-300 dark:border-gray-600 p-2 rounded focus-within:ring-2 focus-within:ring-purple-400">
+        <i class="fas fa-lock text-gray-400 dark:text-gray-300 mr-2"></i>
+        <input type="password" name="password" class="w-full bg-white dark:bg-gray-700 focus:outline-none text-gray-900 dark:text-gray-100" placeholder="Leave blank to keep current password">
       </div>
+    </div>
 
-      <!-- Telegram ID (readonly) -->
-      <div class="transition duration-300 transform hover:scale-[1.01]">
-        <label class="block mb-1 text-gray-700 font-medium">Telegram ID</label>
-        <div class="flex items-center border border-gray-300 p-2 rounded bg-gray-100">
-          <i class="fab fa-telegram text-gray-400 mr-2"></i>
-          <input type="text" class="w-full bg-gray-100 focus:outline-none" value="<%= admin.telegramId %>" readonly>
-        </div>
-      </div>
+    <!-- Submit button with spinner -->
+    <div class="pt-6">
+      <button type="submit" id="submitButton" class="w-full bg-purple-600 text-white px-6 py-2 rounded flex items-center justify-center gap-2 hover:bg-purple-700 active:scale-95 transition font-semibold">
+        <i class="fas fa-save"></i> 
+        <span>Update Profile</span>
+        <div id="spinner" class="spinner hidden"></div>
+      </button>
+    </div>
+  </form>
+</div>
 
+<script>
+  function showSpinner(event) {
+    event.preventDefault();
+    const spinner = document.getElementById('spinner');
+    const submitButton = document.getElementById('submitButton');
+    spinner.classList.remove('hidden');
+    submitButton.disabled = true;
 
-      <!-- Role (readonly) -->
-      <div class="transition duration-300 transform hover:scale-[1.01]">
-        <label class="block mb-1 text-gray-700 font-medium">Role</label>
-        <div class="flex items-center border border-gray-300 p-2 rounded bg-gray-100">
-          <i class="fas fa-user-tag text-gray-400 mr-2"></i>
-          <select class="w-full bg-gray-100 focus:outline-none" disabled>
-            <option value="admin" <%= admin.role === 'admin' ? 'selected' : '' %>>Admin (Owner)</option>
-            <option value="manager" <%= admin.role === 'manager' ? 'selected' : '' %>>Manager</option>
-            <option value="delivery" <%= admin.role === 'delivery' ? 'selected' : '' %>>Delivery Boy/Girl</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Username (editable, moved to the bottom) -->
-      <div class="transition duration-300 transform hover:scale-[1.01]">
-        <label class="block mb-1 text-gray-700 font-medium">Username</label>   
-        <div class="flex items-center border border-gray-300 p-2 rounded focus-within:ring-2 focus-within:ring-purple-400">
-          <i class="fas fa-user text-gray-400 mr-2"></i>
-          <input type="text" name="username" class="w-full focus:outline-none" value="<%= admin.username %>">
-        </div>
-      </div>
-      
-      <!-- New Password -->
-      <div class="transition duration-300 transform hover:scale-[1.01]">
-        <label class="block mb-1 text-gray-700 font-medium">New Password</label>     
-        <div class="flex items-center border border-gray-300 p-2 rounded focus-within:ring-2 focus-within:ring-purple-400">
-          <i class="fas fa-lock text-gray-400 mr-2"></i>
-          <input type="password" name="password" class="w-full focus:outline-none" placeholder="Leave blank to keep current password">
-        </div>
-      </div>
-
-      <!-- Submit -->
-      <div class="pt-6">
-        <button type="submit" class="w-full bg-purple-600 text-white px-6 py-2 rounded hover:bg-purple-700 active:scale-95 transition font-semibold">
-          <i class="fas fa-save"></i> Update Profile
-        </button>
-      </div>
-    </form>
-  </div>
-
+    // Simulate form submission (remove this timeout for real backend)
+    setTimeout(() => {
+      event.target.submit();
+    }, 1000);
+  }
+</script>
