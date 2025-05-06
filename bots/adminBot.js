@@ -109,15 +109,6 @@ for (const admin of admins) {
     try {
         await sendMessageToAdmin(admin.telegramId, adminCaption);
         console.log(admins)
-            await adminBot.telegram.sendPhoto(admin.telegramId, food.imageUrl, {
-                caption: adminCaption,
-                parse_mode: 'HTML',
-                reply_markup: {
-                    inline_keyboard: [
-                        [{ text: "📋 View Details", callback_data: `view_order_${6}` }]
-                    ]
-                }
-            });
         
     } catch (error) {
         console.error(`❌ Could not message admin ${admin.telegramId}:`, error.message);
