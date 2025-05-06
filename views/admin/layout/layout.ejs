@@ -10,9 +10,11 @@
   <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
 
+  <!-- Tailwind CSS -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -29,7 +31,6 @@
 
     <!-- Main Content -->
     <div class="flex-1 min-h-screen flex flex-col md:ml-64">
-
       <!-- Header -->
       <%- include('../partials/header') %>
 
@@ -39,10 +40,12 @@
         <%- include('../partials/deleteModal') %>
         <%- body %>
       </main>
+
       <!-- Footer -->
       <%- include('../partials/footer') %>
     </div>
   </div>
+
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/eruda" defer></script>
@@ -53,79 +56,75 @@
     // Initialize AOS (for animations)
     AOS.init();
 
-  // Live Clock and Date
-  function updateDateTime() {
-    const now = new Date();
-    const time = now.toLocaleTimeString();
-    const date = now.toLocaleDateString();
-    document.getElementById('datetime').textContent = `${date} ${time}`;
-  }
-  setInterval(updateDateTime, 1000);
-  updateDateTime();
-const publicVapidKey = 'BJg88adt6DhKivTlbCjqnE2x09R9LXJiDyoY4WfFUuq1T46JWazbs0H6rZeq1HyGcGl0ff-NdUe9QRzKvlMuFpo';
+    // Live Clock and Date
+    function updateDateTime() {
+      const now = new Date();
+      const time = now.toLocaleTimeString();
+      const date = now.toLocaleDateString();
+      document.getElementById('datetime').textContent = `${date} ${time}`;
+    }
+    setInterval(updateDateTime, 1000);
+    updateDateTime();
 
-async function subscribeUser() {
-    if ('serviceWorker' in navigator && 'Notification' in window) {
+    const publicVapidKey = 'BJg88adt6DhKivTlbCjqnE2x09R9LXJiDyoY4WfFUuq1T46JWazbs0H6rZeq1HyGcGl0ff-NdUe9QRzKvlMuFpo';
+
+    async function subscribeUser() {
+      if ('serviceWorker' in navigator && 'Notification' in window) {
         try {
-            const register = await navigator.serviceWorker.register('/service-worker.js', {
-                scope: '/',
-            });
+          const register = await navigator.serviceWorker.register('/service-worker.js', { scope: '/' });
+          console.log('Service Worker Registered');
 
-            console.log('Service Worker Registered');
+          const subscription = await register.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(publicVapidKey),
+          });
 
-            const subscription = await register.pushManager.subscribe({
-                userVisibleOnly: true,
-                applicationServerKey: urlBase64ToUint8Array(publicVapidKey),
-            });
+          console.log('Push Subscription:', subscription);
 
-            console.log('Push Subscription:', subscription);
+          const response = await fetch('/subscribe', {
+            method: 'POST',
+            body: JSON.stringify(subscription),
+            headers: { 'Content-Type': 'application/json' },
+          });
 
-            const response = await fetch('/subscribe', {
-                method: 'POST',
-                body: JSON.stringify(subscription),
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
+          if (!response.ok) {
+            throw new Error(`Server responded with status ${response.status}`);
+          }
 
-            if (!response.ok) {
-                throw new Error(`Server responded with status ${response.status}`);
-            }
+          const responseData = await response.json();
+          console.log('Server response:', responseData);
 
-            const responseData = await response.json();
-            console.log('Server response:', responseData);
+          // Ask permission if not already granted
+          if (Notification.permission !== 'granted') {
+            await Notification.requestPermission();
+          }
 
-            // Ask permission if not already granted
-            if (Notification.permission !== 'granted') {
-                await Notification.requestPermission();
-            }
-
-            alert(responseData.message || 'Subscription successful!');  // Use alert or UI instead of Notification here
-
+          alert(responseData.message || 'Subscription successful!');  // Use alert or UI instead of Notification here
         } catch (error) {
-            console.error('Subscription failed:', error);
-            alert(`Subscription failed: ${error.message}`);
+          console.error('Subscription failed:', error);
+          alert(`Subscription failed: ${error.message}`);
         }
-    } else {
+      } else {
         console.warn('Service workers or notifications are not supported in this browser.');
         alert('Service workers or notifications are not supported in this browser.');
+      }
     }
-}
 
-function urlBase64ToUint8Array(base64String) {
-    const padding = '='.repeat((4 - base64String.length % 4) % 4);
-    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-    const rawData = window.atob(base64);
-    const outputArray = new Uint8Array(rawData.length);
-    for (let i = 0; i < rawData.length; ++i) {
+    function urlBase64ToUint8Array(base64String) {
+      const padding = '='.repeat((4 - base64String.length % 4) % 4);
+      const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+      const rawData = window.atob(base64);
+      const outputArray = new Uint8Array(rawData.length);
+      for (let i = 0; i < rawData.length; ++i) {
         outputArray[i] = rawData.charCodeAt(i);
+      }
+      return outputArray;
     }
-    return outputArray;
-}
 
-document.getElementById('notifyButton').addEventListener('click', () => {
-    subscribeUser();
-});
+    document.getElementById('notifyButton').addEventListener('click', () => {
+      subscribeUser();
+    });
+
     const body = document.getElementById('body');
     const darkModeToggle = document.getElementById('darkModeToggle');
     const icon = darkModeToggle ? darkModeToggle.querySelector('i') : null;
