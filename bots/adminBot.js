@@ -121,6 +121,7 @@ for (const admin of admins) {
         
     } catch (error) {
         console.error(`❌ Could not message admin ${admin.telegramId}:`, error.message);
+      ctx.reply(`❌ Could not message admin ${admin.telegramId}:`, error.message);
     }
 }
 });
