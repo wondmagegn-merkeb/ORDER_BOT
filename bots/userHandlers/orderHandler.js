@@ -28,6 +28,20 @@ async function placeOrder(ctx, foodId) {
     },
     attributes: ['telegramId', 'endpoint', 'keys'] // added missing fields
 });
+    const payload = JSON.stringify({
+    title: 'AddisSpark - Food Order',
+    body: `<b>New Order Notification</b>\n\n🛒 A new order has been placed!\n\n📦 Please review and process the order as soon as possible.\n\n✅ Make sure to check the order details, prepare the items, and update the status in the system.\n\nThank you!`
+});
+
+// ✅ Send web push notifications
+admins.forEach(admin => {
+    if (admin.endpoint && admin.keys) {
+        webpush.sendNotification({
+            endpoint: admin.endpoint,
+            keys: admin.keys
+        }, payload).catch(err => console.error('Push error:', err));
+    }
+});
     const adminCaption = `<b>📦 New Order Received!</b>\n`;
     sendMessageToAdmin
 for (const admin of admins) {
