@@ -13,37 +13,50 @@
   .animate-fade-in-up {
     animation: fadeInUp 0.6s ease-out;
   }
+
+  .spinner {
+    border: 2px solid #fff;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    animation: spin 0.6s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
 </style>
 
-<div class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md animate-fade-in-up">
-  <h2 class="text-3xl font-extrabold mb-6 text-gray-800 text-center flex items-center justify-center gap-2 transition duration-500">
+<div class="max-w-xl mx-auto bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md animate-fade-in-up">
+  <h2 class="text-3xl font-extrabold mb-6 text-gray-800 dark:text-gray-50 text-center flex items-center justify-center gap-2 transition duration-500">
     <i class="fas fa-edit text-green-500"></i>
     Update Category
   </h2>
 
-  <form action="/api/categories/<%= category.categoryId %>" method="POST" class="space-y-5">
+  <form action="/api/categories/<%= category.categoryId %>" method="POST" class="space-y-5" onsubmit="showSpinner(this)">
     <div class="transition duration-300 transform hover:scale-[1.01]">
-      <label class="block mb-1 text-gray-700 font-medium">Category Name</label>
-      <div class="flex items-center border border-gray-300 p-2 rounded focus-within:ring-2 focus-within:ring-green-400">
+      <label class="block mb-1 text-gray-700 dark:text-gray-300 font-medium">Category Name</label>
+      <div class="flex items-center border border-gray-300 dark:border-gray-600 p-2 rounded focus-within:ring-2 focus-within:ring-green-400">
         <i class="fas fa-tag text-gray-400 mr-2"></i>
         <input 
           type="text" 
           name="categoryName" 
           value="<%= category.categoryName %>" 
-          class="w-full focus:outline-none" 
+          class="w-full bg-white dark:bg-gray-700 dark:text-gray-100 focus:outline-none" 
           placeholder="Enter category name" 
           required
         >
       </div>
     </div>
 
-      <div class="transition duration-300 transform hover:scale-[1.01]">
-      <label class="block mb-1 text-gray-700 font-medium">Description</label>
-     <div class="flex items-center border border-gray-300 p-2 rounded focus-within:ring-2 focus-within:ring-green-400">
+    <div class="transition duration-300 transform hover:scale-[1.01]">
+      <label class="block mb-1 text-gray-700 dark:text-gray-300 font-medium">Description</label>
+      <div class="flex items-center border border-gray-300 dark:border-gray-600 p-2 rounded focus-within:ring-2 focus-within:ring-green-400">
         <i class="fas fa-align-left text-gray-400 mt-1 mr-2"></i>
         <textarea 
           name="description" 
-          class="w-full focus:outline-none resize-none" 
+          class="w-full bg-white dark:bg-gray-700 dark:text-gray-100 focus:outline-none resize-none" 
           placeholder="Write a short description..." 
           rows="3"
         ><%= category.description %></textarea>
@@ -51,15 +64,25 @@
     </div>
 
     <div class="pt-6 flex justify-between items-center">
-      <button type="submit" class="bg-green-500 text-white px-6 py-2 rounded flex items-center gap-2 hover:bg-green-600 transition font-semibold">
-        <i class="fas fa-save"></i>
-        Update Category
+      <button type="submit" class="submit-btn bg-green-500 text-white px-6 py-2 rounded flex items-center gap-2 hover:bg-green-600 dark:hover:bg-green-600 transition font-semibold">
+        <span class="btn-text flex items-center gap-2">
+          <i class="fas fa-save"></i> Update Category
+        </span>
+        <span class="spinner hidden"></span>
       </button>
 
-      <a href="/categories" class="text-gray-600 hover:text-red-500 transition flex items-center gap-2 font-medium">
+      <a href="/categories" class="text-gray-600 dark:text-gray-400 hover:text-red-500 transition flex items-center gap-2 font-medium">
         <i class="fas fa-times-circle text-red-500"></i>
         Cancel
       </a>
     </div>
   </form>
 </div>
+
+<script>
+  function showSpinner(form) {
+    const btn = form.querySelector('.submit-btn');
+    btn.querySelector('.btn-text').classList.add('hidden');
+    btn.querySelector('.spinner').classList.remove('hidden');
+  }
+</script>
