@@ -418,7 +418,7 @@ const oldPrice = oldTotalPrice ? Number(oldTotalPrice).toFixed(2) : 'N/A';
 });
 async function sendMessageToAdmin(telegramId,message, parseMode = 'HTML') {
     try {
-        await userBot.telegram.sendMessage(telegramId, message, {
+        await adminBot.telegram.sendMessage(telegramId, message, {
             parse_mode: parseMode
         });
         console.log(`✅ Message sent to user ${telegramId}`);
