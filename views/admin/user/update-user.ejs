@@ -13,49 +13,104 @@
   .animate-fade-in-up {
     animation: fadeInUp 0.6s ease-out;
   }
+
+  .spinner {
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #fff;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    animation: spin 0.6s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
 </style>
 
-  <div class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md animate-fade-in-up">
-    <h2 class="text-3xl font-extrabold mb-6 text-gray-800 text-center flex items-center justify-center gap-2 transition duration-500">
-    <i class="fas fa-user-edit text-green-600"></i>
-    Update User
+<div class="max-w-xl mx-auto bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md animate-fade-in-up">
+  <h2 class="text-3xl font-extrabold mb-6 text-gray-800 dark:text-gray-100 text-center flex items-center justify-center gap-2 transition duration-500">
+    <i class="fas fa-user-circle text-purple-600 dark:text-purple-400"></i> Profile
   </h2>
-
-  <form action="/api/users/<%= user.userId %>" method="POST" class="space-y-5">
-
-    <!-- User Type Selection -->
+  
+  <form action="/api/admin/profile/<%= admin.adminId %>" method="POST" class="space-y-5" onsubmit="showSpinner(event)">
+    <!-- Email (readonly) -->
     <div class="transition duration-300 transform hover:scale-[1.01]">
-      <label class="block mb-1 text-gray-700 font-medium">User Type</label>
-      <div class="flex items-center border border-gray-300 p-2 rounded focus-within:ring-2 focus-within:ring-green-400">
-        <i class="fas fa-user-tag text-gray-400 mr-2"></i>
-        <select name="userType" class="w-full bg-white focus:outline-none">
-          <option value="guest" <%= user.userType === 'guest' ? 'selected' : '' %>>Guest</option>
-          <option value="vip" <%= user.userType === 'vip' ? 'selected' : '' %>>VIP</option>
-          <option value="customer" <%= user.userType === 'customer' ? 'selected' : '' %>>Customer</option>
+      <label class="block mb-1 text-gray-700 dark:text-gray-200 font-medium">Email</label>
+      <div class="flex items-center border border-gray-300 dark:border-gray-600 p-2 rounded bg-gray-100 dark:bg-gray-700">
+        <i class="fas fa-envelope text-gray-400 dark:text-gray-300 mr-2"></i>
+        <input type="text" class="w-full bg-gray-100 dark:bg-gray-700 focus:outline-none text-gray-900 dark:text-gray-100" value="<%= admin.email %>" readonly>
+      </div>
+    </div>
+
+    <!-- Telegram ID (readonly) -->
+    <div class="transition duration-300 transform hover:scale-[1.01]">
+      <label class="block mb-1 text-gray-700 dark:text-gray-200 font-medium">Telegram ID</label>
+      <div class="flex items-center border border-gray-300 dark:border-gray-600 p-2 rounded bg-gray-100 dark:bg-gray-700">
+        <i class="fab fa-telegram text-gray-400 dark:text-gray-300 mr-2"></i>
+        <input type="text" class="w-full bg-gray-100 dark:bg-gray-700 focus:outline-none text-gray-900 dark:text-gray-100" value="<%= admin.telegramId %>" readonly>
+      </div>
+    </div>
+
+    <!-- Role (readonly) -->
+    <div class="transition duration-300 transform hover:scale-[1.01]">
+      <label class="block mb-1 text-gray-700 dark:text-gray-200 font-medium">Role</label>
+      <div class="flex items-center border border-gray-300 dark:border-gray-600 p-2 rounded bg-gray-100 dark:bg-gray-700">
+        <i class="fas fa-user-tag text-gray-400 dark:text-gray-300 mr-2"></i>
+        <select class="w-full bg-gray-100 dark:bg-gray-700 focus:outline-none text-gray-900 dark:text-gray-100" disabled>
+          <option value="admin" <%= admin.role === 'admin' ? 'selected' : '' %>>Admin (Owner)</option>
+          <option value="manager" <%= admin.role === 'manager' ? 'selected' : '' %>>Manager</option>
+          <option value="delivery" <%= admin.role === 'delivery' ? 'selected' : '' %>>Delivery Boy/Girl</option>
         </select>
       </div>
     </div>
 
-    <!-- State (Single Active Checkbox) -->
+    <!-- Username (editable, moved to the bottom) -->
     <div class="transition duration-300 transform hover:scale-[1.01]">
-      <label class="block mb-1 text-gray-700 font-medium">State</label>
-      <label class="inline-flex items-center">
-        <input type="checkbox" name="status" value="active" <%= user.status === 'active' ? 'checked' : '' %> class="form-checkbox text-green-600">
-        <span class="ml-2 text-gray-700">Active</span>
-      </label>
+      <label class="block mb-1 text-gray-700 dark:text-gray-200 font-medium">Username</label>
+      <div class="flex items-center border border-gray-300 dark:border-gray-600 p-2 rounded focus-within:ring-2 focus-within:ring-purple-400 dark:bg-gray-700">
+        <i class="fas fa-user text-gray-400 dark:text-gray-300 mr-2"></i>
+        <input type="text" name="username" class="w-full focus:outline-none bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100" value="<%= admin.username %>">
+      </div>
+    </div>
+    
+    <!-- New Password -->
+    <div class="transition duration-300 transform hover:scale-[1.01]">
+      <label class="block mb-1 text-gray-700 dark:text-gray-200 font-medium">New Password</label>
+      <div class="flex items-center border border-gray-300 dark:border-gray-600 p-2 rounded focus-within:ring-2 focus-within:ring-purple-400 dark:bg-gray-700">
+        <i class="fas fa-lock text-gray-400 dark:text-gray-300 mr-2"></i>
+        <input type="password" name="password" class="w-full bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none" placeholder="Enter new password">
+      </div>
     </div>
 
     <!-- Submit and Cancel Buttons -->
     <div class="pt-6 flex justify-between items-center">
-      <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded flex items-center gap-2 hover:bg-green-700 transition font-semibold">
+      <button type="submit" id="submitButton" class="bg-green-600 dark:bg-green-700 text-white px-6 py-2 rounded flex items-center gap-2 hover:bg-green-700 transition font-semibold">
         <i class="fas fa-save"></i>
         Update User
+        <div id="spinner" class="spinner hidden ml-2"></div>
       </button>
-
-      <a href="/users" class="text-gray-600 hover:text-red-500 transition flex items-center gap-2 font-medium">
+      
+      <a href="/admin" class="text-gray-600 dark:text-gray-300 hover:text-red-500 transition flex items-center gap-2 font-medium">
         <i class="fas fa-times-circle text-red-500"></i>
         Cancel
       </a>
     </div>
   </form>
 </div>
+
+<script>
+  function showSpinner(event) {
+    event.preventDefault();
+    const spinner = document.getElementById('spinner');
+    const submitButton = document.getElementById('submitButton');
+    spinner.classList.remove('hidden');
+    submitButton.disabled = true;
+
+    // Simulate form submission (remove this when you have a backend)
+    setTimeout(() => {
+      event.target.submit();
+    }, 1000);
+  }
+</script>
