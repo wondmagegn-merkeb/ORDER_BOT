@@ -63,7 +63,7 @@ for (const admin of admins) {
         console.error(`❌ Could not message admin ${admin.telegramId}:`, error.message);
         ctx.reply(
         `👋 <b>❌ Could not message admin ${admin.telegramId}:</b>\n\nPlease type <code>/start</code> to register before placing an order.`,
-        { parse_mode: 'HTML' }
+        { parse_mode: 'HTML' });
     }
 }
 if (!user) {
