@@ -105,22 +105,32 @@ async function confirmOrder(ctx, foodId) {
 
     try {
         const user = await User.findOne({ where: { telegramId } });
-        
-        const lastOrder = await Order.findOne({ order: [['createdAt', 'DESC']] });
 
-        let newIdNumber = 1;
-        if (lastOrder && lastOrder.orderId) {
-            const lastNumber = parseInt(lastOrder.orderId.replace('ORD', ''));
-            newIdNumber = lastNumber + 1;
-        }
+// Generate new orderId
+const lastOrder = await Order.findOne({ order: [['createdAt', 'DESC']] });
 
-        const orderId = 'ORD' + String(newIdNumber).padStart(3, '0');
+let newIdNumber = 1;
+if (lastOrder && lastOrder.orderId) {
+    const lastNumber = parseInt(lastOrder.orderId.replace('ORD', ''));
+    newIdNumber = lastNumber + 1;
+}
 
-        await user.update({
+const orderId = 'ORD' + String(newIdNumber).padStart(3, '0');
+
+// Count user orders
+const orderCount = await Order.count({ where: { userId: user.userId } });
+
+// Determine if user type should change
+const userType = orderCount >= 5 ? 'customer' : user.userType;
+
+// Update user info
+await user.update({
   fullName,
   phoneNumber1: phoneNumberOne,
   phoneNumber2: phoneNumberTwo,
+  userType: userType
 });
+
 
         
         const order = await Order.create({
