@@ -13,45 +13,61 @@
   .animate-fade-in-up {
     animation: fadeInUp 0.6s ease-out;
   }
+
+  .spinner {
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #fff;
+    border-right: 2px solid #fff;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    animation: spin 0.6s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
 </style>
 
-<div class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md animate-fade-in-up">
-  <h2 class="text-3xl font-extrabold mb-6 text-gray-800 text-center flex items-center justify-center gap-2 transition duration-500">
+<div class="max-w-xl mx-auto bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md animate-fade-in-up">
+  <h2 class="text-3xl font-extrabold mb-6 text-gray-800 dark:text-gray-100 text-center flex items-center justify-center gap-2 transition duration-500">
     <i class="fas fa-edit text-green-600"></i>
     Update Food
   </h2>
 
-  <form action="/api/food/<%= food.foodId %>" method="POST" enctype="multipart/form-data" class="space-y-5">
+  <form id="foodForm" action="/api/food/<%= food.foodId %>" method="POST" enctype="multipart/form-data" class="space-y-5">
 
     <div class="transition duration-300 transform hover:scale-[1.01]">
       <label class="block mb-1 text-gray-700 font-medium">Food Name</label>
-      <div class="flex items-center border border-gray-300 p-2 rounded focus-within:ring-2 focus-within:ring-green-400">
-        <i class="fas fa-utensils text-gray-400 mr-2"></i>
+      <div class="flex items-center border border-gray-300 dark:border-gray-600 p-2 rounded focus-within:ring-2 focus-within:ring-green-400">
+  <i class="fas fa-utensils text-gray-400 mr-2"></i>
         <input type="text" name="name" class="w-full focus:outline-none" value="<%= food.name %>" required>
       </div>
     </div>
 
     <div class="transition duration-300 transform hover:scale-[1.01]">
-      <label class="block mb-1 text-gray-700 font-medium">Description</label>
-      <div class="flex items-center border border-gray-300 p-2 rounded focus-within:ring-2 focus-within:ring-green-400">
+      <label class="block mb-1 text-gray-700 dark:text-gray-200 font-medium">Description</label>
+      <div class="flex items-center border border-gray-300 dark:border-gray-600 p-2 rounded focus-within:ring-2 focus-within:ring-green-400">
         <i class="fas fa-align-left text-gray-400 mt-1 mr-2"></i>
         <textarea name="description" rows="3" class="w-full p-2 rounded focus:outline-none  resize-none"><%= food.description %></textarea>
       </div>
     </div>
 
     <div class="transition duration-300 transform hover:scale-[1.01]">
-      <label class="block mb-1 text-gray-700 font-medium">Price</label>
-      <div class="flex items-center border border-gray-300 p-2 rounded focus-within:ring-2 focus-within:ring-green-400">
+      <label class="block mb-1 text-gray-700 dark:text-gray-200 font-medium">Price</label>
+      <div class="flex items-center border border-gray-300 dark:border-gray-600 p-2 rounded focus-within:ring-2 focus-within:ring-green-400">
         <i class="text-gray-400 mr-2">ETB</i>
         <input type="number" name="price" step="0.01" value="<%= food.price %>" class="w-full focus:outline-none" required>
       </div>
     </div>
 
     <div class="transition duration-300 transform hover:scale-[1.01]">
-      <label class="block mb-1 text-gray-700 font-medium">Category</label>
-      <div class="flex items-center border border-gray-300 p-2 rounded focus-within:ring-2 focus-within:ring-green-400">
+      <label class="block mb-1 text-gray-700 dark:text-gray-200 font-medium">Category</label>
+      <div class="flex items-center border border-gray-300 dark:border-gray-600 p-2 rounded focus-within:ring-2 focus-within:ring-green-400">
         <i class="fas fa-tags text-gray-400 mr-2"></i>
-        <select name="categoryId" class="w-full bg-white focus:outline-none" required>
+        <select name="categoryId" class="w-full bg-white dark:bg-gray-700 dark:text-gray-200 focus:outline-none" required>
           <% categories.forEach(category => { %>
             <option value="<%= category.categoryId %>" <%= category.categoryId === food.categoryId ? 'selected' : '' %>>
               <%= category.categoryName %>
@@ -62,7 +78,7 @@
     </div>
 
     <div class="transition duration-300 transform hover:scale-[1.01]">
-      <label class="block mb-1 text-gray-700 font-medium">Image</label>
+      <label class="block mb-1 text-gray-700 dark:text-gray-200 font-medium">Image</label>
       <% if (food.imageUrl) { %>
         <img src="<%= food.imageUrl %>" alt="Current Image" class="w-24 h-24 object-cover rounded mb-2 shadow">
       <% } %>
@@ -71,13 +87,14 @@
 
     <div class="flex items-center gap-2">
       <input type="checkbox" name="isAvailable" id="isAvailable" class="accent-green-600" <%= food.isAvailable ? 'checked' : '' %>>
-      <label for="isAvailable" class="text-gray-700">Available</label>
+      <label for="isAvailable" class="text-gray-700 dark:text-gray-200">Available</label>
     </div>
 
     <div class="pt-6 flex justify-between items-center">
-      <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded flex items-center gap-2 hover:bg-green-700 active:scale-95 transition font-semibold">
+      <button type="submit" id="submitButton" class="bg-green-600 text-white px-6 py-2 rounded flex items-center gap-2 hover:bg-green-700 active:scale-95 transition font-semibold">
         <i class="fas fa-save"></i>
-        Update Food
+        <span>Update Food</span>
+        <div id="spinner" class="spinner hidden"></div> 
       </button>
 
       <a href="/food" class="text-gray-600 hover:text-red-500 transition flex items-center gap-2 font-medium">
@@ -87,3 +104,13 @@
     </div>
   </form>
 </div>
+<script>
+  const form = document.getElementById('foodForm');
+  const submitButton = document.getElementById('submitButton');
+  const spinner = document.getElementById('spinner');
+
+  form.addEventListener('submit', function () {
+    submitButton.disabled = true;
+    spinner.classList.remove('hidden');
+  });
+</script>
