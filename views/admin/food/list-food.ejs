@@ -118,34 +118,109 @@
     // Use innerText for plain text or innerHTML if you need HTML content inside the button
     btn.innerHTML = html;
 
-    // Add basic styles and conditional styles
-    btn.classList.add('px-4', 'py-2', 'rounded-md', 'text-sm', 'border', 'transition');
+<script>
+  const foods = <%- JSON.stringify(foods) %>; // Server-injected
+  const foodContainer = document.getElementById('foodContainer');
+  const searchInput = document.getElementById('searchInput');
+  const paginationContainer = document.getElementById('paginationContainer');
+  const noResults = document.getElementById('noResults');
+  const availableFilterBtn = document.getElementById('availableFilterBtn');
+  const notAvailableFilterBtn = document.getElementById('notAvailableFilterBtn');
+  const itemsPerPage = 3;
+  let currentPage = 1;
+  let currentFilter = null; // 'true', 'false', or null
 
-    // Light mode styles
-    if (disabled) {
+  function renderFoods() {
+    const keyword = searchInput.value.toLowerCase();
+
+    let filtered = foods.filter(f =>
+      f.name.toLowerCase().includes(keyword) ||
+      f.FoodCategory?.categoryName?.toLowerCase().includes(keyword)
+    );
+
+    if (currentFilter !== null) {
+      filtered = filtered.filter(f => String(f.isAvailable) === currentFilter);
+    }
+
+    const start = (currentPage - 1) * itemsPerPage;
+    const paginated = filtered.slice(start, start + itemsPerPage);
+
+    foodContainer.innerHTML = paginated.map(food => `
+      <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden transition">
+        <img src="${food.imageUrl || 'https://via.placeholder.com/400x250?text=No+Image'}" alt="${food.name}" class="w-full h-64 object-cover">
+        <div class="p-4">
+          <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-1">${food.name}</h2>
+          <p class="text-sm text-gray-500 dark:text-gray-300 mb-1">
+            <i class="fas fa-tag mr-1 text-blue-600 dark:text-blue-400"></i>
+            ${food.FoodCategory?.categoryName || 'Uncategorized'}
+          </p>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">${food.description || 'No description available.'}</p>
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-lg font-bold text-blue-600 dark:text-blue-400">
+              <i class="mr-1">ETB</i>${food.price.toFixed(2)}
+            </span>
+            <span class="px-2 py-1 text-xs rounded-full font-medium 
+              ${food.isAvailable 
+                ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' 
+                : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'}">
+              <i class="fas ${food.isAvailable ? 'fa-check-circle' : 'fa-times-circle'} mr-1"></i>
+              ${food.isAvailable ? 'Available' : 'Unavailable'}
+            </span>
+          </div>
+          <div class="flex justify-between mt-3">
+            <a href="/food/edit/${food.foodId}" class="text-yellow-500 dark:text-yellow-400 hover:underline font-medium inline-flex items-center gap-1">
+              <i class="fas fa-edit"></i> Edit
+            </a>
+            <form method="POST" class="delete-form inline" data-id="${food.foodId}" data-action="/api/food/delete">
+              <button type="button" class="open-delete-modal text-red-500 dark:text-red-400 hover:underline font-medium inline-flex items-center gap-1">
+                <i class="fas fa-trash-alt"></i> Delete
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    renderPagination(filtered.length);
+    noResults.classList.toggle('hidden', filtered.length > 0);
+  }
+
+  function renderPagination(totalItems) {
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    paginationContainer.innerHTML = '';
+    const maxVisiblePages = 5;
+
+    function createBtn(html, disabled, onClick, active = false) {
+      const btn = document.createElement('button');
+      btn.innerHTML = html;
+
+      // Add basic styles and conditional styles
+      btn.classList.add('px-4', 'py-2', 'rounded-md', 'text-sm', 'border', 'transition');
+
+      // Light mode styles
+      if (disabled) {
         btn.classList.add('bg-gray-300', 'cursor-not-allowed', 'text-gray-500');
-    } else if (active) {
+      } else if (active) {
         btn.classList.add('bg-blue-500', 'text-white', 'font-bold', 'border-blue-500');
-    } else {
+      } else {
         btn.classList.add('bg-white', 'text-gray-700', 'border-gray-300', 'hover:bg-blue-100');
-    }
+      }
 
-    // Dark mode styles
-    if (disabled) {
+      // Dark mode styles
+      if (disabled) {
         btn.classList.add('dark:bg-gray-600', 'dark:text-gray-400');
-    } else if (active) {
+      } else if (active) {
         btn.classList.add('dark:bg-blue-600', 'dark:text-white', 'dark:border-blue-500');
-    } else {
+      } else {
         btn.classList.add('dark:bg-gray-800', 'dark:text-gray-300', 'dark:border-gray-600', 'dark:hover:bg-blue-700');
-    }
+      }
 
-      
       btn.disabled = disabled;
 
-    // If the button is not disabled, attach the onClick event listener
-    if (!disabled && onClick) {
+      // If the button is not disabled, attach the onClick event listener
+      if (!disabled && onClick) {
         btn.addEventListener('click', onClick);
-    }
+      }
       return btn;
     }
 
@@ -192,24 +267,24 @@
     renderFoods();
   });
 
-  availableFilterBtn.addEventListener('click', () => {
-document.querySelectorAll('.filter-btn').forEach(b => {
-        b.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
-      });
+  availableFilterBtn.addEventListener('click', function() {
+    document.querySelectorAll('.filter-btn').forEach(b => {
+      b.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
+    });
 
-      this.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
+    this.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
     currentFilter = 'true';
     currentPage = 1;
     updateFilterButtons();
     renderFoods();
   });
 
-  notAvailableFilterBtn.addEventListener('click', () => {
-document.querySelectorAll('.filter-btn').forEach(b => {
-        b.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
-      });
+  notAvailableFilterBtn.addEventListener('click', function() {
+    document.querySelectorAll('.filter-btn').forEach(b => {
+      b.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
+    });
 
-      this.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
+    this.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
     currentFilter = 'false';
     currentPage = 1;
     updateFilterButtons();
@@ -235,3 +310,4 @@ document.querySelectorAll('.filter-btn').forEach(b => {
 
   renderFoods();
 </script>
+
