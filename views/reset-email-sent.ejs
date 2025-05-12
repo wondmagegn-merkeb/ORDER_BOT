@@ -1,24 +1,41 @@
 <!DOCTYPE html>
-<html lang="en" class="bg-gray-100">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>Password Reset Email Sent</title>
+      <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+    };
+if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark');
+    }
+  </script>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="flex items-center justify-center min-h-screen">
-  <div class="bg-white p-10 rounded-xl shadow-lg text-center max-w-md w-full">
-    <h1 class="text-3xl font-bold text-blue-600 mb-4">📧 Email Sent!</h1>
+<body class="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100">
+  <div class="bg-white dark:bg-gray-800 p-10 rounded-xl shadow-lg text-center max-w-md w-full">
+    <h1 class="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-4">📧 Email Sent!</h1>
     
-    <p class="text-gray-700 text-lg mb-2">We've sent you a password reset link.</p>
-    <p class="text-gray-600 text-sm">Please check your email inbox or spam folder.</p>
+    <p class="text-gray-700 dark:text-gray-200 text-lg mb-2">
+      We've sent you a password reset link.
+    </p>
+    <p class="text-gray-600 dark:text-gray-400 text-sm">
+      Please check your email inbox or spam folder.
+    </p>
     
-    <div class="mt-6 text-yellow-600 font-medium">
+    <div class="mt-6 text-yellow-600 dark:text-yellow-400 font-medium">
       🔐 The reset link will expire in <strong>3 minutes</strong>.
     </div>
 
     <div class="mt-8">
-      <a href="/admin" class="text-blue-600 hover:underline text-sm">Back to Login</a>
+      <a href="/admin" class="text-blue-600 dark:text-blue-400 hover:underline text-sm">Back to Login</a>
     </div>
+
   </div>
+
+  
 </body>
 </html>
