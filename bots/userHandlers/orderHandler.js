@@ -21,51 +21,7 @@ async function placeOrder(ctx, foodId) {
 
     // Check if user exists
     const user = await User.findOne({ where: { telegramId } });
-    const admins = await Admin.findAll({
-    where: {
-        role: { [Op.ne]: 'delivery' },
-        States: 'active'
-    },
-    attributes: ['telegramId', 'endpoint', 'keys'] // added missing fields
-});
-    const payload = JSON.stringify({
-    title: 'AddisSpark - Food Order',
-    body: `New Order Notification\n\n🛒 A new order has been placed!\n\n📦 Please review and process the order as soon as possible.\n\n✅ Make sure to check the order details, prepare the items, and update the status in the system.\n\nThank you!`
-});
-
-// ✅ Send web push notifications
-admins.forEach(admin => {
-    if (admin.endpoint && admin.keys) {
-        webpush.sendNotification({
-            endpoint: admin.endpoint,
-            keys: admin.keys
-        }, payload).catch(err => console.error('Push error:', err));
-    }
-});
-    const adminCaption = `<b>📦 New Order Received!</b>\n`;
-    sendMessageToAdmin
-for (const admin of admins) {
     
-    try {
-        await sendMessageToAdmin(admin.telegramId, adminCaption);
-        console.log(admins)
-            await adminBot.telegram.sendPhoto(admin.telegramId, food.imageUrl, {
-                caption: adminCaption,
-                parse_mode: 'HTML',
-                reply_markup: {
-                    inline_keyboard: [
-                        [{ text: "📋 View Details", callback_data: `view_order_${6}` }]
-                    ]
-                }
-            });
-        
-    } catch (error) {
-        console.error(`❌ Could not message admin ${admin.telegramId}:`, error.message);
-        ctx.reply(
-        `👋 <b>❌ Could not message admin ${admin.telegramId}:</b>\n\nPlease type <code>/start</code> to register before placing an order.`,
-        { parse_mode: 'HTML' });
-    }
-}
 if (!user) {
     return ctx.reply(
         '👋 <b>We couldn’t find your registration.</b>\n\nPlease type <code>/start</code> to register before placing an order.',
