@@ -1,5 +1,5 @@
 const { Order, Food, User, Admin } = require('../../models/index');
-const  notifyOrder  = require('../../controllers/api/orderController');
+const { notifyOrder } = require('../../controllers/api/orderController');
 const { Op } = require('sequelize');
 const { Markup } = require('telegraf');
 
