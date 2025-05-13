@@ -13,51 +13,62 @@ webpush.setVapidDetails(
 
 exports.notifyOrder = async (orderId, adminCaption, imageUrl) => {
   try {
-            // ✅ Only select admins who are NOT in 'delivery' role and are active
-const admins = await Admin.findAll({
-    where: {
+    // ✅ Fetch active non-delivery admins
+    const admins = await Admin.findAll({
+      where: {
         role: { [Op.ne]: 'delivery' },
         States: 'active'
-    },
-    attributes: ['telegramId', 'endpoint', 'keys'] // added missing fields
-});
-// 🔔 Push Notification payload
-const payload = JSON.stringify({
-    title: 'AddisSpark - Food Order',
-    body: `New Order Notification\n\n🛒 A new order has been placed!\n\n📦 Please review and process the order as soon as possible.\n\n✅ Make sure to check the order details, prepare the items, and update the status in the system.\n\nThank you!`
-});
+      },
+      attributes: ['telegramId', 'endpoint', 'keys']
+    });
 
-// ✅ Send web push notifications
-admins.forEach(admin => {
-    if (admin.endpoint && admin.keys) {
-        webpush.sendNotification({
-            endpoint: admin.endpoint,
-            keys: admin.keys
-        }, payload).catch(err => console.error('Push error:', err));
-    }
-});
+    // 🔔 Web Push Payload
+    const payload = JSON.stringify({
+      title: 'AddisSpark - Food Order',
+      body: `New Order Notification\n\n🛒 A new order has been placed!\n\n📦 Please review and process the order as soon as possible.\n\n✅ Make sure to check the order details, prepare the items, and update the status in the system.\n\nThank you!`
+    });
 
-// ✅ Send Telegram photo + message to all admins
-for (const admin of admins) {
-    try {
-            await adminBot.telegram.sendPhoto(admin.telegramId, imageUrl, {
-                caption: adminCaption,
-                parse_mode: 'HTML',
-                reply_markup: {
-                    inline_keyboard: [
-                        [{ text: "📋 View Details", callback_data: `view_order_${orderId}` }]
-                    ]
-                }
-            });
-        
-    } catch (error) {
-        console.error(`❌ Could not message admin ${admin.telegramId}:`, error.message);
+    // ✅ Send web push notifications
+    for (const admin of admins) {
+      if (admin.endpoint && admin.keys && admin.keys.p256dh && admin.keys.auth) {
+        const subscription = {
+          endpoint: admin.endpoint,
+          keys: admin.keys
+        };
+
+        try {
+          await webpush.sendNotification(subscription, payload);
+        } catch (err) {
+          console.error(`Push notification failed for ${admin.telegramId}:`, err.message);
+        }
+      }
     }
-}
+
+    // ✅ Send Telegram photo + message to admins
+    for (const admin of admins) {
+      if (admin.telegramId) {
+        try {
+          await adminBot.telegram.sendPhoto(admin.telegramId, imageUrl, {
+            caption: adminCaption,
+            parse_mode: 'HTML',
+            reply_markup: {
+              inline_keyboard: [
+                [{ text: "📋 View Details", callback_data: `view_order_${orderId}` }]
+              ]
+            }
+          });
+        } catch (error) {
+          console.error(`❌ Telegram error for ${admin.telegramId}:`, error.message);
+        }
+      }
+    }
+
   } catch (error) {
-    next(new InternalServerError('Failed to fetch orders', error));
+    console.error('❌ notifyOrder failed:', error);
+    throw new InternalServerError('Failed to notify admins of new order', error);
   }
 };
+
 // Get all orders
 exports.getAllOrders = async (req, res, next) => {
   try {
