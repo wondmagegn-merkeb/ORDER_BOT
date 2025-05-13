@@ -47,7 +47,7 @@
   const paginationContainer = document.getElementById('paginationContainer');
   const noResults = document.getElementById('noResults');
   const availableFilterBtn = document.getElementById('availableFilterBtn');
-  const notAvailableFilterBtn = document.getElementById('notAvailableFilterBtn');
+  const = document.getElementById('notAvailableFilterBtn');
   const itemsPerPage = 3;
   let currentPage = 1;
   let currentFilter = null; // 'true', 'false', or null
@@ -193,11 +193,8 @@
   });
 
   availableFilterBtn.addEventListener('click', () => {
-document.querySelectorAll('.filter-btn').forEach(b => {
-        b.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
-      });
-
-      this.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
+    notAvailableFilterBtn.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
+    availableFilterBtn.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
     currentFilter = 'true';
     currentPage = 1;
     updateFilterButtons();
@@ -205,11 +202,8 @@ document.querySelectorAll('.filter-btn').forEach(b => {
   });
 
   notAvailableFilterBtn.addEventListener('click', () => {
-document.querySelectorAll('.filter-btn').forEach(b => {
-        b.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
-      });
-
-      this.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
+    availableFilterBtn.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
+    notAvailableFilterBtn.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
     currentFilter = 'false';
     currentPage = 1;
     updateFilterButtons();
@@ -226,6 +220,8 @@ document.querySelectorAll('.filter-btn').forEach(b => {
   clearBtn.textContent = 'Clear Filter';
   clearBtn.className = 'whitespace-nowrap px-4 py-2 rounded text-gray-700 bg-gray-200 hover:bg-gray-300';
   clearBtn.addEventListener('click', () => {
+    availableFilterBtn.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
+    notAvailableFilterBtn.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
     currentFilter = null;
     currentPage = 1;
     updateFilterButtons();
