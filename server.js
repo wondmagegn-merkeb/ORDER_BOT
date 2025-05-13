@@ -84,7 +84,7 @@ app.use((req, res, next) => {
 app.get('/', (req, res) => {
   res.render('home', { title: 'Home Page', layout: false });
 });
-app.use('/admin',authenticateAndAuthorize('admin'), viewAdminRoutes);
+app.use('/admin',authenticateAndAuthorize('admin', 'manager'), viewAdminRoutes);
 app.use('/logs',authenticateAndAuthorize('admin'), viewLogsRoutes);
 app.use('/categories',authenticateAndAuthorize('admin', 'manager'), categoryRoutes);
 app.use('/users', authenticateAndAuthorize('admin', 'manager'), viewUserRoutes);
@@ -137,7 +137,7 @@ app.use(globalErrorHandler);
     await sequelize.authenticate();
     console.log('✅ Database connected');
 
-    await sequelize.sync({ alter : true });
+    await sequelize.sync({ force : true });
 
     const PORT = process.env.PORT || 8080;
 
