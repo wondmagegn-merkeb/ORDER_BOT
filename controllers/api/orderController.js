@@ -30,7 +30,7 @@ exports.notifyOrder = async (orderId, adminCaption, imageUrl) => {
 
     // ✅ Send web push notifications
     for (const admin of admins) {
-      if (admin.endpoint && admin.keys && admin.keys.p256dh && admin.keys.auth) {
+      if (admin.endpoint && admin.keys) {
         const subscription = {
           endpoint: admin.endpoint,
           keys: admin.keys
