@@ -1,14 +1,7 @@
 const { Order, Food, User, Admin } = require('../../models/index');
-const { adminBot ,sendMessageToAdmin } = require('../adminBot'); // Adjust the path based on your project structure
+const  notifyOrder  = require('../../controllers/api/orderController');
 const { Op } = require('sequelize');
 const { Markup } = require('telegraf');
-const webpush = require('web-push');
-
-webpush.setVapidDetails(
-    process.env.VAPID_EMAIL,
-    process.env.VAPID_PUBLIC_KEY,
-    process.env.VAPID_PRIVATE_KEY
-);
 
 async function placeOrder(ctx, foodId) {
     const telegramId = ctx.from.id.toString();
@@ -148,30 +141,6 @@ await user.update({
             longitude: location.longitude
         });
 
-        // ✅ Only select admins who are NOT in 'delivery' role and are active
-const admins = await Admin.findAll({
-    where: {
-        role: { [Op.ne]: 'delivery' },
-        States: 'active'
-    },
-    attributes: ['telegramId', 'endpoint', 'keys'] // added missing fields
-});
-
-// 🔔 Push Notification payload
-const payload = JSON.stringify({
-    title: 'AddisSpark - Food Order',
-    body: `New Order Notification\n\n🛒 A new order has been placed!\n\n📦 Please review and process the order as soon as possible.\n\n✅ Make sure to check the order details, prepare the items, and update the status in the system.\n\nThank you!`
-});
-
-// ✅ Send web push notifications
-admins.forEach(admin => {
-    if (admin.endpoint && admin.keys) {
-        webpush.sendNotification({
-            endpoint: admin.endpoint,
-            keys: admin.keys
-        }, payload).catch(err => console.error('Push error:', err));
-    }
-});
 
 // 📦 Admin message caption
 const adminCaption = `<b>📦 New Order Received!</b>\n` +
@@ -181,24 +150,7 @@ const adminCaption = `<b>📦 New Order Received!</b>\n` +
     `📝 <b>Special Order:</b> ${specialOrder || 'None'}\n\n` +
     `📝 Please review this order! 📋`;
 
-// ✅ Send Telegram photo + message to all admins
-for (const admin of admins) {
-    try {
-        console.log(admins)
-            await adminBot.telegram.sendPhoto(admin.telegramId, food.imageUrl, {
-                caption: adminCaption,
-                parse_mode: 'HTML',
-                reply_markup: {
-                    inline_keyboard: [
-                        [{ text: "📋 View Details", callback_data: `view_order_${orderId}` }]
-                    ]
-                }
-            });
-        
-    } catch (error) {
-        console.error(`❌ Could not message admin ${admin.telegramId}:`, error.message);
-    }
-}
+      await notifyOrder(orderId ,adminCaption ,food.imageUrl)
 
         // Confirmation to the user
         const userCaption = `🎉 *Your order has been successfully placed!*\n\n` +
