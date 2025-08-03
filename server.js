@@ -137,7 +137,7 @@ app.use(globalErrorHandler);
     await sequelize.authenticate();
     console.log('✅ Database connected');
 
-    await sequelize.sync({ force : true });
+    await sequelize.sync({ alter : true });
 
     const PORT = process.env.PORT || 8080;
 
