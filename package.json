@@ -5,13 +5,23 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "generate-vapid-keys": "node scripts/generate-vapid-keys.js",
+    "add-admin": "node scripts/add-admin.js",
+    "add-categories": "node scripts/add-categories.js",
+    "add-food": "node scripts/add-food.js",
+    "fix-cloudinary": "node scripts/fix-cloudinary-column.js",
+    "migrate-items": "node scripts/add-items-column.js",
+    "fix-endpoint": "node scripts/fix-endpoint-column.js",
+    "add-delivery-user-id": "node scripts/add-delivery-user-id-column.js",
+    "package-clean": "node scripts/create-clean-package.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
     "cloudinary": "^1.31.0",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.7",
@@ -22,17 +32,19 @@
     "express-rate-limit": "^7.5.0",
     "express-session": "^1.17.3",
     "helmet": "^8.1.0",
+    "joi": "^17.12.0",
     "jsonwebtoken": "^9.0.2",
+    "moment": "^2.29.1",
+    "multer": "^2.0.0",
     "mysql2": "^3.9.0",
-    "nodemailer": "^6.9.10",
+    "nodemailer": "^7.0.10",
     "sequelize": "^6.37.1",
+    "sharp": "^0.34.4",
     "telegraf": "^4.16.3",
     "telegraf-session-local": "^2.1.1",
-    "joi": "^17.12.0",
-    "sharp": "^0.32.1",
-    "xss-clean": "^0.1.4",
-    "multer": "^1.4.5-lts.2",
-    "moment": "^2.29.1",
     "web-push": "^3.6.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
   }
 }

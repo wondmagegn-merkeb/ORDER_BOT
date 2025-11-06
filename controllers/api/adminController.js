@@ -1,98 +1,125 @@
-const { Admin, Food, FoodCategory, Order, AdminAuditLog, FoodUpdateLog, FoodCategoryUpdateLog, OrderUpdateLog } = require('../../models/index');
-const { NotFoundError, ValidationError, InternalServerError, UnauthorizedError } = require('../../utils/customError');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const crypto = require('crypto');
-const { Op } = require('sequelize');
-const sendMail = require('../../utils/mailer');
-const { createAdminSchema, loginSchema, updateAdminSchema, forgotPasswordSchema, resetPasswordSchema,updateAdminProfileSchema} = require('../../validators/adminValidator');
-const { adminBot } = require('../../bots/adminBot'); 
+const {
+  Admin,
+  Food,
+  FoodCategory,
+  Order,
+  AdminAuditLog,
+  FoodUpdateLog,
+  FoodCategoryUpdateLog,
+  OrderUpdateLog,
+} = require("../../models/index");
+const {
+  NotFoundError,
+  ValidationError,
+  InternalServerError,
+  UnauthorizedError,
+} = require("../../utils/customError");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
+const { Op } = require("sequelize");
+const sendMail = require("../../utils/mailer");
+const {
+  createAdminSchema,
+  loginSchema,
+  updateAdminSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+  updateAdminProfileSchema,
+} = require("../../validators/adminValidator");
+const { adminBot } = require("../../bots/adminBot");
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
+const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 // Helper to generate user update message
 const generateAdminUpdateMessage = (user, role, states) => {
-  let message = '';
+  let message = "";
 
   if (role) {
-    if (user.role === 'admin') {
-      message += '✅ You are now an <b>Admin</b> and have full access to the system.\n';
-    } else if (user.role === 'manager') {
-      message += '✅ You are now a <b>Manager</b> and can manage the system.\n';
-    } else if (user.role === 'delivery') {
-      message += '✅ You are now a <b>Delivery Personnel</b> and can handle delivery tasks.\n';
+    if (user.role === "admin") {
+      message +=
+        "✅ You are now an <b>Admin</b> and have full access to the system.\n";
+    } else if (user.role === "manager") {
+      message += "✅ You are now a <b>Manager</b> and can manage the system.\n";
+    } else if (user.role === "delivery") {
+      message +=
+        "✅ You are now a <b>Delivery Personnel</b> and can handle delivery tasks.\n";
     } else {
-      message += 'ℹ️ Your role has been updated.\n';
+      message += "ℹ️ Your role has been updated.\n";
     }
   }
 
   if (states) {
-    if (user.states === 'block') {
-      message += '⚠️ Your account has been <b>Blocked</b> from accessing the system.';
+    if (user.states === "block") {
+      message +=
+        "⚠️ Your account has been <b>Blocked</b> from accessing the system.";
     } else {
-      message += '✅ Your account is now <b>Active</b> and you can use the system.';
+      message +=
+        "✅ Your account is now <b>Active</b> and you can use the system.";
     }
   }
 
   return message;
 };
 
-
 // ✅ Create Admin
 exports.createAdmin = async (req, res, next) => {
   const { error } = createAdminSchema.validate(req.body);
   if (error) {
     res.locals.error = error.details[0].message;
-    return res.render('admin/create-admin', { title: 'Add Admin' });
+    return res.render("admin/create-admin", { title: "Add Admin" });
   }
 
   try {
     const { email, telegramId, role } = req.body;
 
     // Auto-generate username and password based on the role
-    let username = '';
-    let password = '';
+    let username = "";
+    let password = "";
 
-    if (role === 'admin') {
-      username = `admin_${Date.now()}`;  // Auto-generated username
-      password = `admin_password_${Date.now()}`;  // Unique password for admin
-    } else if (role === 'manager') {
-      username = `manager_${Date.now()}`;  // Auto-generated username
-      password = `manager_password_${Date.now()}`;  // Unique password for manager
-    } else if (role === 'delivery') {
-      username = `user_${Date.now()}`;  // Auto-generated username
-      password = `user_password_${Date.now()}`;  // Unique password for user
+    if (role === "admin") {
+      username = `admin_${Date.now()}`; // Auto-generated username
+      password = `admin_password_${Date.now()}`; // Unique password for admin
+    } else if (role === "manager") {
+      username = `manager_${Date.now()}`; // Auto-generated username
+      password = `manager_password_${Date.now()}`; // Unique password for manager
+    } else if (role === "delivery") {
+      username = `user_${Date.now()}`; // Auto-generated username
+      password = `user_password_${Date.now()}`; // Unique password for user
     } else {
       // Fallback default values if the role is not specified
       username = `default_username_${Date.now()}`;
-      password = `default_password_${Date.now()}`;  // Unique password for fallback role
+      password = `default_password_${Date.now()}`; // Unique password for fallback role
     }
 
     // Check if the email already exists
     const existingEmail = await Admin.findOne({ where: { email } });
-if (existingEmail) {
-  res.locals.error = 'Email already in use';
-  return res.render('admin/create-admin', { title: 'Add Admin' });
-}
+    if (existingEmail) {
+      res.locals.error = "Email already in use";
+      return res.render("admin/create-admin", { title: "Add Admin" });
+    }
 
-const existingTelegramId = await Admin.findOne({ where: { telegramId } });
-if (existingTelegramId) {
-  res.locals.error = 'Telegram ID already in use';
-  return res.render('admin/create-admin', { title: 'Add Admin' });
-}
+    const existingTelegramId = await Admin.findOne({ where: { telegramId } });
+    if (existingTelegramId) {
+      res.locals.error = "Telegram ID already in use";
+      return res.render("admin/create-admin", { title: "Add Admin" });
+    }
 
     // Generate a new admin ID
-    const lastAdmin = await Admin.findOne({ order: [['createdAt', 'DESC']],paranoid: false });
+    const lastAdmin = await Admin.findOne({
+      order: [["createdAt", "DESC"]],
+      paranoid: false,
+    });
     let newIdNumber = 1;
     if (lastAdmin && lastAdmin.adminId) {
-      const lastNumber = parseInt(lastAdmin.adminId.replace('ADM', ''));
+      const lastNumber = parseInt(lastAdmin.adminId.replace("ADM", ""));
       newIdNumber = lastNumber + 1;
     }
-    const adminId = `ADM${newIdNumber.toString().padStart(3, '0')}`;
+    const adminId = `ADM${newIdNumber.toString().padStart(3, "0")}`;
 
     // Send email to the admin with login details
     await sendMail({
       to: email,
-      subject: 'Your Admin Account Details',
+      subject: "Your Admin Account Details",
       html: `
         <html>
           <head>
@@ -138,7 +165,7 @@ if (existingTelegramId) {
             </div>
           </body>
         </html>
-      `
+      `,
     });
 
     // Create new admin
@@ -146,43 +173,46 @@ if (existingTelegramId) {
       adminId,
       username,
       email,
-      password, 
+      password,
       telegramId,
       createdBy: req.admin.adminId,
-      role
+      role,
     });
 
-    res.locals.success = 'Admin added successfully!';
-    res.render('admin/create-admin', { title: 'Add Admin' });
+    res.locals.success = "Admin added successfully!";
+    res.render("admin/create-admin", { title: "Add Admin" });
   } catch (err) {
-    next(new InternalServerError('Failed to create admin', err));
+    next(new InternalServerError("Failed to create admin", err));
   }
 };
-
 
 // ✅ Get all admins
 exports.getAllAdmins = async () => {
   try {
     const admins = await Admin.findAll({
-      attributes: ['adminId', 'username', 'email', 'role', 'states'],
-      order: [['createdAt', 'DESC']],
+      attributes: ["adminId", "username", "email", "role", "states"],
+      order: [["createdAt", "DESC"]],
     });
 
     return admins;
   } catch (err) {
-    next(new InternalServerError('Failed to fetch admins', err));
+    throw new InternalServerError("Failed to fetch admins", err);
   }
 };
-
 
 // ✅ Get Admin by ID
 exports.getAdminById = async (adminId) => {
   try {
     const admin = await Admin.findOne({ where: { adminId } });
-    if (!admin) throw new NotFoundError('Admin not found');
+    if (!admin) throw new NotFoundError("Admin not found");
     return admin;
   } catch (err) {
-    next(new InternalServerError('Failed to fetch admin', err));
+    // If it's already a custom error, re-throw it
+    if (err instanceof NotFoundError || err instanceof InternalServerError) {
+      throw err;
+    }
+    // Otherwise, wrap it in InternalServerError
+    throw new InternalServerError("Failed to fetch admin", err);
   }
 };
 
@@ -192,14 +222,14 @@ exports.updateAdminProfile = async (req, res, next) => {
     const { username, password } = req.body;
 
     const admin = await Admin.findOne({ where: { adminId } });
-    if (!admin) return next(new NotFoundError('Admin not found'));
+    if (!admin) return next(new NotFoundError("Admin not found"));
 
     const { error } = updateAdminProfileSchema.validate(req.body);
     if (error) {
       res.locals.error = error.details[0].message;
-      return res.render('admin/profile-admin', {
+      return res.render("admin/profile-admin", {
         admin,
-        title: 'Admin Profile'
+        title: "Admin Profile",
       });
     }
 
@@ -209,14 +239,14 @@ exports.updateAdminProfile = async (req, res, next) => {
     // Check if username is taken by another admin
     if (username && username !== admin.username) {
       const existingUser = await Admin.findOne({
-        where: { username, adminId: { [Op.ne]: adminId } } // exclude self
+        where: { username, adminId: { [Op.ne]: adminId } }, // exclude self
       });
 
       if (existingUser) {
-        res.locals.error = 'Username is already taken by another admin.';
-        return res.render('admin/profile-admin', {
+        res.locals.error = "Username is already taken by another admin.";
+        return res.render("admin/profile-admin", {
           admin,
-          title: 'Admin Profile'
+          title: "Admin Profile",
         });
       }
 
@@ -224,7 +254,7 @@ exports.updateAdminProfile = async (req, res, next) => {
       credentialsChangedUsername = true;
     }
 
-    if (password && password.trim() !== '') {
+    if (password && password.trim() !== "") {
       admin.password = password; // Don’t forget to hash the password if needed!
       credentialsChangedPassword = true;
     }
@@ -237,20 +267,18 @@ exports.updateAdminProfile = async (req, res, next) => {
 
     if (credentialsChangedUsername || credentialsChangedPassword) {
       await admin.save();
-      res.locals.success = 'Profile updated successfully!';
+      res.locals.success = "Profile updated successfully!";
     }
 
-    return res.render('admin/profile-admin', {
+    return res.render("admin/profile-admin", {
       admin,
-      title: 'Admin Profile'
+      title: "Admin Profile",
     });
-
   } catch (err) {
     console.error("Admin profile update error:", err);
-    next(new InternalServerError('Failed to update admin', err));
+    next(new InternalServerError("Failed to update admin", err));
   }
 };
-
 
 // ✅ Update Admin
 exports.updateAdmin = async (req, res, next) => {
@@ -259,52 +287,58 @@ exports.updateAdmin = async (req, res, next) => {
     const { telegramId, role, states, email } = req.body;
 
     const admin = await Admin.findOne({ where: { adminId } });
-    if (!admin) return next(new NotFoundError('Admin not found'));
+    if (!admin) return next(new NotFoundError("Admin not found"));
 
     const { error } = updateAdminSchema.validate(req.body);
     if (error) {
       res.locals.error = error.details[0].message;
-      return res.render('admin/update-admin', {
+      return res.render("admin/update-admin", {
         admin,
-        title: 'Edit Admin'
+        title: "Edit Admin",
       });
     }
 
-    // Validate telegramId uniqueness
+    const originalRole = admin.role;
+    const originalStates = admin.states;
+    const originalTelegramId = admin.telegramId;
+    const originalEmail = admin.email;
+
+    // Validate and update telegramId if changed
     if (telegramId && telegramId !== admin.telegramId) {
       const existingTelegramId = await Admin.findOne({
-        where: { telegramId, adminId: { [Op.ne]: adminId } }
+        where: { telegramId, adminId: { [Op.ne]: adminId } },
       });
       if (existingTelegramId) {
-        res.locals.error = 'Telegram ID already in use';
-        return res.render('admin/update-admin', {
+        res.locals.error = "Telegram ID already in use";
+        return res.render("admin/update-admin", {
           admin,
-          title: 'Edit Admin'
+          title: "Edit Admin",
         });
       }
       admin.telegramId = telegramId;
     }
 
-    // Validate email uniqueness
+    // Validate and update email if changed
     if (email && email !== admin.email) {
-      const existingEmail = await Admin.findOne({ where: { email } });
+      const existingEmail = await Admin.findOne({
+        where: { email, adminId: { [Op.ne]: adminId } },
+      });
       if (existingEmail) {
-        res.locals.error = 'Email already in use';
-        return res.render('admin/update-admin', {
+        res.locals.error = "Email already in use";
+        return res.render("admin/update-admin", {
           admin,
-          title: 'Edit Admin'
+          title: "Edit Admin",
         });
       }
       admin.email = email;
     }
 
-    const originalRole = admin.role;
-    const originalStates = admin.states;
-
+    // Update states if changed
     if (states && states !== admin.states) {
       admin.states = states;
     }
 
+    // Update role if changed
     if (role && role !== admin.role) {
       admin.role = role;
     }
@@ -313,61 +347,85 @@ exports.updateAdmin = async (req, res, next) => {
 
     const roleChanged = originalRole !== admin.role;
     const statesChanged = originalStates !== admin.states;
+    const telegramIdChanged = originalTelegramId !== admin.telegramId;
+    const emailChanged = originalEmail !== admin.email;
 
-    if (roleChanged || statesChanged || telegramId || email) {
+    if (roleChanged || statesChanged || telegramIdChanged || emailChanged) {
       await admin.save();
 
       if (admin.telegramId && (roleChanged || statesChanged)) {
-        const message = generateAdminUpdateMessage(admin, roleChanged, statesChanged);
+        const message = generateAdminUpdateMessage(
+          admin,
+          roleChanged,
+          statesChanged
+        );
         await adminBot.telegram.sendMessage(admin.telegramId, message, {
-          parse_mode: 'HTML'
+          parse_mode: "HTML",
         });
       }
 
-      res.locals.success = 'Admin updated successfully!';
+      res.locals.success = "Admin updated successfully!";
     }
 
-    return res.render('admin/update-admin', {
+    return res.render("admin/update-admin", {
       admin,
-      title: 'Edit Admin'
+      title: "Edit Admin",
     });
-
   } catch (err) {
     console.error("Admin update error:", err);
-    next(new InternalServerError('Failed to update admin', err));
+    next(new InternalServerError("Failed to update admin", err));
   }
 };
-
 
 // ✅ Admin login
 exports.login = async (req, res, next) => {
   const { error } = loginSchema.validate(req.body);
-  if (error) res.render('login', { error: error.details[0].message, layout: false });
+  if (error) {
+    return res.render("login", {
+      error: error.details[0].message,
+      layout: false,
+    });
+  }
 
   try {
     const { username, password } = req.body;
 
     const admin = await Admin.findOne({ where: { username } });
-    if (!admin) return res.render('login', { error: 'Invalid credentials', layout: false });
+    if (!admin)
+      return res.render("login", {
+        error: "Invalid credentials",
+        layout: false,
+      });
 
     const isMatch = await bcrypt.compare(password, admin.password);
-    if (!isMatch) return res.render('login', { error: 'Invalid credentials', layout: false });
-      
+    if (!isMatch)
+      return res.render("login", {
+        error: "Invalid credentials",
+        layout: false,
+      });
 
     // Sign JWT token
     const token = jwt.sign(
       { adminId: admin.adminId, role: admin.role },
       process.env.JWT_SECRET,
-      { expiresIn: '1h' }
+      { expiresIn: "24h" } // Match session cookie maxAge
     );
 
     // Store only the token in session
     req.session.token = token;
-    res.render('login', { success: 'Login successful', layout: false });
-    
 
+    // Save session explicitly to ensure it persists
+    req.session.save((err) => {
+      if (err) {
+        console.error("Session save error:", err);
+        return next(new InternalServerError("Failed to save session", err));
+      }
+
+      // Redirect to dashboard after successful login
+      res.render("login", { success: "Login successful", layout: false });
+    });
   } catch (err) {
-    next(new InternalServerError('Failed to login', err));
+    next(new InternalServerError("Failed to login", err));
   }
 };
 
@@ -379,9 +437,9 @@ exports.forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
     const admin = await Admin.findOne({ where: { email } });
-    if (!admin) return next(new NotFoundError('Email not found'));
+    if (!admin) return next(new NotFoundError("Email not found"));
 
-    const token = crypto.randomBytes(32).toString('hex');
+    const token = crypto.randomBytes(32).toString("hex");
     const expiry = new Date(Date.now() + 3600000); // 1hr
 
     admin.resetToken = token;
@@ -389,12 +447,12 @@ exports.forgotPassword = async (req, res, next) => {
     admin.updatedBy = admin.adminId;
     await admin.save();
 
-     const baseUrl = process.env.ADMIN_BASE_URL;
-     const resetLink = `${baseUrl}/reset-password?token=${token}`;
-    
+    const baseUrl = process.env.ADMIN_BASE_URL;
+    const resetLink = `${baseUrl}/reset-password?token=${token}`;
+
     await sendMail({
       to: admin.email,
-      subject: 'Reset Your Password',
+      subject: "Reset Your Password",
       html: `<!DOCTYPE html>
 <html lang="en" class="bg-gray-100">
 <head>
@@ -457,12 +515,12 @@ exports.forgotPassword = async (req, res, next) => {
   </div>
 </body>
 </html>
-`
+`,
     });
 
-    res.render('reset-email-sent', { layout: false });
+    res.render("reset-email-sent", { layout: false });
   } catch (err) {
-    next(new InternalServerError('Failed to reset email send', err));
+    next(new InternalServerError("Failed to reset email send", err));
   }
 };
 
@@ -477,21 +535,24 @@ exports.resetPassword = async (req, res, next) => {
     const admin = await Admin.findOne({
       where: {
         resetToken: token,
-        resetTokenExpires: { [Op.gt]: new Date() }
-      }
+        resetTokenExpires: { [Op.gt]: new Date() },
+      },
     });
 
-    if (!admin) return next(new UnauthorizedError('Invalid or expired token'));
+    if (!admin) return next(new UnauthorizedError("Invalid or expired token"));
 
     admin.password = newPassword;
     admin.resetToken = null;
     admin.resetTokenExpires = null;
-    admin.updatedBy = admin.adminId
+    admin.updatedBy = admin.adminId;
     await admin.save();
 
-    res.render('login', { message: 'Password reset successful', layout: false  });
+    res.render("login", {
+      message: "Password reset successful",
+      layout: false,
+    });
   } catch (err) {
-    next(new InternalServerError('Failed to reset', err));
+    next(new InternalServerError("Failed to reset", err));
   }
 };
 
@@ -501,23 +562,48 @@ exports.deleteAdmin = async (req, res, next) => {
     const admin = await Admin.findByPk(adminId);
 
     const modelColumns = [
-      { name: 'Admin ID', field: 'adminId', index: 0 },
-      { name: 'Username', field: 'username', index: 1 },
-      { name: 'Email', field: 'email', index: 2 },
-      { name: 'Role', field: 'role', index: 3 },
-      { name: 'Status', field: 'states', index: 4 }
+      { name: "Admin ID", field: "adminId", index: 0 },
+      { name: "Username", field: "username", index: 1 },
+      { name: "Email", field: "email", index: 2 },
+      { name: "Role", field: "role", index: 3 },
+      { name: "Status", field: "states", index: 4 },
     ];
 
     const filters = [
-      { id: 'admin', name: 'Admin', value: 'admin', colorClass: 'bg-yellow-500 hover:bg-yellow-600' },
-      { id: 'manager', name: 'Manager', value: 'manager', colorClass: 'bg-indigo-600 hover:bg-indigo-700' },
-      { id: 'delivery', name: 'Delivery Staff', value: 'delivery', colorClass: 'bg-blue-600 hover:bg-blue-700' },
-      { id: 'active', name: 'Active', value: 'Active', colorClass: 'bg-green-500 hover:bg-green-600' },
-      { id: 'block', name: 'Block', value: 'block', colorClass: 'bg-pink-400 hover:bg-pink-500' }
+      {
+        id: "admin",
+        name: "Admin",
+        value: "admin",
+        colorClass: "bg-yellow-500 hover:bg-yellow-600",
+      },
+      {
+        id: "manager",
+        name: "Manager",
+        value: "manager",
+        colorClass: "bg-indigo-600 hover:bg-indigo-700",
+      },
+      {
+        id: "delivery",
+        name: "Delivery Staff",
+        value: "delivery",
+        colorClass: "bg-blue-600 hover:bg-blue-700",
+      },
+      {
+        id: "active",
+        name: "Active",
+        value: "Active",
+        colorClass: "bg-green-500 hover:bg-green-600",
+      },
+      {
+        id: "block",
+        name: "Block",
+        value: "block",
+        colorClass: "bg-pink-400 hover:bg-pink-500",
+      },
     ];
 
     if (!admin) {
-      return next(new NotFoundError('Admin not found'));
+      return next(new NotFoundError("Admin not found"));
     }
 
     // Check if Admin is referenced in other records
@@ -530,7 +616,7 @@ exports.deleteAdmin = async (req, res, next) => {
       foodCategoryUpdateLog,
       orderUpdated,
       adminAuditLog,
-      orderUpdateLog
+      orderUpdateLog,
     ] = await Promise.all([
       Food.findOne({ where: { createdBy: adminId } }),
       Food.findOne({ where: { updatedBy: adminId } }),
@@ -540,32 +626,40 @@ exports.deleteAdmin = async (req, res, next) => {
       FoodCategoryUpdateLog.findOne({ where: { performedBy: adminId } }),
       Order.findOne({ where: { updatedBy: adminId } }),
       AdminAuditLog.findOne({ where: { performedBy: adminId } }),
-      OrderUpdateLog.findOne({ where: { performedBy: adminId } })
+      OrderUpdateLog.findOne({ where: { performedBy: adminId } }),
     ]);
 
     if (
-      foodCreated || foodUpdated || foodCategoryCreated || foodCategoryUpdated ||
-      foodUpdateLog || foodCategoryUpdateLog || orderUpdated || adminAuditLog || orderUpdateLog
+      foodCreated ||
+      foodUpdated ||
+      foodCategoryCreated ||
+      foodCategoryUpdated ||
+      foodUpdateLog ||
+      foodCategoryUpdateLog ||
+      orderUpdated ||
+      adminAuditLog ||
+      orderUpdateLog
     ) {
       const admins = await Admin.findAll({
-      attributes: ['adminId', 'username', 'email', 'role', 'states'],
-      order: [['createdAt', 'DESC']],
-    });
-    const models = admins;
-      res.locals.error = 'Cannot delete admin. Admin is referenced in other records.';
-      return res.render('admin/list-admin', {
-        title: 'Admin List',
+        attributes: ["adminId", "username", "email", "role", "states"],
+        order: [["createdAt", "DESC"]],
+      });
+      const models = admins;
+      res.locals.error =
+        "Cannot delete admin. Admin is referenced in other records.";
+      return res.render("admin/list-admin", {
+        title: "Admin List",
         models,
         modelColumns,
         filters,
-        modelName: 'Admin',
-        modelNameLower: 'admin',
+        modelName: "Admin",
+        modelNameLower: "admin",
         permissions: {
           canView: false,
           canAdd: true,
           canEdit: true,
-          canDelete: true
-        }
+          canDelete: true,
+        },
       });
     }
 
@@ -573,29 +667,26 @@ exports.deleteAdmin = async (req, res, next) => {
     admin.updatedBy = req.admin.adminId;
     await admin.destroy();
     const admins = await Admin.findAll({
-      attributes: ['adminId', 'username', 'email', 'role', 'states'],
-      order: [['createdAt', 'DESC']],
+      attributes: ["adminId", "username", "email", "role", "states"],
+      order: [["createdAt", "DESC"]],
     });
     const models = admins;
-    res.locals.success = 'Admin deleted successfully!';
-    return res.render('admin/list-admin', {
-      title: 'Admin List',
+    res.locals.success = "Admin deleted successfully!";
+    return res.render("admin/list-admin", {
+      title: "Admin List",
       models,
       modelColumns,
       filters,
-      modelName: 'Admin',
-      modelNameLower: 'admin',
+      modelName: "Admin",
+      modelNameLower: "admin",
       permissions: {
         canView: false,
         canAdd: true,
         canEdit: true,
-        canDelete: true
-      }
+        canDelete: true,
+      },
     });
-    
   } catch (error) {
-    next(new InternalServerError('Failed to delete admin', error));
+    next(new InternalServerError("Failed to delete admin", error));
   }
 };
-
-

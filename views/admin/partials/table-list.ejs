@@ -1,5 +1,7 @@
 <div class="container mx-auto px-4 py-4">
-  <h1 class="text-3xl font-bold text-center mb-8 text-gray-800 flex justify-center items-center dark:text-white">
+  <h1
+    class="text-3xl font-bold text-center mb-8 text-gray-800 flex justify-center items-center dark:text-white"
+  >
     <i class="fas fa-cogs mr-3 text-blue-600"></i>
     <%= modelName %> Management
   </h1>
@@ -7,328 +9,603 @@
   <!-- Search & Add -->
   <div class="flex justify-between items-center mb-6">
     <div class="relative w-full max-w-md">
-       <input type="text" id="searchInput" placeholder="Search"
-    class="w-full p-2 pl-10 pr-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:focus:ring-blue-500 dark:focus:border-blue-500">
-  <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-</div>
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Search"
+        class="w-full p-2 pl-10 pr-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-900 dark:text-slate-200 dark:border-slate-700 dark:focus:ring-blue-500 dark:focus:border-blue-500"
+      />
+      <i
+        class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+      ></i>
+    </div>
     <% if (permissions.canAdd) { %>
-    <a href="/<%= modelNameLower %>/add" class="ml-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition inline-flex items-center gap-2">
+    <a
+      href="/<%= modelNameLower %>/add"
+      class="ml-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition inline-flex items-center gap-2"
+    >
       <i class="fas fa-plus"></i> Add
     </a>
     <% } %>
   </div>
 
   <!-- Filters -->
-  <div class="mb-6 overflow-x-auto">
-    <div class="flex space-x-2 w-max">
+  <div
+    class="mb-6 w-full overflow-x-auto scrollbar-hide"
+    style="
+      scrollbar-width: thin;
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+      max-width: 100vw;
+      min-width: 0;
+    "
+  >
+    <div
+      class="inline-flex space-x-2 pb-2"
+      style="min-width: max-content; gap: 0.5rem"
+    >
       <% filters.forEach(filter => { %>
-        <button id="<%= filter.id %>FilterBtn" 
-                class="filter-btn whitespace-nowrap px-4 py-2 rounded text-white <%= filter.colorClass %>" 
-                data-filter="<%= filter.value.toLowerCase() %>">
-          <%= filter.name %>
-        </button>
+      <button
+        id="<%= filter.id %>FilterBtn"
+        class="filter-btn whitespace-nowrap px-3 py-2 sm:px-4 rounded text-white <%= filter.colorClass %> transition hover:opacity-90 flex-shrink-0 text-sm sm:text-base"
+        data-filter="<%= filter.value.toLowerCase() %>"
+      >
+        <%= filter.name %>
+      </button>
       <% }); %>
     </div>
   </div>
 
-  <!-- Table -->
-  <div class="relative overflow-x-auto">
-      <table class="min-w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-md">
-  <thead>
+  <!-- Cards View (Mobile/Small Screens) -->
+  <div id="cardsContainer" class="block md:hidden space-y-4">
+    <% models.forEach(model => { %> <% const id = model[modelColumns[0].field];
+    %>
+    <div
+      class="card-item bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-lg shadow-md p-4"
+    >
+      <% modelColumns.forEach(column => { %>
+      <div
+        class="flex justify-between items-center py-2 border-b border-gray-200 dark:border-slate-800 last:border-b-0"
+      >
+        <span class="font-semibold text-gray-700 dark:text-slate-300"
+          ><%= column.name %>:</span
+        >
+        <span class="text-gray-900 dark:text-slate-100"
+          ><%= model[column.field] %></span
+        >
+      </div>
+      <% }); %>
+      <div
+        class="mt-4 pt-3 border-t border-gray-200 dark:border-slate-800 flex flex-wrap gap-2"
+      >
+        <% if (permissions.canView) { %>
+        <button
+          class="view-btn text-blue-500 hover:text-blue-600 flex items-center space-x-1 px-3 py-1 rounded"
+          data-model="<%= JSON.stringify(model) %>"
+        >
+          <i class="fas fa-eye"></i> <span>View</span>
+        </button>
+        <% } %> <% if (permissions.canEdit) { %>
+        <a
+          href="/<%= modelNameLower %>/edit/<%= id %>"
+          class="text-yellow-500 hover:text-yellow-600 flex items-center space-x-1 px-3 py-1 rounded"
+        >
+          <i class="fas fa-edit"></i> <span>Update</span>
+        </a>
+        <% } %> <% if (permissions.canDelete) { %>
+        <form
+          method="POST"
+          class="delete-form inline"
+          data-id="<%= id %>"
+          data-action="/api/<%= modelNameLower %>/delete"
+        >
+          <button
+            type="button"
+            class="open-delete-modal text-red-500 hover:text-red-600 flex items-center space-x-1 px-3 py-1 rounded"
+          >
+            <i class="fas fa-trash-alt"></i> <span>Delete</span>
+          </button>
+        </form>
+        <% } %>
+      </div>
+    </div>
+    <% }); %>
+  </div>
+
+  <!-- Table View (Desktop/Medium+ Screens) -->
+  <div class="relative overflow-x-auto hidden md:block">
+    <table
+      class="min-w-full bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-md shadow-md"
+    >
+      <thead>
         <tr>
           <% modelColumns.forEach(column => { %>
-            <th class="p-3 text-left text-gray-700 dark:text-gray-300"><%= column.name %></th>
+          <th class="p-3 text-left text-gray-700 dark:text-slate-300">
+            <%= column.name %>
+          </th>
           <% }); %>
-          <th class"p-3 text-left text-gray-700 dark:text-gray-300">Actions</th>
-  </tr>
+          <th class="p-3 text-left text-gray-700 dark:text-slate-300">
+            Actions
+          </th>
+        </tr>
       </thead>
       <tbody id="tableBody">
-        <% models.forEach(model => { %>
-          <% const id = model[modelColumns[0].field]; %>
-          <tr class="border-b border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">
-            <% modelColumns.forEach(column => { %>
-              <td class="p-3"><%= model[column.field] %></td>
-            <% }); %>
-            <td class="p-3 flex flex-wrap gap-2">
-              <% if (permissions.canView) { %>
-              <button 
-    class="view-btn text-blue-500 hover:text-blue-600 flex items-center space-x-1" 
-    data-model='<%= JSON.stringify(model) %>'>
-    <i class="fas fa-eye"></i> View
-  </button>
-              <% } %>
-
-              <% if (permissions.canEdit) { %>
-              <a href="/<%= modelNameLower %>/edit/<%= id %>" class="text-yellow-500 hover:text-yellow-600 flex items-center space-x-1">
-                <i class="fas fa-edit"></i> Update
-              </a>
-              <% } %>
-
-              <% if (permissions.canDelete) { %>
-              <form method="POST" class="delete-form inline" data-id="<%= id %>" data-action="/api/<%= modelNameLower %>/delete">
-                <button type="button" class="open-delete-modal text-red-500 hover:text-red-600 flex items-center space-x-1">
-                  <i class="fas fa-trash-alt"></i> Delete
-                </button>
-              </form>
-              <% } %>
-            </td>
-          </tr>
+        <% models.forEach(model => { %> <% const id =
+        model[modelColumns[0].field]; %>
+        <tr
+          class="border-b border-gray-200 dark:border-slate-800 hover:bg-gray-100 dark:hover:bg-slate-800"
+        >
+          <% modelColumns.forEach(column => { %>
+          <td class="p-3"><%= model[column.field] %></td>
+          <% }); %>
+          <td class="p-3 flex flex-wrap gap-2">
+            <% if (permissions.canView) { %>
+            <button
+              class="view-btn text-blue-500 hover:text-blue-600 flex items-center space-x-1"
+              data-model="<%= JSON.stringify(model) %>"
+            >
+              <i class="fas fa-eye"></i> View
+            </button>
+            <% } %> <% if (permissions.canEdit) { %>
+            <a
+              href="/<%= modelNameLower %>/edit/<%= id %>"
+              class="text-yellow-500 hover:text-yellow-600 flex items-center space-x-1"
+            >
+              <i class="fas fa-edit"></i> Update
+            </a>
+            <% } %> <% if (permissions.canDelete) { %>
+            <form
+              method="POST"
+              class="delete-form inline"
+              data-id="<%= id %>"
+              data-action="/api/<%= modelNameLower %>/delete"
+            >
+              <button
+                type="button"
+                class="open-delete-modal text-red-500 hover:text-red-600 flex items-center space-x-1"
+              >
+                <i class="fas fa-trash-alt"></i> Delete
+              </button>
+            </form>
+            <% } %>
+          </td>
+        </tr>
         <% }); %>
       </tbody>
     </table>
+  </div>
 
-    <!-- No Results Message -->
-     <div id="noResults" class="hidden text-center py-6 text-gray-500 dark:text-gray-300 bg-white dark:bg-gray-800">
-  No results found.
-</div>
+  <!-- No Results Message (visible for both mobile and desktop) -->
+  <div
+    id="noResults"
+    class="hidden text-center py-6 text-gray-500 dark:text-slate-400 bg-white dark:bg-slate-900 rounded-lg shadow-md"
+  >
+    <i class="fas fa-inbox text-4xl mb-3 text-gray-400 dark:text-slate-500"></i>
+    <p class="text-lg font-medium">No results found.</p>
+    <p class="text-sm mt-2 text-gray-400 dark:text-slate-500">
+      Try adjusting your search or filters.
+    </p>
+  </div>
 
-  <!-- Pagination -->
-  <div class="mt-6 flex justify-center items-center space-x-2" id="paginationContainer"></div>
+  <!-- Pagination (shared for both cards and table) -->
+  <div
+    class="mt-6 flex justify-center items-center space-x-2"
+    id="paginationContainer"
+  ></div>
 </div>
 
 <!-- View Modal -->
-<div id="viewModal" class="hidden absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-  <div class="bg-white dark:bg-gray-800 w-11/12 max-w-2xl p-6 rounded-lg shadow-lg relative overflow-y-auto max-h-[70vh]">
+<div
+  id="viewModal"
+  class="hidden absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+>
+  <div
+    class="bg-white dark:bg-slate-900 w-11/12 max-w-2xl p-6 rounded-lg shadow-lg relative overflow-y-auto max-h-[70vh]"
+  >
     <!-- Close Button -->
-    <button 
-      id="closeViewModal" 
-      class="absolute top-4 right-4 text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-600 text-3xl font-bold">
+    <button
+      id="closeViewModal"
+      class="absolute top-4 right-4 text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-600 text-3xl font-bold"
+    >
       &times;
     </button>
-    <h2 class="text-2xl font-bold mb-4 text-center text-gray-800 dark:text-white">Order Details</h2>
-    
+    <h2
+      class="text-2xl font-bold mb-4 text-center text-gray-800 dark:text-slate-100"
+    >
+      Order Details
+    </h2>
+
     <!-- Scrollable Content -->
-    <div id="modalContent" class="flex-1 max-h-72 overflow-y-auto overflow-x-hidden space-y-6 pr-2">
+    <div
+      id="modalContent"
+      class="flex-1 max-h-72 overflow-y-auto overflow-x-hidden space-y-6 pr-2"
+    >
       <!-- Dynamic content will go here -->
     </div>
   </div>
 </div>
 
-
-
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const searchInput = document.getElementById('searchInput');
-const tableBody = document.getElementById('tableBody');
-const paginationContainer = document.getElementById('paginationContainer');
-const noResults = document.getElementById('noResults');
-const rowsPerPage = 5;
-let currentPage = 1;
+  document.addEventListener("DOMContentLoaded", () => {
+    const searchInput = document.getElementById("searchInput");
+    const tableBody = document.getElementById("tableBody");
+    const cardsContainer = document.getElementById("cardsContainer");
+    const paginationContainer = document.getElementById("paginationContainer");
+    const noResults = document.getElementById("noResults");
+    const rowsPerPage = 5;
+    let currentPage = 1;
 
-let allRows = Array.from(tableBody.querySelectorAll('tr'));
-let filteredRows = [...allRows];  // start with all rows
+    // Get all rows and cards
+    let allRows = tableBody ? Array.from(tableBody.querySelectorAll("tr")) : [];
+    let allCards = cardsContainer
+      ? Array.from(cardsContainer.querySelectorAll(".card-item"))
+      : [];
+    let filteredRows = [...allRows]; // start with all rows
+    let filteredCards = [...allCards]; // start with all cards
 
-function displayPage(page) {
-  const start = (page - 1) * rowsPerPage;
-  const end = start + rowsPerPage;
+    function displayPage(page) {
+      const start = (page - 1) * rowsPerPage;
+      const end = start + rowsPerPage;
 
-  // First hide ALL rows
-  allRows.forEach(row => row.style.display = 'none');
+      // Handle table rows
+      if (allRows.length > 0) {
+        // First hide ALL rows
+        allRows.forEach((row) => (row.style.display = "none"));
+        // Then show only filtered + paginated rows
+        filteredRows
+          .slice(start, end)
+          .forEach((row) => (row.style.display = ""));
+      }
 
-  // Then show only filtered + paginated rows
-  filteredRows.slice(start, end).forEach(row => row.style.display = '');
+      // Handle cards
+      if (allCards.length > 0) {
+        // First hide ALL cards
+        allCards.forEach((card) => (card.style.display = "none"));
+        // Then show only filtered + paginated cards
+        filteredCards
+          .slice(start, end)
+          .forEach((card) => (card.style.display = "block"));
+      }
 
-  renderPagination(filteredRows.length);
-  noResults.classList.toggle('hidden', filteredRows.length > 0);
-}
-
-function renderPagination(totalRows) {
-  paginationContainer.innerHTML = '';
-  const totalPages = Math.ceil(totalRows / rowsPerPage);
-  const maxVisiblePages = 5;
-  function createBtn(html, disabled, onClick, active = false) {
-    const btn = document.createElement('button');
-    
-    // Use innerText for plain text or innerHTML if you need HTML content inside the button
-    btn.innerHTML = html;
-
-    // Add basic styles and conditional styles
-    btn.classList.add('px-4', 'py-2', 'rounded-md', 'text-sm', 'border', 'transition');
-
-    // Light mode styles
-    if (disabled) {
-        btn.classList.add('bg-gray-300', 'cursor-not-allowed', 'text-gray-500');
-    } else if (active) {
-        btn.classList.add('bg-blue-500', 'text-white', 'font-bold', 'border-blue-500');
-    } else {
-        btn.classList.add('bg-white', 'text-gray-700', 'border-gray-300', 'hover:bg-blue-100');
-    }
-
-    // Dark mode styles
-    if (disabled) {
-        btn.classList.add('dark:bg-gray-600', 'dark:text-gray-400');
-    } else if (active) {
-        btn.classList.add('dark:bg-blue-600', 'dark:text-white', 'dark:border-blue-500');
-    } else {
-        btn.classList.add('dark:bg-gray-800', 'dark:text-gray-300', 'dark:border-gray-600', 'dark:hover:bg-blue-700');
-    }
-
-    // Disable the button if 'disabled' flag is true
-    btn.disabled = disabled;
-
-    // If the button is not disabled, attach the onClick event listener
-    if (!disabled && onClick) {
-        btn.addEventListener('click', onClick);
-    }
-    
-    return btn;
-}
-
-  if (totalPages > 0) {
-    paginationContainer.appendChild(
-      createBtn('&laquo;', currentPage === 1, () => { currentPage = 1; displayPage(currentPage); })
-    );
-    paginationContainer.appendChild(
-      createBtn('&lsaquo;', currentPage === 1, () => { currentPage--; displayPage(currentPage); })
-    );
-// Calculate sliding window
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = startPage + maxVisiblePages - 1;
-
-    if (endPage > totalPages) {
-      endPage = totalPages;
-      startPage = Math.max(1, endPage - maxVisiblePages + 1);
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      paginationContainer.appendChild(
-        createBtn(i, false, () => { currentPage = i; displayPage(currentPage); }, i === currentPage)
+      renderPagination(Math.max(filteredRows.length, filteredCards.length));
+      noResults.classList.toggle(
+        "hidden",
+        Math.max(filteredRows.length, filteredCards.length) > 0
       );
     }
 
-    paginationContainer.appendChild(
-      createBtn('&rsaquo;', currentPage === totalPages, () => { currentPage++; displayPage(currentPage); })
-    );
-    paginationContainer.appendChild(
-      createBtn('&raquo;', currentPage === totalPages, () => { currentPage = totalPages; displayPage(currentPage); })
-    );
-  }
-}
+    function renderPagination(totalRows) {
+      paginationContainer.innerHTML = "";
+      const totalPages = Math.ceil(totalRows / rowsPerPage);
+      const maxVisiblePages = 5;
+      function createBtn(html, disabled, onClick, active = false) {
+        const btn = document.createElement("button");
 
-function filterRows() {
-  const query = searchInput.value.toLowerCase();
-  filteredRows = allRows.filter(row =>
-    Array.from(row.cells).some(cell =>
-      cell.textContent.toLowerCase().includes(query)
-    )
-  );
-  currentPage = 1;
-  displayPage(currentPage);
-}
+        // Use innerText for plain text or innerHTML if you need HTML content inside the button
+        btn.innerHTML = html;
 
-searchInput.addEventListener('input', filterRows);
+        // Add basic styles and conditional styles
+        btn.classList.add(
+          "px-4",
+          "py-2",
+          "rounded-md",
+          "text-sm",
+          "border",
+          "transition"
+        );
 
-  const viewModal = document.getElementById('viewModal');
-  const modalContent = document.getElementById('modalContent');
-  const closeViewModal = document.getElementById('closeViewModal');
+        // Light mode styles
+        if (disabled) {
+          btn.classList.add(
+            "bg-gray-300",
+            "cursor-not-allowed",
+            "text-gray-500"
+          );
+        } else if (active) {
+          btn.classList.add(
+            "bg-blue-500",
+            "text-white",
+            "font-bold",
+            "border-blue-500"
+          );
+        } else {
+          btn.classList.add(
+            "bg-white",
+            "text-gray-700",
+            "border-gray-300",
+            "hover:bg-blue-100"
+          );
+        }
 
-  document.querySelectorAll('.view-btn').forEach(button => {
-  button.addEventListener('click', function () {
-    const modelData = JSON.parse(this.dataset.model);
-    const modelName = "<%= modelName %>";
+        // Dark mode styles
+        if (disabled) {
+          btn.classList.add("dark:bg-slate-700", "dark:text-slate-400");
+        } else if (active) {
+          btn.classList.add(
+            "dark:bg-blue-600",
+            "dark:text-white",
+            "dark:border-blue-500"
+          );
+        } else {
+          btn.classList.add(
+            "dark:bg-slate-900",
+            "dark:text-slate-300",
+            "dark:border-slate-700",
+            "dark:hover:bg-blue-700"
+          );
+        }
 
-    let modalHTML = `
-      <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg shadow-md space-y-2">
-        <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-3">Order Summary</h3>
-        <div class="grid grid-cols-2 gap-4 text-gray-700 dark:text-gray-300">
-    `;
+        // Disable the button if 'disabled' flag is true
+        btn.disabled = disabled;
 
-    // Display model data except image, latitude, longitude, oldData, and newData
-    for (const [key, value] of Object.entries(modelData)) {
-      if (key !== 'image' && key !== 'latitude' && key !== 'longitude' && key !== 'oldData' && key !== 'newData') {
-        modalHTML += `
-          <div>
-            <span class="font-semibold text-gray-900 dark:text-gray-100">${key}:</span> 
-            <span class="text-blue-600">${value ?? ''}</span>
-          </div>
-        `;
+        // If the button is not disabled, attach the onClick event listener
+        if (!disabled && onClick) {
+          btn.addEventListener("click", onClick);
+        }
+
+        return btn;
+      }
+
+      if (totalPages > 0) {
+        paginationContainer.appendChild(
+          createBtn("&laquo;", currentPage === 1, () => {
+            currentPage = 1;
+            displayPage(currentPage);
+          })
+        );
+        paginationContainer.appendChild(
+          createBtn("&lsaquo;", currentPage === 1, () => {
+            currentPage--;
+            displayPage(currentPage);
+          })
+        );
+        // Calculate sliding window
+        let startPage = Math.max(
+          1,
+          currentPage - Math.floor(maxVisiblePages / 2)
+        );
+        let endPage = startPage + maxVisiblePages - 1;
+
+        if (endPage > totalPages) {
+          endPage = totalPages;
+          startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+          paginationContainer.appendChild(
+            createBtn(
+              i,
+              false,
+              () => {
+                currentPage = i;
+                displayPage(currentPage);
+              },
+              i === currentPage
+            )
+          );
+        }
+
+        paginationContainer.appendChild(
+          createBtn("&rsaquo;", currentPage === totalPages, () => {
+            currentPage++;
+            displayPage(currentPage);
+          })
+        );
+        paginationContainer.appendChild(
+          createBtn("&raquo;", currentPage === totalPages, () => {
+            currentPage = totalPages;
+            displayPage(currentPage);
+          })
+        );
       }
     }
 
-    modalHTML += `
+    function filterRows() {
+      const query = searchInput.value.toLowerCase();
+
+      // Filter table rows
+      if (allRows.length > 0) {
+        filteredRows = allRows.filter((row) =>
+          Array.from(row.cells).some((cell) =>
+            cell.textContent.toLowerCase().includes(query)
+          )
+        );
+      }
+
+      // Filter cards
+      if (allCards.length > 0) {
+        filteredCards = allCards.filter((card) =>
+          card.textContent.toLowerCase().includes(query)
+        );
+      }
+
+      currentPage = 1;
+      displayPage(currentPage);
+    }
+
+    searchInput.addEventListener("input", filterRows);
+
+    const viewModal = document.getElementById("viewModal");
+    const modalContent = document.getElementById("modalContent");
+    const closeViewModal = document.getElementById("closeViewModal");
+
+    // Handle view buttons in both table and cards
+    document.querySelectorAll(".view-btn").forEach((button) => {
+      button.addEventListener("click", function () {
+        const modelData = JSON.parse(this.dataset.model);
+        const modelName = "<%= modelName %>";
+
+        let modalHTML = `
+      <div class="bg-gray-50 dark:bg-slate-900 p-4 rounded-lg shadow-md space-y-2">
+        <h3 class="text-xl font-semibold text-gray-800 dark:text-slate-100 mb-3">Order Summary</h3>
+        <div class="grid grid-cols-2 gap-4 text-gray-700 dark:text-slate-300">
+    `;
+
+        // Handle items separately for Order model
+        let itemsHTML = "";
+        if (modelName === "Order" && modelData.items) {
+          let itemsArray = [];
+          try {
+            // Try to parse if it's a string
+            if (typeof modelData.items === 'string') {
+              itemsArray = JSON.parse(modelData.items);
+            } else if (Array.isArray(modelData.items)) {
+              itemsArray = modelData.items;
+            }
+          } catch (e) {
+            console.error("Error parsing items:", e);
+          }
+
+          if (itemsArray.length > 0) {
+            itemsHTML = `
+          <div class="mt-4 border-t border-gray-300 dark:border-gray-600 pt-4">
+            <h3 class="text-lg font-semibold mb-3 text-gray-800 dark:text-slate-100 flex items-center gap-2">
+              <i class="fas fa-shopping-cart text-green-600"></i>
+              Items (${itemsArray.length})
+            </h3>
+            <div class="flex flex-wrap gap-3">
+              ${itemsArray.map((item, index) => `
+                <div class="bg-gray-100 dark:bg-slate-800 p-3 rounded-lg border border-gray-300 dark:border-gray-600 flex-1 min-w-[calc(50%-0.375rem)]">
+                  <div class="flex flex-col">
+                    <div class="font-semibold text-gray-800 dark:text-slate-100 mb-2">
+                      ${index + 1}. ${item.foodName || 'Unknown Item'}
+                    </div>
+                    <div class="text-sm text-gray-600 dark:text-slate-400">
+                      Price: ${item.price} birr × Quantity: ${item.quantity} = 
+                      <strong class="text-green-600 dark:text-green-400">${item.itemTotal || (item.price * item.quantity)} birr</strong>
+                    </div>
+                    ${item.specialOrder ? `
+                      <div class="mt-2 text-sm text-blue-600 dark:text-blue-400">
+                        <i class="fas fa-sticky-note"></i> Note: ${item.specialOrder}
+                      </div>
+                    ` : ''}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+            `;
+          }
+        }
+
+        // Display model data except image, latitude, longitude, oldData, newData, and items
+        for (const [key, value] of Object.entries(modelData)) {
+          if (
+            key !== "image" &&
+            key !== "latitude" &&
+            key !== "longitude" &&
+            key !== "oldData" &&
+            key !== "newData" &&
+            key !== "items"
+          ) {
+            modalHTML += `
+          <div>
+            <span class="font-semibold text-gray-900 dark:text-slate-100">${key}:</span> 
+            <span class="text-blue-600">${value ?? ""}</span>
+          </div>
+        `;
+          }
+        }
+
+        // Add items section after the main data
+        if (itemsHTML) {
+          modalHTML += itemsHTML;
+        }
+
+        modalHTML += `
         </div>
       </div>
     `;
 
-    // Display old data if it exists
-    if (modelData.oldData) {
-      modalHTML += `
+        // Display old data if it exists
+        if (modelData.oldData) {
+          modalHTML += `
         <div class="mt-4">
-          <h3 class="text-xl font-bold text-gray-700 dark:text-gray-200">Old Data (JSON)</h3>
-          <pre class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg text-sm font-mono text-gray-800 dark:text-gray-300 whitespace-pre-wrap">
+          <h3 class="text-xl font-bold text-gray-700 dark:text-slate-200">Old Data (JSON)</h3>
+          <pre class="bg-gray-100 dark:bg-slate-800 p-4 rounded-lg text-sm font-mono text-gray-800 dark:text-slate-300 whitespace-pre-wrap">
 ${JSON.stringify(modelData.oldData, null, 2)}
           </pre>
         </div>
       `;
-    }
+        }
 
-    // Display new data if it exists
-    if (modelData.newData) {
-      modalHTML += `
+        // Display new data if it exists
+        if (modelData.newData) {
+          modalHTML += `
         <div class="mt-4">
-          <h3 class="text-xl font-bold text-gray-700 dark:text-gray-200">New Data (JSON)</h3>
-          <pre class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg text-sm font-mono text-gray-800 dark:text-gray-300 whitespace-pre-wrap">
+          <h3 class="text-xl font-bold text-gray-700 dark:text-slate-200">New Data (JSON)</h3>
+          <pre class="bg-gray-100 dark:bg-slate-800 p-4 rounded-lg text-sm font-mono text-gray-800 dark:text-slate-300 whitespace-pre-wrap">
 ${JSON.stringify(modelData.newData, null, 2)}
           </pre>
         </div>
       `;
-    }
+        }
 
-    // If the model is "Order", check for additional fields
-    if (modelName === "Order") {
-      if (modelData.image) {
-        modalHTML += `
+        // If the model is "Order", check for additional fields
+        if (modelName === "Order") {
+          if (modelData.image) {
+            modalHTML += `
           <div class="mt-4">
-            <h2 class="text-xl font-bold mb-2 text-gray-700 dark:text-gray-200">Image</h2>
+            <h2 class="text-xl font-bold mb-2 text-gray-700 dark:text-slate-200">Image</h2>
             <img src="${modelData.image}" alt="Order Image" class="w-full max-h-60 object-cover rounded-md border" />
           </div>
         `;
-      }
+          }
 
-      if (modelData.latitude && modelData.longitude) {
-        const mapSrc = `https://www.google.com/maps?q=${modelData.latitude},${modelData.longitude}&hl=es;z=14&output=embed`;
-        modalHTML += `
-          <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg shadow-md space-y-4 mt-6">
-            <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-3">Delivery Location</h3>
-            <div class="w-full h-64 overflow-hidden rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm">
+          if (modelData.latitude && modelData.longitude) {
+            const mapSrc = `https://www.google.com/maps?q=${modelData.latitude},${modelData.longitude}&hl=es;z=14&output=embed`;
+            modalHTML += `
+          <div class="bg-gray-50 dark:bg-slate-900 p-4 rounded-lg shadow-md space-y-4 mt-6">
+            <h3 class="text-xl font-semibold text-gray-800 dark:text-slate-100 mb-3">Delivery Location</h3>
+            <div class="w-full h-64 overflow-hidden rounded-lg border border-gray-300 dark:border-slate-700 shadow-sm">
               <iframe src="${mapSrc}" width="100%" height="100%" class="rounded-md border" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
             </div>
           </div>
         `;
-      }
-    }
+          }
+        }
 
-    // Insert the modal content into the modal container
-    modalContent.innerHTML = modalHTML;
-    viewModal.classList.remove('hidden');
-    
-  });
-});
-
-  closeViewModal.addEventListener('click', () => {
-    viewModal.classList.add('hidden');
-  });
-
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', function () {
-      document.querySelectorAll('.filter-btn').forEach(b => {
-        b.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
+        // Insert the modal content into the modal container
+        modalContent.innerHTML = modalHTML;
+        viewModal.classList.remove("hidden");
       });
-
-      this.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
-
-      const value = this.dataset.filter;
-      
-      filteredRows = allRows.filter(row =>
-    Array.from(row.cells).some(cell =>
-      cell.textContent.toLowerCase().includes(value)
-    )
-  );
-  currentPage = 1;
-  displayPage(currentPage);
     });
-  });
 
-  displayPage(currentPage);
-});
+    closeViewModal.addEventListener("click", () => {
+      viewModal.classList.add("hidden");
+    });
+
+    document.querySelectorAll(".filter-btn").forEach((btn) => {
+      btn.addEventListener("click", function () {
+        document.querySelectorAll(".filter-btn").forEach((b) => {
+          b.classList.remove("ring-2", "ring-offset-2", "ring-blue-500");
+        });
+
+        this.classList.add("ring-2", "ring-offset-2", "ring-blue-500");
+
+        const value = this.dataset.filter;
+
+        // Filter table rows
+        if (allRows.length > 0) {
+          filteredRows = allRows.filter((row) =>
+            Array.from(row.cells).some((cell) =>
+              cell.textContent.toLowerCase().includes(value)
+            )
+          );
+        }
+
+        // Filter cards
+        if (allCards.length > 0) {
+          filteredCards = allCards.filter((card) =>
+            card.textContent.toLowerCase().includes(value)
+          );
+        }
+
+        currentPage = 1;
+        displayPage(currentPage);
+      });
+    });
+
+    displayPage(currentPage);
+  });
 </script>

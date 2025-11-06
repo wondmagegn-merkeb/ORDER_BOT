@@ -1,70 +1,91 @@
-const express = require('express');
-const path = require('path');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-const xss = require('xss-clean');
-const cookieParser = require('cookie-parser');
-const compression = require('compression');
-const expressLayouts = require('express-ejs-layouts');
-const session = require('express-session');
-//const webpush = require('web-push');
-require('dotenv').config();
+const express = require("express");
+const path = require("path");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
+const cookieParser = require("cookie-parser");
+const compression = require("compression");
+const expressLayouts = require("express-ejs-layouts");
+const session = require("express-session");
+require("dotenv").config();
 
-const { globalErrorHandler, notFoundHandler } = require('./controllers/errorController');
-const viewAdminRoutes = require('./routes/view/adminRoutes');
-const viewLogsRoutes = require('./routes/view/logsRoutes');
-const viewOrderRoutes = require('./routes/view/orderRoutes');
-const apiUserRoutes = require('./routes/api/userRoutes');
-const viewUserRoutes = require('./routes/view/userRoutes');
-const viewDashboardRoutes = require('./routes/view/dashboardRoutes');
-const apiOrderRoutes = require('./routes/api/orderRoutes');
-const categoryRoutes = require('./routes/view/categoryRoutes');
-const apiAdminRoutes = require('./routes/api/adminRoutes');
-const apiCategoryRoutes = require('./routes/api/categoryRoutes');
-const adminController = require('./controllers/api/adminController');
-const apiSubscriptionRoutes = require('./routes/api/subscriptionRoutes');
-const { authenticateAndAuthorize } = require('./middleware/authMiddleware');
-const { userBot } = require('./bots/userBot');
-const { adminBot } = require('./bots/adminBot');
-const { sequelize } = require('./config/db');
+const {
+  globalErrorHandler,
+  notFoundHandler,
+} = require("./controllers/errorController");
+const viewAdminRoutes = require("./routes/view/adminRoutes");
+const viewLogsRoutes = require("./routes/view/logsRoutes");
+const viewOrderRoutes = require("./routes/view/orderRoutes");
+const apiUserRoutes = require("./routes/api/userRoutes");
+const viewUserRoutes = require("./routes/view/userRoutes");
+const viewDashboardRoutes = require("./routes/view/dashboardRoutes");
+const apiOrderRoutes = require("./routes/api/orderRoutes");
+const categoryRoutes = require("./routes/view/categoryRoutes");
+const apiAdminRoutes = require("./routes/api/adminRoutes");
+const apiCategoryRoutes = require("./routes/api/categoryRoutes");
+const adminController = require("./controllers/api/adminController");
+const apiSubscriptionRoutes = require("./routes/api/subscriptionRoutes");
+const { authenticateAndAuthorize } = require("./middleware/authMiddleware");
+const { userBot } = require("./bots/userBot");
+const { adminBot } = require("./bots/adminBot");
+const { sequelize } = require("./config/db");
 
 const app = express();
 
 // ======= EJS Setup =======
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 app.use(expressLayouts);
-app.set('layout', 'admin/layout/layout');
+app.set("layout", "admin/layout/layout");
 
 // ======= Session Setup =======
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || 'your_secret_key',
-    resave: false,
-    saveUninitialized: false,
+    secret: process.env.SESSION_SECRET || "your_secret_key",
+    resave: true, // Save session even if it wasn't modified
+    saveUninitialized: true, // Save uninitialized sessions
     cookie: {
-      maxAge: 1000 * 60 * 60 * 24,
+      maxAge: 1000 * 60 * 60 * 24, // 24 hours
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax", // Help with CSRF protection
     },
+    name: "admin.sid", // Custom session name
   })
 );
 
 // ======= Middleware =======
 app.use(compression());
-app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1d' }));
+app.use(express.static(path.join(__dirname, "public"), { maxAge: "1d" }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-//app.use(helmet());
-app.use(xss());
+// Helmet provides XSS protection, so xss-clean is no longer needed
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://cdn.jsdelivr.net",
+          "https://cdnjs.cloudflare.com",
+        ],
+        scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+        imgSrc: ["'self'", "data:", "https:", "http:"],
+        fontSrc: ["'self'", "https://cdnjs.cloudflare.com"],
+      },
+    },
+    crossOriginEmbedderPolicy: false,
+  })
+);
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
-  message: 'Too many requests, try again later.',
+  message: "Too many requests, try again later.",
 });
-app.use('/api', limiter);
+app.use("/api", limiter);
 
 // Flash Message Middleware
 app.use((req, res, next) => {
@@ -75,57 +96,97 @@ app.use((req, res, next) => {
   next();
 });
 
+// Make environment variables available to views
+app.use((req, res, next) => {
+  res.locals.VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY || "";
+  next();
+});
+
 app.use((req, res, next) => {
   res.locals.currentPath = req.path;
   next();
 });
 
 // ======= Routes =======
-app.get('/', (req, res) => {
-  res.render('home', { title: 'Home Page', layout: false });
+app.get("/", (req, res) => {
+  res.render("home", { title: "Home Page", layout: false });
 });
-app.use('/admin',authenticateAndAuthorize('admin', 'manager'), viewAdminRoutes);
-app.use('/logs',authenticateAndAuthorize('admin'), viewLogsRoutes);
-app.use('/categories',authenticateAndAuthorize('admin', 'manager'), categoryRoutes);
-app.use('/users', authenticateAndAuthorize('admin', 'manager'), viewUserRoutes);
-app.use('/orders',authenticateAndAuthorize('admin', 'manager'), viewOrderRoutes);
-app.use('/api/admin', authenticateAndAuthorize('admin'), apiAdminRoutes);
-app.use('/api/categories', authenticateAndAuthorize('admin', 'manager'), apiCategoryRoutes);
-app.use('/api/users', authenticateAndAuthorize('admin', 'manager'), apiUserRoutes);
-app.use('/api/orders', authenticateAndAuthorize('admin', 'manager'), apiOrderRoutes);
-app.use('/api/food', authenticateAndAuthorize('admin','manager'), require('./routes/api/foodRoutes'));
-app.use('/food',authenticateAndAuthorize('admin', 'manager'), require('./routes/view/foodRoutes'));
-app.use('/subscribe',authenticateAndAuthorize('admin', 'manager'), apiSubscriptionRoutes);
-app.use('/dashboard',authenticateAndAuthorize('admin', 'manager'), viewDashboardRoutes);
+app.use(
+  "/admin",
+  authenticateAndAuthorize("admin", "manager"),
+  viewAdminRoutes
+);
+app.use("/logs", authenticateAndAuthorize("admin"), viewLogsRoutes);
+app.use(
+  "/categories",
+  authenticateAndAuthorize("admin", "manager"),
+  categoryRoutes
+);
+app.use("/users", authenticateAndAuthorize("admin", "manager"), viewUserRoutes);
+app.use(
+  "/orders",
+  authenticateAndAuthorize("admin", "manager"),
+  viewOrderRoutes
+);
+app.use("/api/admin", authenticateAndAuthorize("admin"), apiAdminRoutes);
+app.use(
+  "/api/categories",
+  authenticateAndAuthorize("admin", "manager"),
+  apiCategoryRoutes
+);
+app.use(
+  "/api/users",
+  authenticateAndAuthorize("admin", "manager"),
+  apiUserRoutes
+);
+app.use(
+  "/api/orders",
+  authenticateAndAuthorize("admin", "manager"),
+  apiOrderRoutes
+);
+app.use(
+  "/api/food",
+  authenticateAndAuthorize("admin", "manager"),
+  require("./routes/api/foodRoutes")
+);
+app.use(
+  "/food",
+  authenticateAndAuthorize("admin", "manager"),
+  require("./routes/view/foodRoutes")
+);
+app.use(
+  "/subscribe",
+  authenticateAndAuthorize("admin", "manager"),
+  apiSubscriptionRoutes
+);
+app.use(
+  "/dashboard",
+  authenticateAndAuthorize("admin", "manager"),
+  viewDashboardRoutes
+);
 // Login / Password Reset
-app.get('/login', (req, res) => {
-  res.render('login', { message: null, layout: false });
+app.get("/login", (req, res) => {
+  res.render("login", { message: null, layout: false });
 });
 
-app.post('/login', adminController.login);
-app.get('/forgot-password', (req, res) => {
-  res.render('forgot-password', { message: null, layout: false });
+app.post("/login", adminController.login);
+app.get("/forgot-password", (req, res) => {
+  res.render("forgot-password", { message: null, layout: false });
 });
-app.post('/forgot-password', adminController.forgotPassword);
-app.get('/reset-password', (req, res) => {
+app.post("/forgot-password", adminController.forgotPassword);
+app.get("/reset-password", (req, res) => {
   const token = req.query.token;
-  res.render('reset-password', { message: null, token, layout: false });
+  res.render("reset-password", { message: null, token, layout: false });
 });
-app.post('/reset-password', adminController.resetPassword);
-app.get('/logout', (req, res) => {
+app.post("/reset-password", adminController.resetPassword);
+app.get("/logout", (req, res) => {
   req.session.destroy((err) => {
     if (err) {
-      return res.status(500).json({ message: 'Failed to log out' });
+      return res.status(500).json({ message: "Failed to log out" });
     }
-    res.render('login', { message: null, layout: false });
+    res.render("login", { message: null, layout: false });
   });
 });
-// Generate a new set of VAPID keys (public and private) for Web Push notifications
-// These keys are needed to authenticate the server with push services (like Chrome, Firefox)
-// You typically run this ONCE and then save the keys in your backend config or .env file
-//const vapidKeys = webpush.generateVAPIDKeys();
-
-//console.log(vapidKeys); // Prints the generated public and private VAPID keys to the console
 
 // ======= Error Handlers =======
 app.use(notFoundHandler);
@@ -135,38 +196,41 @@ app.use(globalErrorHandler);
 (async () => {
   try {
     await sequelize.authenticate();
-    console.log('✅ Database connected');
+    console.log("✅ Database connected");
 
-    await sequelize.sync({ alter : true });
+    // Use force: false to avoid table alteration errors
+    // alter: true can cause issues with too many keys
+    await sequelize.sync({ alter: false });
 
     const PORT = process.env.PORT || 8080;
 
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port:${PORT}`);
     });
-    
-    console.log('Initializing user Bot...');
-userBot.launch()
-    .then(() => console.log('Admin Bot started successfully'))
-    .catch((err) => console.error('Error starting user Bot:', err));
-    
-console.log('Initializing Admin Bot...');
-adminBot.launch()
-   .then(() => console.log('Admin Bot started successfully'))
-   .catch((err) => console.error('Error starting Admin Bot:', err));
+
+    console.log("Initializing user Bot...");
+    userBot
+      .launch()
+      .then(() => console.log("Admin Bot started successfully"))
+      .catch((err) => console.error("Error starting user Bot:", err));
+
+    console.log("Initializing Admin Bot...");
+    adminBot
+      .launch()
+      .then(() => console.log("Admin Bot started successfully"))
+      .catch((err) => console.error("Error starting Admin Bot:", err));
 
     // ======= Graceful Shutdown =======
-    process.once('SIGINT', () => {
-      userBot.stop('SIGINT');
-      adminBot.stop('SIGINT');
+    process.once("SIGINT", () => {
+      userBot.stop("SIGINT");
+      adminBot.stop("SIGINT");
     });
 
-    process.once('SIGTERM', () => {
-      userBot.stop('SIGTERM');
-      adminBot.stop('SIGTERM');
+    process.once("SIGTERM", () => {
+      userBot.stop("SIGTERM");
+      adminBot.stop("SIGTERM");
     });
-
   } catch (error) {
-    console.error('❌ DB connection error:', error);
+    console.error("❌ DB connection error:", error);
   }
 })();

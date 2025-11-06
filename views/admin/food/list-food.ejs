@@ -1,233 +1,273 @@
+<div class="container mx-auto px-4 py-4">
+  <h1
+    class="text-3xl font-bold text-center mb-8 text-gray-800 flex justify-center items-center dark:text-white"
+  >
+    <i class="fas fa-cogs mr-3 text-blue-600"></i>
+    Food Management
+  </h1>
 
-  <div class="container mx-auto px-4 py-4">
-  <h1 class="text-3xl font-bold text-center mb-8 text-gray-800 flex justify-center items-center dark:text-white">
-      <i class="fas fa-cogs mr-3 text-blue-600"></i>
-      Food Management
-    </h1>
-
-    <!-- Search and Add -->
-    <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
-      <div class="relative w-full max-w-md">
-        <input id="searchInput" type="text" placeholder="Search foods..." class="w-full p-2 pl-10 pr-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:focus:ring-blue-500 dark:focus:border-blue-500">
-  <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-      </div>
-
-      <a href="/food/add" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition inline-flex items-center gap-2">
-        <i class="fas fa-plus"></i> Add
-      </a>
+  <!-- Search and Add -->
+  <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+    <div class="relative w-full max-w-md">
+      <input
+        id="searchInput"
+        type="text"
+        placeholder="Search foods..."
+        class="w-full p-2 pl-10 pr-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-900 dark:text-slate-200 dark:border-slate-700 dark:focus:ring-blue-500 dark:focus:border-blue-500"
+      />
+      <i
+        class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+      ></i>
     </div>
+
+    <a
+      href="/food/add"
+      class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition inline-flex items-center gap-2"
+    >
+      <i class="fas fa-plus"></i> Add
+    </a>
+  </div>
   <!-- Filters -->
-  <div class="mb-6 overflow-x-auto">
-    <div class="flex space-x-2 w-max">
-      
-<button id="availableFilterBtn" 
-                class="filter-btn whitespace-nowrap px-4 py-2 rounded text-white bg-green-500 hover:bg-green-600" 
-                data-filter="true">
-          Available
-        </button>
-        <button id="notAvailableFilterBtn" 
-                class="filter-btn whitespace-nowrap px-4 py-2 rounded text-white bg-pink-400 hover:bg-pink-500" 
-                data-filter="false">
-          Not Available
-        </button>
-      
+  <div
+    class="mb-6 w-full overflow-x-auto scrollbar-hide"
+    style="
+      scrollbar-width: thin;
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+      max-width: 100vw;
+      min-width: 0;
+    "
+  >
+    <div
+      class="inline-flex space-x-2 pb-2"
+      style="min-width: max-content; gap: 0.5rem"
+    >
+      <button
+        id="availableFilterBtn"
+        class="filter-btn whitespace-nowrap px-3 py-2 sm:px-4 rounded text-white bg-green-500 hover:bg-green-600 transition hover:opacity-90 flex-shrink-0 text-sm sm:text-base"
+        data-filter="true"
+      >
+        Available
+      </button>
+      <button
+        id="notAvailableFilterBtn"
+        class="filter-btn whitespace-nowrap px-3 py-2 sm:px-4 rounded text-white bg-pink-400 hover:bg-pink-500 transition hover:opacity-90 flex-shrink-0 text-sm sm:text-base"
+        data-filter="false"
+      >
+        Not Available
+      </button>
     </div>
   </div>
-    <!-- Food Cards -->
-    <div id="foodContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-    <div id="noResults" class="hidden text-center py-6 text-gray-500 dark:text-gray-300 bg-white dark:bg-gray-800">No results found.</div>
-    <!-- Pagination -->
-    <div class="mt-6 flex justify-center items-center space-x-2" id="paginationContainer"></div>
+  <!-- Food Cards -->
+  <div
+    id="foodContainer"
+    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+  ></div>
+  <div
+    id="noResults"
+    class="hidden text-center py-8 text-gray-500 dark:text-slate-400 bg-white dark:bg-slate-900 rounded-lg shadow-md"
+  >
+    <i class="fas fa-inbox text-4xl mb-3 text-gray-400 dark:text-slate-500"></i>
+    <p class="text-lg font-medium">No results found.</p>
+    <p class="text-sm mt-2 text-gray-400 dark:text-slate-500">
+      Try adjusting your search or filters.
+    </p>
   </div>
+  <!-- Pagination -->
+  <div
+    class="mt-6 flex justify-center items-center space-x-2"
+    id="paginationContainer"
+  ></div>
+</div>
 
-  <script>
-  const foods = <%- JSON.stringify(foods) %>; // Server-injected
-  const foodContainer = document.getElementById('foodContainer');
-  const searchInput = document.getElementById('searchInput');
-  const paginationContainer = document.getElementById('paginationContainer');
-  const noResults = document.getElementById('noResults');
-  const availableFilterBtn = document.getElementById('availableFilterBtn');
-  const notAvailableFilterBtn = document.getElementById('notAvailableFilterBtn');
-  const itemsPerPage = 3;
-  let currentPage = 1;
-  let currentFilter = null; // 'true', 'false', or null
+<script>
+    const foods = <%- JSON.stringify(foods) %>; // Server-injected
+    const foodContainer = document.getElementById('foodContainer');
+    const searchInput = document.getElementById('searchInput');
+    const paginationContainer = document.getElementById('paginationContainer');
+    const noResults = document.getElementById('noResults');
+    const availableFilterBtn = document.getElementById('availableFilterBtn');
+    const notAvailableFilterBtn = document.getElementById('notAvailableFilterBtn');
+    const itemsPerPage = 3;
+    let currentPage = 1;
+    let currentFilter = null; // 'true', 'false', or null
 
-  function renderFoods() {
-    const keyword = searchInput.value.toLowerCase();
+    function renderFoods() {
+      const keyword = searchInput.value.toLowerCase();
 
-    let filtered = foods.filter(f =>
-      f.name.toLowerCase().includes(keyword) ||
-      f.FoodCategory?.categoryName?.toLowerCase().includes(keyword)
-    );
-
-    if (currentFilter !== null) {
-      filtered = filtered.filter(f => String(f.isAvailable) === currentFilter);
-    }
-
-    const start = (currentPage - 1) * itemsPerPage;
-    const paginated = filtered.slice(start, start + itemsPerPage);
-
-    foodContainer.innerHTML = paginated.map(food => `
-  <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden transition">
-    <img src="${food.imageUrl || 'https://via.placeholder.com/400x250?text=No+Image'}" alt="${food.name}" class="w-full h-64 object-cover">
-    <div class="p-4">
-      <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-1">${food.name}</h2>
-      <p class="text-sm text-gray-500 dark:text-gray-300 mb-1">
-        <i class="fas fa-tag mr-1 text-blue-600 dark:text-blue-400"></i> 
-        ${food.FoodCategory?.categoryName || 'Uncategorized'}
-      </p>
-      <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">${food.description || 'No description available.'}</p>
-      <div class="flex justify-between items-center mb-2">
-        <span class="text-lg font-bold text-blue-600 dark:text-blue-400">
-          <i class="mr-1">ETB</i>${food.price.toFixed(2)}
-        </span>
-        <span class="px-2 py-1 text-xs rounded-full font-medium 
-          ${food.isAvailable 
-            ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' 
-            : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'}">
-          <i class="fas ${food.isAvailable ? 'fa-check-circle' : 'fa-times-circle'} mr-1"></i>
-          ${food.isAvailable ? 'Available' : 'Unavailable'}
-        </span>
-      </div>
-      <div class="flex justify-between mt-3">
-        <a href="/food/edit/${food.foodId}" class="text-yellow-500 dark:text-yellow-400 hover:underline font-medium inline-flex items-center gap-1">
-          <i class="fas fa-edit"></i> Edit
-        </a>
-        <form method="POST" class="delete-form inline" data-id="${food.foodId}" data-action="/api/food/delete">
-          <button type="button" class="open-delete-modal text-red-500 dark:text-red-400 hover:underline font-medium inline-flex items-center gap-1">
-            <i class="fas fa-trash-alt"></i> Delete
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-`).join('');
-
-
-    renderPagination(filtered.length);
-    noResults.classList.toggle('hidden', filtered.length > 0);
-  }
-
-  function renderPagination(totalItems) {
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
-    paginationContainer.innerHTML = '';
-    const maxVisiblePages = 5;
-    function createBtn(html, disabled, onClick, active = false) {
-          const btn = document.createElement('button');
-    
-    // Use innerText for plain text or innerHTML if you need HTML content inside the button
-    btn.innerHTML = html;
-
-    // Add basic styles and conditional styles
-    btn.classList.add('px-4', 'py-2', 'rounded-md', 'text-sm', 'border', 'transition');
-
-    // Light mode styles
-    if (disabled) {
-        btn.classList.add('bg-gray-300', 'cursor-not-allowed', 'text-gray-500');
-    } else if (active) {
-        btn.classList.add('bg-blue-500', 'text-white', 'font-bold', 'border-blue-500');
-    } else {
-        btn.classList.add('bg-white', 'text-gray-700', 'border-gray-300', 'hover:bg-blue-100');
-    }
-
-    // Dark mode styles
-    if (disabled) {
-        btn.classList.add('dark:bg-gray-600', 'dark:text-gray-400');
-    } else if (active) {
-        btn.classList.add('dark:bg-blue-600', 'dark:text-white', 'dark:border-blue-500');
-    } else {
-        btn.classList.add('dark:bg-gray-800', 'dark:text-gray-300', 'dark:border-gray-600', 'dark:hover:bg-blue-700');
-    }
-
-      
-      btn.disabled = disabled;
-
-    // If the button is not disabled, attach the onClick event listener
-    if (!disabled && onClick) {
-        btn.addEventListener('click', onClick);
-    }
-      return btn;
-    }
-
-    if (totalPages > 0) {
-      paginationContainer.appendChild(
-        createBtn('&laquo;', currentPage === 1, () => {
-          currentPage = 1;
-          renderFoods();
-        })
-      );
-      paginationContainer.appendChild(
-        createBtn('&lsaquo;', currentPage === 1, () => {
-          currentPage--;
-          renderFoods();
-        })
+      let filtered = foods.filter(f =>
+        f.name.toLowerCase().includes(keyword) ||
+        f.FoodCategory?.categoryName?.toLowerCase().includes(keyword)
       );
 
-      for (let i = 1; i <= totalPages; i++) {
-        paginationContainer.appendChild(
-          createBtn(i, false, () => {
-            currentPage = i;
-            renderFoods();
-          }, i === currentPage)
-        );
+      if (currentFilter !== null) {
+        filtered = filtered.filter(f => String(f.isAvailable) === currentFilter);
       }
 
-      paginationContainer.appendChild(
-        createBtn('&rsaquo;', currentPage === totalPages, () => {
-          currentPage++;
-          renderFoods();
-        })
-      );
-      paginationContainer.appendChild(
-        createBtn('&raquo;', currentPage === totalPages, () => {
-          currentPage = totalPages;
-          renderFoods();
-        })
-      );
+      const start = (currentPage - 1) * itemsPerPage;
+      const paginated = filtered.slice(start, start + itemsPerPage);
+
+      foodContainer.innerHTML = paginated.map(food => `
+    <div class="bg-white dark:bg-slate-900 shadow-md rounded-lg overflow-hidden transition">
+      <img src="${food.imageUrl || 'https://via.placeholder.com/400x250?text=No+Image'}" alt="${food.name}" class="w-full h-64 object-cover">
+      <div class="p-4">
+        <h2 class="text-xl font-semibold text-gray-800 dark:text-slate-100 mb-1">${food.name}</h2>
+        <p class="text-sm text-gray-500 dark:text-slate-400 mb-1">
+          <i class="fas fa-tag mr-1 text-blue-600 dark:text-blue-400"></i>
+          ${food.FoodCategory?.categoryName || 'Uncategorized'}
+        </p>
+        <p class="text-sm text-gray-600 dark:text-slate-400 mb-2">${food.description || 'No description available.'}</p>
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-lg font-bold text-blue-600 dark:text-blue-400">
+            <i class="mr-1">ETB</i>${food.price.toFixed(2)}
+          </span>
+          <span class="px-2 py-1 text-xs rounded-full font-medium
+            ${food.isAvailable
+              ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+              : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'}">
+            <i class="fas ${food.isAvailable ? 'fa-check-circle' : 'fa-times-circle'} mr-1"></i>
+            ${food.isAvailable ? 'Available' : 'Unavailable'}
+          </span>
+        </div>
+        <div class="flex justify-between mt-3">
+          <a href="/food/edit/${food.foodId}" class="text-yellow-500 dark:text-yellow-400 hover:underline font-medium inline-flex items-center gap-1">
+            <i class="fas fa-edit"></i> Edit
+          </a>
+          <form method="POST" class="delete-form inline" data-id="${food.foodId}" data-action="/api/food/delete">
+            <button type="button" class="open-delete-modal text-red-500 dark:text-red-400 hover:underline font-medium inline-flex items-center gap-1">
+              <i class="fas fa-trash-alt"></i> Delete
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+
+      renderPagination(filtered.length);
+      noResults.classList.toggle('hidden', filtered.length > 0);
     }
-  }
 
-  searchInput.addEventListener('input', () => {
-    currentPage = 1;
+    function renderPagination(totalItems) {
+      const totalPages = Math.ceil(totalItems / itemsPerPage);
+      paginationContainer.innerHTML = '';
+      const maxVisiblePages = 5;
+      function createBtn(html, disabled, onClick, active = false) {
+            const btn = document.createElement('button');
+
+      // Use innerText for plain text or innerHTML if you need HTML content inside the button
+      btn.innerHTML = html;
+
+      // Add basic styles and conditional styles
+      btn.classList.add('px-4', 'py-2', 'rounded-md', 'text-sm', 'border', 'transition');
+
+      // Light mode styles
+      if (disabled) {
+          btn.classList.add('bg-gray-300', 'cursor-not-allowed', 'text-gray-500');
+      } else if (active) {
+          btn.classList.add('bg-blue-500', 'text-white', 'font-bold', 'border-blue-500');
+      } else {
+          btn.classList.add('bg-white', 'text-gray-700', 'border-gray-300', 'hover:bg-blue-100');
+      }
+
+      // Dark mode styles
+      if (disabled) {
+          btn.classList.add('dark:bg-slate-700', 'dark:text-slate-400');
+      } else if (active) {
+          btn.classList.add('dark:bg-blue-600', 'dark:text-white', 'dark:border-blue-500');
+      } else {
+          btn.classList.add('dark:bg-slate-900', 'dark:text-slate-300', 'dark:border-slate-700', 'dark:hover:bg-blue-700');
+      }
+
+
+        btn.disabled = disabled;
+
+      // If the button is not disabled, attach the onClick event listener
+      if (!disabled && onClick) {
+          btn.addEventListener('click', onClick);
+      }
+        return btn;
+      }
+
+      if (totalPages > 0) {
+        paginationContainer.appendChild(
+          createBtn('&laquo;', currentPage === 1, () => {
+            currentPage = 1;
+            renderFoods();
+          })
+        );
+        paginationContainer.appendChild(
+          createBtn('&lsaquo;', currentPage === 1, () => {
+            currentPage--;
+            renderFoods();
+          })
+        );
+
+        for (let i = 1; i <= totalPages; i++) {
+          paginationContainer.appendChild(
+            createBtn(i, false, () => {
+              currentPage = i;
+              renderFoods();
+            }, i === currentPage)
+          );
+        }
+
+        paginationContainer.appendChild(
+          createBtn('&rsaquo;', currentPage === totalPages, () => {
+            currentPage++;
+            renderFoods();
+          })
+        );
+        paginationContainer.appendChild(
+          createBtn('&raquo;', currentPage === totalPages, () => {
+            currentPage = totalPages;
+            renderFoods();
+          })
+        );
+      }
+    }
+
+    searchInput.addEventListener('input', () => {
+      currentPage = 1;
+      renderFoods();
+    });
+
+    availableFilterBtn.addEventListener('click', () => {
+      notAvailableFilterBtn.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
+      availableFilterBtn.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
+      currentFilter = 'true';
+      currentPage = 1;
+      updateFilterButtons();
+      renderFoods();
+    });
+
+    notAvailableFilterBtn.addEventListener('click', () => {
+      availableFilterBtn.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
+      notAvailableFilterBtn.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
+      currentFilter = 'false';
+      currentPage = 1;
+      updateFilterButtons();
+      renderFoods();
+    });
+
+    function updateFilterButtons() {
+      availableFilterBtn.classList.toggle('bg-green-700', currentFilter === 'true');
+      notAvailableFilterBtn.classList.toggle('bg-pink-600', currentFilter === 'false');
+    }
+
+    // Optional: Add a "Clear Filter" button dynamically
+    const clearBtn = document.createElement('button');
+    clearBtn.textContent = 'Clear Filter';
+    clearBtn.className = 'whitespace-nowrap px-4 py-2 rounded text-gray-700 bg-gray-200 hover:bg-gray-300';
+    clearBtn.addEventListener('click', () => {
+      availableFilterBtn.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
+      notAvailableFilterBtn.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
+      currentFilter = null;
+      currentPage = 1;
+      updateFilterButtons();
+      renderFoods();
+    });
+    availableFilterBtn.parentNode.appendChild(clearBtn);
+
     renderFoods();
-  });
-
-  availableFilterBtn.addEventListener('click', () => {
-    notAvailableFilterBtn.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
-    availableFilterBtn.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
-    currentFilter = 'true';
-    currentPage = 1;
-    updateFilterButtons();
-    renderFoods();
-  });
-
-  notAvailableFilterBtn.addEventListener('click', () => {
-    availableFilterBtn.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
-    notAvailableFilterBtn.classList.add('ring-2', 'ring-offset-2', 'ring-blue-500');
-    currentFilter = 'false';
-    currentPage = 1;
-    updateFilterButtons();
-    renderFoods();
-  });
-
-  function updateFilterButtons() {
-    availableFilterBtn.classList.toggle('bg-green-700', currentFilter === 'true');
-    notAvailableFilterBtn.classList.toggle('bg-pink-600', currentFilter === 'false');
-  }
-
-  // Optional: Add a "Clear Filter" button dynamically
-  const clearBtn = document.createElement('button');
-  clearBtn.textContent = 'Clear Filter';
-  clearBtn.className = 'whitespace-nowrap px-4 py-2 rounded text-gray-700 bg-gray-200 hover:bg-gray-300';
-  clearBtn.addEventListener('click', () => {
-    availableFilterBtn.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
-    notAvailableFilterBtn.classList.remove('ring-2', 'ring-offset-2', 'ring-blue-500');
-    currentFilter = null;
-    currentPage = 1;
-    updateFilterButtons();
-    renderFoods();
-  });
-  availableFilterBtn.parentNode.appendChild(clearBtn);
-
-  renderFoods();
 </script>

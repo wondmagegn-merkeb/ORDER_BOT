@@ -58,7 +58,13 @@ exports.showEditOrderForm = async (req, res, next) => {
   try {
     const orderId = req.params.id;
 
-    const order = await getOrderById(orderId);
+    // Call getOrderById with res and next for proper error handling
+    const order = await getOrderById(orderId, res, next);
+    
+    // If order is null/undefined, it means error was already handled
+    if (!order) {
+      return;
+    }
 
     res.render('admin/order/update-order', { order, title: 'Update Order' });
   } catch (error) {

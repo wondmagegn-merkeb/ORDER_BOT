@@ -1,21 +1,25 @@
-const { User } = require('../../models');
-const { InternalServerError, NotFoundError } = require('../../utils/customError'); // Import custom NotFoundError
-const userValidationSchema = require('../../validators/userValidation');
-const { sendMessageToUser } = require('../../bots/userBot');
+const { User } = require("../../models");
+const {
+  InternalServerError,
+  NotFoundError,
+} = require("../../utils/customError"); // Import custom NotFoundError
+const userValidationSchema = require("../../validators/userValidation");
+const { sendMessageToUser } = require("../../bots/userBot");
 
 // Helper to generate user update message
 const generateUserUpdateMessage = (user) => {
-  const statusNote = user.status === 'block'
-    ? '⚠️ You are now <b>blocked</b> from accessing the system.'
-    : '✅ You are now <b>active</b> and can use the system.';
+  const statusNote =
+    user.status === "block"
+      ? "⚠️ You are now <b>blocked</b> from accessing the system."
+      : "✅ You are now <b>active</b> and can use the system.";
 
   return `
 <b>⚙️ User Updated!</b>
 
-<b>👤 Full Name:</b> ${user.fullName || 'Not provided'}
-<b>🆔 Username:</b> ${user.username || 'Not provided'}
-<b>🏷️ User Type:</b> ${user.userType || 'Not provided'}
-<b>📶 Status:</b> ${user.status || 'Not provided'}
+<b>👤 Full Name:</b> ${user.fullName || "Not provided"}
+<b>🆔 Username:</b> ${user.username || "Not provided"}
+<b>🏷️ User Type:</b> ${user.userType || "Not provided"}
+<b>📶 Status:</b> ${user.status || "Not provided"}
 
 ${statusNote}
   `;
@@ -27,7 +31,7 @@ exports.getAllUsers = async (req, res, next) => {
     const users = await User.findAll();
     return users;
   } catch (error) {
-    next(new InternalServerError('Failed to fetch users', error));  
+    next(new InternalServerError("Failed to fetch users", error));
   }
 };
 
@@ -36,18 +40,18 @@ exports.getUserById = async (userId, res, next) => {
   try {
     const user = await User.findByPk(userId);
     if (!user) {
-      throw new NotFoundError('User not found'); 
+      throw new NotFoundError("User not found");
     }
     return user;
   } catch (error) {
-    next(new InternalServerError('Failed to fetch user', error));  
+    next(new InternalServerError("Failed to fetch user", error));
   }
 };
 
 // ✅ Update user
 exports.updateUser = async (req, res, next) => {
   try {
-    req.body.status = req.body.status || 'block';
+    req.body.status = req.body.status || "block";
     const { status, userType } = req.body;
     const userId = req.params.id;
 
@@ -56,15 +60,15 @@ exports.updateUser = async (req, res, next) => {
 
     if (error) {
       res.locals.error = error.details[0].message;
-      return res.render('admin/user/update-user', {
-        title: 'Update User',
-        user: userData
+      return res.render("admin/user/update-user", {
+        title: "Update User",
+        user: userData,
       });
     }
 
     const user = await User.findByPk(userId);
     if (!user) {
-      throw new NotFoundError('User not found');  
+      throw new NotFoundError("User not found");
     }
 
     const statusChanged = user.status !== status;
@@ -79,13 +83,12 @@ exports.updateUser = async (req, res, next) => {
       await sendMessageToUser(user.telegramId, message);
     }
 
-    res.locals.success = 'User updated successfully!';
-    return res.render('admin/user/update-user', {
-      title: 'Update User',
+    res.locals.success = "User updated successfully!";
+    return res.render("admin/user/update-user", {
+      title: "Update User",
       user,
     });
-
   } catch (error) {
-    next(new InternalServerError('Failed to update user', error));  
+    next(new InternalServerError("Failed to update user", error));
   }
 };
